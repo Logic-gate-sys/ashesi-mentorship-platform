@@ -1,7 +1,5 @@
 import { execSync } from 'node:child_process';
-import { prisma } from '../../src/lib/prisma.ts';
-
-
+import { prisma } from '@/lib/db'
 export async function setup() {
   console.log('--- Preparing Test Environment ---');
   
@@ -9,7 +7,7 @@ export async function setup() {
     // sync db
     console.log('Syncing database schema...');
     execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
-    execSync('npx prisma generate')
+    execSync('npx prisma generate');
 
     await prisma.$connect();
     console.log('--- Test Environment Ready ---');
