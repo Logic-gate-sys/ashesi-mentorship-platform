@@ -1,26 +1,141 @@
-@import "tailwindcss";
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colors */
+  --sidebar-bg: #1C1C2E;              /* Near-black navy */
+  --sidebar-active-bg: #252540;       /* Active item background */
+  --sidebar-active-indicator: #FF6B2B; /* Orange left indicator */
+  
+  --card-bg: #FFFFFF;                 /* Card background */
+  --card-content-bg: #F2F3F7;         /* Content area background */
+  
+  --brand-orange: #FF6B2B;            /* CTA, Marketing tag */
+  --brand-yellow: #F5C518;            /* Computer Science tag */
+  --brand-purple: #9747FF;            /* Psychology tag */
+  
+  --tag-marketing-bg: var(--brand-orange);
+  --tag-marketing-text: #FFFFFF;
+  --tag-cs-bg: var(--brand-yellow);
+  --tag-cs-text: #FFFFFF;
+  --tag-psych-bg: var(--brand-purple);
+  --tag-psych-text: #FFFFFF;
+  
+  --text-link-accent: #E8503A;        /* "View all lessons" link */
+
+  /* Typography */
+  --font-heading: 'Syne', sans-serif;  /* Wordmark & headings */
+  --font-body: 'DM Sans', sans-serif;  /* Body/UI text */
+
+  /* Sizing */
+  --sidebar-width: 56px;
+  --radius-card: 14px;
+  --radius-btn: 10px;
+  --radius-tag: 6px;
+  --tag-height: 24px;
+  --progress-height: 5px;
+  --topbar-height: 60px;
+  --search-radius: 8px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* -----------------------------
+   Base Styles
+------------------------------- */
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  background-color: #F9FAFB; /* light neutral page bg */
+  color: #1F1F1F;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+a {
+  color: var(--text-link-accent);
+  text-decoration: none;
+}
+
+button, .btn {
+  border-radius: var(--radius-btn);
+  background-color: var(--brand-orange);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  padding: 0.5rem 1rem;
+  transition: background 0.2s;
+}
+
+button:hover, .btn:hover {
+  background-color: #FF5A1F; /* Slightly darker orange on hover */
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .item-active {
+  background-color: var(--sidebar-active-bg);
+  border-left: 4px solid var(--sidebar-active-indicator);
+}
+
+/* Card */
+.card {
+  background-color: var(--card-bg);
+  border-radius: var(--radius-card);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.card .content {
+  background-color: var(--card-content-bg);
+  padding: 1rem;
+}
+
+/* Category Tags */
+.tag {
+  height: var(--tag-height);
+  border-radius: var(--radius-tag);
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tag-marketing {
+  background-color: var(--tag-marketing-bg);
+  color: var(--tag-marketing-text);
+}
+
+.tag-cs {
+  background-color: var(--tag-cs-bg);
+  color: var(--tag-cs-text);
+}
+
+.tag-psych {
+  background-color: var(--tag-psych-bg);
+  color: var(--tag-psych-text);
+}
+
+/* Topbar */
+.topbar {
+  height: var(--topbar-height);
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E5E7EB; /* very subtle bottom border */
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+/* Search input */
+.search-input {
+  border-radius: var(--search-radius);
+  padding: 0.5rem 1rem;
+  border: 1px solid #D1D5DB;
+  width: 100%;
 }

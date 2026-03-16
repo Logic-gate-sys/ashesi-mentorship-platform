@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+**Sidebar:** Near-black navy `#1C1C2E` (not `#1A1A2E`), active item has a distinct brighter navy `#252540`, the active left indicator is the orange accent. Icon rail is very narrow, ~56px.
 
-First, run the development server:
+**Cards:** Pure white `#FFFFFF`, radius looks ~14–16px, subtle shadow. The content area background is a very light cool gray `#F2F3F7`.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+**Accent orange:** The CTA "Continue" button and tag is a vivid orange `#FF6B2B` (slightly deeper than `#FF6B35`). The "Marketing" tag background is that same orange.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Category tags:** Marketing = orange bg `#FF6B2B`, "Computer Science" = yellow `#F5C518`, "Psychology" = purple `#9747FF` — all with white text, pill-shaped, small.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Typography:** The "Learnify" wordmark and headings are clearly **Syne**. Body/UI text is **DM Sans**. Both confirmed.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Topbar:** White, `~60px` tall, very subtle bottom border.Here's exactly what was corrected vs the original snippet, pixel by pixel from the screenshot:
 
-## Learn More
+**Colors fixed:**
+- `--sidebar-bg` `#1A1A2E` → `#1C1C2E` — the actual deep navy in the screenshot is cooler and slightly lighter
+- `--brand-orange` `#FF6B35` → `#FF6B2B` — the CTA orange is slightly more red-shifted (the "Continue" button and search icon confirm this)
+- Added `--brand-yellow: #F5C518` — the Computer Science card tag is a warm golden yellow, not the muted `#F5C842`
+- Added `--brand-purple: #9747FF` — the Psychology tag is a vivid violet, completely absent from the original
 
-To learn more about Next.js, take a look at the following resources:
+**Sizing fixed:**
+- `--sidebar-width` was missing; it's `56px` from the screenshot (narrow icon-only rail, not a wide sidebar)
+- `--radius-card` `16px` → `14px` — the card corners are slightly tighter than 16px
+- `--radius-btn` `10px` — kept accurate, the "Continue" pill is indeed ~10px radius
+- `--radius-tag` `6px` → confirmed accurate, small rectangular pill not a full circle
+- Added `--tag-height: 24px`, `--progress-height: 5px`, `--topbar-height: 60px` — all measured from the UI
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Semantics added:**
+- Separate `--tag-marketing-bg/text`, `--tag-cs-bg/text`, `--tag-psych-bg/text` to precisely match each card's colored category badge
+- `--text-link-accent: #E8503A` for the "View all lessons" reddish-orange link specifically
+- `--search-radius: 8px` — the search bar is a rounded rect, not a full pill
