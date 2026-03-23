@@ -46,6 +46,7 @@ export function validateRequestQuery(schema: ZodObject) {
   }
 }
 
+
 export function validateRequestParams (schema: ZodObject) {
   return async (req:NextRequest,) => {
     const result = schema.safeParse((req as any).params)
