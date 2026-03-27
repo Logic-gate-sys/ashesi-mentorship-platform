@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import request from 'supertest';
 import { clearDatabase } from '../helpers/test-db-utils';
-import {prisma} from '@/app/_lib/db'; 
+import {prisma} from '@/app/_utils/db'; 
 
 
 const BASE_URL = 'http://localhost:3000';

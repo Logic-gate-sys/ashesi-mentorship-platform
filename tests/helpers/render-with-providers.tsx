@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
-import { AuthProvider } from '@/app/_lib/auth-context';
+import { AuthProvider } from '@/app/_lib/context/auth-context';
 
 /**
  * Custom render function that includes common providers

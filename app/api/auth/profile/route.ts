@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyJWT } from '@/app/_lib/jwt';
-import { prisma } from '@/app/_lib/db';
+import { verifyJWT } from '@/app/_utils/jwt';
+import { prisma } from '@/app/_utils/db';
 import { updateProfileSchema } from '@/app/_schemas/auth.schema';
 import { ZodError } from 'zod';
 
@@ -20,7 +20,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const token = authHeader.slice(7);
-    const payload = verifyJWT(token);
+    const payload = await verifyJWT(token);
 
     if (!payload) {
       return NextResponse.json(

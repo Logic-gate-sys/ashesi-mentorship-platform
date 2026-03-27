@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/app/_lib/db';
-import { createJWT } from '@/app/_lib/jwt';
-import { hashPassword } from '@/app/_lib/password';
+import { prisma } from '@/app/_utils/db';
+import { createJWT } from '@/app/_utils/jwt';
+import { hashPassword } from '@/app/_utils/password';
 import { alumniRegisterSchema } from '@/app/_schemas/auth.schema';
 import { ZodError } from 'zod';
 

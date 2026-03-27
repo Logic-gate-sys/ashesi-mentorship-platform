@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { cookies }  from 'next/headers'
 import AppShell from '../_components/layout/Appshell';
-import { decodeJWT } from '../_lib/jwt';
+import { decodeJWT } from '../_utils/jwt';
 
 
 
@@ -25,7 +25,7 @@ const initials = 'JL'
 
   return (
     <AppShell
-      role={role === 'ADMIN' ? 'ALUMNI' : role}
+      role={role}
       name={"Jane"}
       initials={initials}
     >

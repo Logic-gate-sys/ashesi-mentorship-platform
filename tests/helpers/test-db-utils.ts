@@ -1,4 +1,4 @@
-import {prisma} from '@/app/_lib/db'; 
+import {prisma} from '@/app/_utils/db'; 
 
 /**
  * Clear all tables in the database (for test isolation)
@@ -31,8 +31,9 @@ export async function createTestUser(data = {}) {
   return prisma.user.create({
     data: {
       email: `test-${Date.now()}@example.com`,
-      password: 'hashed_password',
-      name: 'Test User',
+      firstName: 'Test',
+      lastName: 'User',
+      passwordHash: '$2b$12$abc123', // dummy hash for tests
       role: 'STUDENT',
       ...data,
     },
@@ -47,8 +48,10 @@ export async function createTestAlumni(userId: string, data = {}) {
     data: {
       userId,
       graduationYear: 2020,
+      major: 'Computer Science',
       company: 'Test Company',
-      position: 'Software Engineer',
+      jobTitle: 'Software Engineer',
+      industry: 'TECHNOLOGY',
       bio: 'Test bio',
       ...data,
     },
@@ -62,7 +65,7 @@ export async function createTestStudent(userId: string, data = {}) {
   return prisma.studentProfile.create({
     data: {
       userId,
-      year: 1,
+      yearGroup: 1,
       major: 'Computer Science',
       ...data,
     },

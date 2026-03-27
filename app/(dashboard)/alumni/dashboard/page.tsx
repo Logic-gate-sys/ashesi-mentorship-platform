@@ -150,7 +150,7 @@ export default async function AlumniDashboardPage() {
           />
 
           <div className="flex flex-col gap-3">
-            {incomingRequests.map((r: Request) => {
+            {incomingRequests.map((r) => {
               const s = statusStyles[r.status]
               return (
                 <div key={r.id} className="card p-4 flex flex-col gap-3">

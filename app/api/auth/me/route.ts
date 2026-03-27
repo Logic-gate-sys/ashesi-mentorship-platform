@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyJWT } from '@/app/_lib/jwt';
-import { prisma } from '@/app/_lib/db';
+import { verifyJWT } from '@/app/_utils/jwt';
+import { prisma } from '@/app/_utils/db';
 
-/**
- * GET /api/auth/me
- * Get current authenticated user
- */
+
 export async function GET(request: NextRequest) {
   try {
-    // Get token from Authorization header
     const authHeader = request.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json(
@@ -17,8 +13,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const token = authHeader.slice(7); // Remove "Bearer " prefix
-    const payload = verifyJWT(token);
+    const token = authHeader.slice(7); 
+    // const token = authHeader.split('.')[1]; 
+    const payload = await verifyJWT(token);
 
     if (!payload) {
       return NextResponse.json(

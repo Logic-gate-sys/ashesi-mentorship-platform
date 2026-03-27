@@ -1,4 +1,3 @@
-import { env as loadEnv} from "custom-env";
 import {z } from 'zod';
 
 //determine app stage
@@ -7,11 +6,7 @@ const isProduction = process.env.APP_STAGE === 'production';
 const isTesting = process.env.APP_STAGE === 'test';
 const isDevelopment = process.env.APP_STAGE === 'dev';
 
-if (isDevelopment) {
-   loadEnv()
-} else if (isTesting) {
-    loadEnv('test');
-}
+// Note: Next.js automatically loads .env files, no need for custom-env
 
 export const envSchema = z.object({
   NODE_ENV: z.enum(['production', 'development', 'test']).default('development'),

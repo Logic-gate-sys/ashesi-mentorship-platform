@@ -3,32 +3,91 @@ import { z } from 'zod';
 const CURRENT_YEAR = new Date().getFullYear();
 
 // ============================================
+// VALIDATION HELPER FUNCTIONS
+// ============================================
+
+/**
+ * Validate name: must start with letter, contain only letters/hyphens, max 64 chars
+ * Examples: "Mary", "Jean-Paul", "O'Brien" (apostrophe not supported to simplify)
+ */
+const validateName = (name: string) => {
+  // Only letters, hyphens, and spaces allowed
+  const nameRegex = /^[a-zA-Z]([a-zA-Z\s'-]*[a-zA-Z])?$/;
+  return nameRegex.test(name.trim());
+};
+
+/**
+ * Password strength validator
+ * Requirements:
+ * - At least 8 characters
+ * - At least 1 uppercase letter
+ * - At least 1 lowercase letter
+ * - At least 1 number
+ * - At least 1 special character (!@#$%^&*-_=+)
+ */
+const validateStrongPassword = (password: string) => {
+  const hasMinLength = password.length >= 8;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSpecialChar = /[!@#$%^&*\-_=+]/.test(password);
+
+  return {
+    isValid: hasMinLength && hasUppercase && hasLowercase && hasNumber && hasSpecialChar,
+    requirements: {
+      minLength: hasMinLength,
+      uppercase: hasUppercase,
+      lowercase: hasLowercase,
+      number: hasNumber,
+      specialChar: hasSpecialChar,
+    },
+  };
+};
+
+// ============================================
 // STUDENT REGISTRATION SCHEMA
 // ============================================
 export const studentRegisterSchema = z
   .object({
-    firstName: z.string().min(2, "First name must be at least 2 characters").max(64).trim(),
-    lastName: z.string().min(2, "Last name must be at least 2 characters").max(64).trim(),
+    firstName: z
+      .string()
+      .min(1, "First name is required")
+      .max(64, "First name must be less than 64 characters")
+      .trim()
+      .refine(validateName, "First name must only contain letters, hyphens, and spaces"),
+    lastName: z
+      .string()
+      .min(1, "Last name is required")
+      .max(64, "Last name must be less than 64 characters")
+      .trim()
+      .refine(validateName, "Last name must only contain letters, hyphens, and spaces"),
     email: z
       .string()
-      .email("Invalid email address")
-      .regex(/@ashesi\.edu\.gh$/i, "Must be an @ashesi.edu.gh email"),
+      .min(1, "Email is required")
+      .email("Invalid email format")
+      .regex(/@ashesi\.edu\.gh$/i, "Must use your @ashesi.edu.gh email address"),
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters")
-      .max(72, "Password must be less than 72 characters"),
-    confirm: z.string(),
-    year: z.coerce
-      .number({ invalid_type_error: "Year must be a valid number" })
-      .int()
-      .min(1, "Must be year 1-4")
-      .max(4, "Must be year 1-4"),
-    major: z.string().min(2, "Major is required").max(100).trim(),
+      .min(1, "Password is required")
+      .max(72, "Password must be less than 72 characters")
+      .refine(
+        (pwd) => validateStrongPassword(pwd).isValid,
+        "Password must contain: uppercase, lowercase, number, and special character (!@#$%^&*-_=+)"
+      ),
+    confirm: z.string().min(1, "Please confirm your password"),
+    year: z.preprocess(
+      (val) => (typeof val === 'string' ? parseInt(val, 10) : val),
+      z.number().int("Year must be a whole number").min(1, "Must be year 1, 2, 3, or 4").max(4, "Must be year 1, 2, 3, or 4")
+    ),
+    major: z.string().min(1, "Major is required").max(100).trim(),
   })
   .refine((data) => data.password === data.confirm, {
     message: "Passwords don't match",
     path: ["confirm"],
   });
+
+// Export helper for password strength checking in UI
+export { validateStrongPassword };
 
 export type StudentRegisterInput = z.infer<typeof studentRegisterSchema>;
 
@@ -37,28 +96,37 @@ export type StudentRegisterInput = z.infer<typeof studentRegisterSchema>;
 // ============================================
 export const alumniRegisterSchema = z
   .object({
-    firstName: z.string().min(2, "First name must be at least 2 characters").max(64).trim(),
-    lastName: z.string().min(2, "Last name must be at least 2 characters").max(64).trim(),
+    firstName: z
+      .string()
+      .min(1, "First name is required")
+      .max(64, "First name must be less than 64 characters")
+      .trim()
+      .refine(validateName, "First name must only contain letters, hyphens, and spaces"),
+    lastName: z
+      .string()
+      .min(1, "Last name is required")
+      .max(64, "Last name must be less than 64 characters")
+      .trim()
+      .refine(validateName, "Last name must only contain letters, hyphens, and spaces"),
     email: z
       .string()
-      .email("Invalid email address")
-      .regex(/@ashesi\.edu\.gh$/i, "Must be an @ashesi.edu.gh email"),
+      .min(1, "Email is required")
+      .email("Invalid email format")
+      .regex(/@ashesi\.edu\.gh$/i, "Must use your @ashesi.edu.gh email address"),
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters")
-      .max(72, "Password must be less than 72 characters"),
-    confirm: z.string(),
-    graduationYear: z.coerce
-      .number({ invalid_type_error: "Enter a valid year" })
-      .int()
-      .min(2002, "Ashesi was founded in 2002")
-      .max(CURRENT_YEAR, "Graduation year cannot be in the future"),
-    major: z.string().min(2, "Major is required").max(100).trim(),
-    company: z.string().min(2, "Company name is required").max(100).trim(),
-    jobTitle: z.string().min(2, "Job title is required").max(100).trim(),
-    industry: z.enum(["TECHNOLOGY", "FINANCE", "CONSULTING", "HEALTHCARE", "EDUCATION", "ENGINEERING", "OTHER"], {
-      errorMap: () => ({ message: "Select a valid industry" }),
-    }),
+      .min(1, "Password is required")
+      .max(72, "Password must be less than 72 characters")
+      .refine(
+        (pwd) => validateStrongPassword(pwd).isValid,
+        "Password must contain: uppercase, lowercase, number, and special character (!@#$%^&*-_=+)"
+      ),
+    confirm: z.string().min(1, "Please confirm your password"),
+    graduationYear: z.number().int("Graduation year must be a whole number").min(2002, "Ashesi was founded in 2002").max(CURRENT_YEAR, "Graduation year cannot be in the future"),
+    major: z.string().min(1, "Major is required").max(100).trim(),
+    company: z.string().min(1, "Company name is required").max(100).trim(),
+    jobTitle: z.string().min(1, "Job title is required").max(100).trim(),
+    industry: z.enum(["TECHNOLOGY", "FINANCE", "CONSULTING", "HEALTHCARE", "EDUCATION", "ENGINEERING", "OTHER"]),
   })
   .refine((data) => data.password === data.confirm, {
     message: "Passwords don't match",

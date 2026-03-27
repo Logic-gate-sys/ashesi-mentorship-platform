@@ -1,5 +1,5 @@
 import { afterEach } from "vitest";
-import { prisma } from '@/app/_lib/db'
+import { prisma } from '@/app/_utils/db'
 
 afterEach(async () => {
   try {
@@ -16,6 +16,7 @@ afterEach(async () => {
     await prisma.user.deleteMany(); 
 
   } catch (err) {
-    console.warn("Cleanup warning (safe to ignore if first run):", err.message);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.warn("Cleanup warning (safe to ignore if first run):", errorMessage);
   }
 });

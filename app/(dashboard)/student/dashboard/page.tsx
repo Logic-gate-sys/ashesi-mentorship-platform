@@ -143,17 +143,17 @@ const pendingRequests: Request[] = [
 // ── Helpers ───────────────────────────────────────────────────
 
 const industryStyles: Record<string, { bg: string; text: string }> = {
-  orange: { bg: 'bg-brand/10',        text: 'text-brand'         },
-  yellow: { bg: 'bg-tag-yellow/15',   text: 'text-[#7A5500]'     },
-  purple: { bg: 'bg-tag-purple/10',   text: 'text-tag-purple'    },
-  green:  { bg: 'bg-[#E8F5F0]',       text: 'text-[#0C5C3E]'     },
-  blue:   { bg: 'bg-[#EDF3FB]',       text: 'text-[#1A4A8B]'     },
+  orange: { bg: 'bg-accent/10',       text: 'text-accent'       },
+  yellow: { bg: 'bg-warning/10',      text: 'text-warning'      },
+  purple: { bg: 'bg-primary-light/10',text: 'text-primary-light'},
+  green:  { bg: 'bg-success/10',      text: 'text-success'      },
+  blue:   { bg: 'bg-info/10',         text: 'text-info'         },
 }
 
 const statusStyles = {
-  PENDING:  { bg: 'bg-tag-yellow/15', text: 'text-[#7A5500]',  dot: 'bg-tag-yellow'  },
-  ACCEPTED: { bg: 'bg-[#E8F5F0]',     text: 'text-[#0C5C3E]', dot: 'bg-[#0C5C3E]'   },
-  DECLINED: { bg: 'bg-red-50',        text: 'text-red-500',    dot: 'bg-red-400'      },
+  PENDING:  { bg: 'bg-warning/10',    text: 'text-warning',    dot: 'bg-warning'   },
+  ACCEPTED: { bg: 'bg-success/10',    text: 'text-success',   dot: 'bg-success'  },
+  DECLINED: { bg: 'bg-danger/10',     text: 'text-danger',     dot: 'bg-danger'     },
 }
 
 // ── Sub-components ────────────────────────────────────────────
@@ -169,12 +169,12 @@ function SectionHeader({
 }) {
   return (
     <div className="flex items-center justify-between mb-4">
-      <h2 className="font-display font-bold text-[18px] text-text tracking-tight">
+      <h2 className="font-display font-bold text-[18px] text-primary tracking-tight">
         {title}
       </h2>
       <Link
         href={href}
-        className="font-body text-[13px] font-medium text-brand hover:opacity-80 transition-opacity"
+        className="font-body text-[13px] font-medium text-primary hover:opacity-80 transition-opacity"
       >
         {linkLabel}
       </Link>
@@ -203,10 +203,10 @@ function MentorCard({ m }: { m: Mentor }) {
       {/* Body */}
       <div className="p-4 flex flex-col gap-3 flex-1">
         <div>
-          <p className="font-display font-bold text-[15px] text-text tracking-tight leading-tight">
+          <p className="font-display font-bold text-[15px] text-primary tracking-tight leading-tight">
             {m.name}
           </p>
-          <p className="font-body text-[12px] text-text-muted mt-0.5">
+          <p className="font-body text-[12px] text-muted mt-0.5">
             {m.role} · {m.company}
           </p>
         </div>
@@ -214,8 +214,8 @@ function MentorCard({ m }: { m: Mentor }) {
         {/* Progress */}
         <div>
           <div className="flex justify-between mb-1.5">
-            <span className="font-body text-[11px] text-text-muted">Progress</span>
-            <span className="font-body text-[11px] font-semibold text-text-sub">
+            <span className="font-body text-[11px] text-muted">Progress</span>
+            <span className="font-body text-[11px] font-semibold text-secondary">
               {m.sessions}/{m.total} sessions
             </span>
           </div>
@@ -257,10 +257,10 @@ export default async function StudentDashboardPage() {
       {/* ── Page header ──────────────────────────────── */}
       <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
         <div>
-          <h1 className="font-display font-bold text-[26px] text-text tracking-tight">
+          <h1 className="font-display font-bold text-[26px] text-primary tracking-tight">
             My mentors
           </h1>
-          <p className="font-body text-[14px] text-text-muted mt-1">
+          <p className="font-body text-[14px] text-muted mt-1">
             Welcome back, {firstName} 👋
           </p>
         </div>
@@ -275,7 +275,7 @@ export default async function StudentDashboardPage() {
                 border transition-colors duration-150
                 ${i === 0
                   ? 'bg-brand text-white border-brand shadow-[0_2px_8px_rgba(255,107,43,0.28)]'
-                  : 'bg-surface text-text-sub border-border hover:border-brand hover:text-brand'}
+                  : 'bg-white text-secondary border-border hover:border-primary hover:text-primary'}
               `}
             >
               {tab}
@@ -329,10 +329,10 @@ export default async function StudentDashboardPage() {
               >
                 {/* Title + subtitle */}
                 <div>
-                  <p className="font-body text-[13px] font-medium text-text leading-tight">
+                  <p className="font-body text-[13px] font-medium text-primary leading-tight">
                     {s.title}
                   </p>
-                  <p className="font-body text-[11px] text-text-muted mt-0.5">
+                  <p className="font-body text-[11px] text-muted mt-0.5">
                     {s.subtitle}
                   </p>
                 </div>
@@ -345,13 +345,13 @@ export default async function StudentDashboardPage() {
                   >
                     {s.initials}
                   </div>
-                  <span className="font-body text-[12px] text-text-sub truncate">
+                  <span className="font-body text-[12px] text-secondary truncate">
                     {s.mentor}
                   </span>
                 </div>
 
                 {/* Duration */}
-                <span className="font-body text-[12px] text-text-muted text-right">
+                <span className="font-body text-[12px] text-muted text-right">
                   {s.duration}
                 </span>
               </Link>
@@ -383,7 +383,7 @@ export default async function StudentDashboardPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="font-body text-[13px] font-semibold text-text">
+                          <p className="font-body text-[13px] font-semibold text-primary">
                             {r.mentor}
                           </p>
                           <span className={`inline-flex items-center gap-1.5 h-5 px-2 rounded-full text-[10px] font-semibold font-body ${s.bg} ${s.text}`}>
@@ -391,10 +391,10 @@ export default async function StudentDashboardPage() {
                             {r.status.charAt(0) + r.status.slice(1).toLowerCase()}
                           </span>
                         </div>
-                        <p className="font-body text-[12px] text-text-muted mt-1 leading-snug truncate">
+                        <p className="font-body text-[12px] text-muted mt-1 leading-snug truncate">
                           {r.goal}
                         </p>
-                        <p className="font-body text-[11px] text-text-muted mt-1">
+                        <p className="font-body text-[11px] text-muted mt-1">
                           {r.date}
                         </p>
                       </div>
