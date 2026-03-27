@@ -116,7 +116,7 @@ export default function LoginPage() {
           size="lg"
           full
           loading={isLoading}
-          className="mt-6"
+          className="mt-6 text-red-900"
         >
           Log in
         </Button>

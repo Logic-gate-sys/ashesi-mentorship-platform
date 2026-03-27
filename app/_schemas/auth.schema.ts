@@ -49,6 +49,7 @@ const validateStrongPassword = (password: string) => {
 // ============================================
 export const studentRegisterSchema = z
   .object({
+    // Step 1: Personal Info
     firstName: z
       .string()
       .min(1, "First name is required")
@@ -66,6 +67,15 @@ export const studentRegisterSchema = z
       .min(1, "Email is required")
       .email("Invalid email format")
       .regex(/@ashesi\.edu\.gh$/i, "Must use your @ashesi.edu.gh email address"),
+    
+    // Step 2: Profile
+    major: z.string().min(1, "Major is required").max(100).trim(),
+    year: z.preprocess(
+      (val) => (typeof val === 'string' ? parseInt(val, 10) : val),
+      z.number().int("Year must be a whole number").min(1, "Must be year 1, 2, 3, or 4").max(4, "Must be year 1, 2, 3, or 4")
+    ),
+
+    // Step 3: Auth Requirements
     password: z
       .string()
       .min(1, "Password is required")
@@ -75,11 +85,24 @@ export const studentRegisterSchema = z
         "Password must contain: uppercase, lowercase, number, and special character (!@#$%^&*-_=+)"
       ),
     confirm: z.string().min(1, "Please confirm your password"),
-    year: z.preprocess(
-      (val) => (typeof val === 'string' ? parseInt(val, 10) : val),
-      z.number().int("Year must be a whole number").min(1, "Must be year 1, 2, 3, or 4").max(4, "Must be year 1, 2, 3, or 4")
-    ),
-    major: z.string().min(1, "Major is required").max(100).trim(),
+
+    // Step 4: Skills & Interests
+    interests: z
+      .array(z.string().trim().min(1, "Interest cannot be empty").max(50))
+      .min(1, "Add at least one interest")
+      .max(10, "Maximum 10 interests allowed"),
+
+    // Step 5: Social & Professional Links
+    bio: z
+      .string()
+      .max(500, "Bio must be less than 500 characters")
+      .optional()
+      .transform(val => val?.trim() || null),
+    linkedin: z
+      .string()
+      .url("Invalid LinkedIn URL")
+      .optional()
+      .transform(val => val?.trim() || null),
   })
   .refine((data) => data.password === data.confirm, {
     message: "Passwords don't match",
