@@ -1,5 +1,8 @@
 import { execSync } from 'node:child_process';
-import { prisma } from '@/lib/db'
+import { prisma } from '@/app/_lib/db';
+
+
+
 export async function setup() {
   console.log('--- Preparing Test Environment ---');
   

@@ -9,15 +9,15 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="min-h-screen flex bg-page font-body">
 
-      <div className="hidden lg:flex w-[420px] shrink-0 bg-sidebar flex-col justify-between px-12 py-12 relative overflow-hidden">
+      <div className="hidden lg:flex w-105 shrink-0 bg-red-900 flex-col justify-between px-12 py-12 relative overflow-hidden">
 
         {/* Decorative rings */}
-        <div className="absolute -top-28 -right-28 w-[360px] h-[360px] rounded-full border border-brand/10 pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-[280px] h-[280px] rounded-full bg-brand/8 blur-[60px] pointer-events-none" />
+        <div className="absolute -top-28 -right-28 w-90 h-90 rounded-full border border-brand/10 pointer-events-none" />
+        <div className="absolute -bottom-20 -left-20 w-70 h-70 rounded-full bg-brand/8 blur-[60px] pointer-events-none" />
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 w-fit">
-          <div className="w-9 h-9 bg-brand rounded-[10px] flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 bg-orange-800 rounded-btn flex items-center justify-center shrink-0">
             <span className="font-display font-extrabold text-white text-base leading-none">A</span>
           </div>
           <div>

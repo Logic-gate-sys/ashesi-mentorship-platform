@@ -6,7 +6,6 @@ const stats = [
   { value: '94%',    label: 'Career success rate'   },
   { value: '4.9★',   label: 'Average mentor rating' },
 ]
-
 export function Hero(){
     return (
          <section className="bg-sidebar px-10 pt-24 pb-20 relative overflow-hidden">

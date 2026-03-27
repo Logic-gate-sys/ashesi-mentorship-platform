@@ -1,40 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Input } from '@/app/_components/ui/Input'
-import { Button } from '@/app/_components/ui/Button'
-
-// ── Schema ────────────────────────────────────────────────────
-
-const CURRENT_YEAR = new Date().getFullYear()
-
-const studentRegisterSchema = z.object({
-  firstName: z.string().min(2, 'First name must be at least 2 characters').max(64).trim(),
-  lastName:  z.string().min(2, 'Last name must be at least 2 characters').max(64).trim(),
-  email:     z
-    .string()
-    .email('Invalid email address')
-    .regex(/@ashesi\.edu\.gh$/i, 'Must be an @ashesi.edu.gh email'),
-  yearGroup: z.coerce
-    .number({ invalid_type_error: 'Enter a valid year' })
-    .int()
-    .min(2002, 'Year group cannot be before 2002')
-    .max(CURRENT_YEAR + 4, 'Year group is too far ahead'),
-  major:    z.string().min(2, 'Select your major').max(100),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .max(72),
-  confirm: z.string(),
-}).refine(d => d.password === d.confirm, {
-  message: 'Passwords do not match',
-  path:    ['confirm'],
-})
+import { Input, Button } from '@/app/_components/ui/_index'
+import { useAuth } from '@/app/_lib/auth-context'
+import { studentRegisterSchema } from '@/app/_schemas/auth.schema'
 
 type StudentRegisterInput = z.infer<typeof studentRegisterSchema>
 
@@ -94,7 +67,7 @@ function Steps({ current }: { current: 1 | 2 }) {
 // ── Page ──────────────────────────────────────────────────────
 
 export default function StudentRegisterPage() {
-  const router = useRouter()
+  const { registerStudent, isLoading } = useAuth()
   const [step,         setStep]         = useState<1 | 2>(1)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm,  setShowConfirm]  = useState(false)
@@ -104,7 +77,7 @@ export default function StudentRegisterPage() {
     register,
     handleSubmit,
     trigger,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<StudentRegisterInput>({
     resolver: zodResolver(studentRegisterSchema),
     mode:     'onTouched',
@@ -119,22 +92,17 @@ export default function StudentRegisterPage() {
   const onSubmit = async (data: StudentRegisterInput) => {
     setServerError(null)
     try {
-      const res = await fetch('/api/auth/register', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ ...data, role: 'STUDENT' }),
+      await registerStudent({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password,
+        confirm: data.confirm,
+        year: data.year,
+        major: data.major,
       })
-
-      const json = await res.json()
-
-      if (!res.ok) {
-        setServerError(json.message ?? 'Something went wrong. Please try again.')
-        return
-      }
-
-      router.push('/student/dashboard')
-    } catch {
-      setServerError('Network error. Please check your connection.')
+    } catch (error) {
+      setServerError(error instanceof Error ? error.message : 'Registration failed')
     }
   }
 
@@ -257,13 +225,13 @@ export default function StudentRegisterPage() {
             </div>
 
             <Input
-              id="yearGroup"
+              id="year"
               type="number"
               label="Year group"
-              placeholder={String(CURRENT_YEAR)}
-              hint="The year you started at Ashesi"
-              error={errors.yearGroup?.message}
-              {...register('yearGroup')}
+              placeholder="1"
+              hint="Your current year at Ashesi (1-4)"
+              error={errors.year?.message}
+              {...register('year')}
             />
 
             <Input
@@ -324,7 +292,7 @@ export default function StudentRegisterPage() {
                 variant="primary"
                 size="lg"
                 full
-                loading={isSubmitting}
+                loading={isLoading}
               >
                 Create account
               </Button>

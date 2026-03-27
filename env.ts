@@ -58,4 +58,3 @@ export const isTest = () => env.APP_STAGE === 'test';
 
 // export env 
 export { env };
-export default env;

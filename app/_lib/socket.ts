@@ -18,7 +18,7 @@ export const initSocket = (server: HttpServer) => {
   return io;
 };
 
-export const emitUpdate = (room: string, event: string, data: any) => {
+export const emitUpdate = <T extends object>(room: string, event: string, data: T) => {
   if (io) {
     io.to(room).emit(event, data);
   }

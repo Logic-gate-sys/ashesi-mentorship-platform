@@ -2,42 +2,33 @@
 @import "tailwindcss";
 
 @theme {
-  /* ── Fonts ──────────────────────────────────────── */
   --font-display: "Syne", sans-serif;
   --font-body:    "DM Sans", sans-serif;
 
-  /* ── Brand ──────────────────────────────────────── */
-  --color-brand:        #FF6B2B;   /* primary CTA, active icon, Marketing tag */
+  --color-brand:        #FF6B2B;   
   --color-brand-hover:  #F55A18;
-  --color-tag-orange:   #FF6B2B;   /* Marketing     */
-  --color-tag-yellow:   #F5C518;   /* Computer Sci  */
-  --color-tag-purple:   #9747FF;   /* Psychology    */
-
-  /* ── Sidebar ────────────────────────────────────── */
+  --color-tag-orange:   #FF6B2B;   
+  --color-tag-yellow:   #F5C518;   
+  --color-tag-purple:   #9747FF;   
+  --color-ashesi-maroon:#7F1D1D;
   --color-sidebar:      #1C1C2E;
-
-  /* ── Surfaces ───────────────────────────────────── */
   --color-page:         #F4F5F9;
   --color-surface:      #FFFFFF;
   --color-dark-card:    #2D2D3F;   
 
-  /* ── Border ─────────────────────────────────────── */
   --color-border:       #ECEDF2;
 
-  /* ── Text ───────────────────────────────────────── */
   --color-text:         #111827;
   --color-text-sub:     #4B5563;
   --color-text-muted:   #9CA3AF;
   --color-text-link:    #E8503A;  
 
-  /* ── Radius ─────────────────────────────────────── */
   --radius-card:  14px;
   --radius-btn:   10px;
   --radius-tag:    6px;
   --radius-input:  8px;
   --radius-full: 9999px;
 
-  /* ── Shadow ─────────────────────────────────────── */
   --shadow-card:  0 2px 8px rgba(16, 20, 40, 0.06);
   --shadow-btn:   0 2px 8px rgba(255, 107, 43, 0.32);
   --shadow-focus: 0 0 0 3px rgba(255, 107, 43, 0.22);
@@ -96,7 +87,7 @@
     color: #fff;
     box-shadow: var(--shadow-btn);
   }
-  .btn-primary:hover { background-color: var(--color-brand-hover); }
+  .btn-primary:hover { background-color: var(--color-ashesi-maroon); }
 
   .btn-ghost {
     background-color: transparent;
@@ -151,7 +142,9 @@
 }
 
 @utility scrollbar-hidden {
-  &::-webkit-scrollbar { display: none; }
+  &::-webkit-scrollbar {
+     display: none; 
+    }
   -ms-overflow-style: none;
   scrollbar-width: none;
 }

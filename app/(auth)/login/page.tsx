@@ -1,20 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Input } from '@/app/_components/ui/Input';
-import { Button } from '@/app/_components/ui/Button';
-
-// ── Schema ────────────────────────────────────────────────────
-
-const loginSchema = z.object({
-  email:    z.string().email('Invalid email').regex(/@ashesi\.edu\.gh$/i, 'Must be an @ashesi.edu.gh email'),
-  password: z.string().min(1, 'Password is required'),
-})
+import {Input, Button } from '@/app/_components/ui/_index'
+import { useAuth } from '@/app/_lib/auth-context'
+import { loginSchema } from '@/app/_schemas/auth.schema'
 
 type LoginInput = z.infer<typeof loginSchema>
 
@@ -38,43 +31,25 @@ function EyeIcon({ open }: { open: boolean }) {
 // ── Page ──────────────────────────────────────────────────────
 
 export default function LoginPage() {
-  const router = useRouter()
+  const { login, isLoading } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
-  const [serverError,  setServerError]  = useState<string | null>(null)
+  const [serverError, setServerError] = useState<string | null>(null)
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
+    mode: 'onTouched', // Validate on blur/touched for better UX
   })
 
   const onSubmit = async (data: LoginInput) => {
     setServerError(null)
     try {
-      const res = await fetch('/api/auth/login', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(data),
-      })
-
-      const json = await res.json()
-
-      if (!res.ok) {
-        setServerError(json.message ?? 'Something went wrong. Please try again.')
-        return
-      }
-
-      // Redirect based on role returned from backend
-      switch (json.user.role) {
-        case 'STUDENT': router.push('/student/dashboard'); break
-        case 'ALUMNI':  router.push('/alumni/dashboard');  break
-        case 'ADMIN':   router.push('/admin/dashboard');   break
-        default:        router.push('/')
-      }
-    } catch {
-      setServerError('Network error. Please check your connection.')
+      await login(data.email, data.password)
+    } catch (error) {
+      setServerError(error instanceof Error ? error.message : 'Login failed')
     }
   }
 
@@ -156,7 +131,7 @@ export default function LoginPage() {
           variant="primary"
           size="lg"
           full
-          loading={isSubmitting}
+          loading={isLoading}
         >
           Log in
         </Button>

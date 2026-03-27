@@ -1,5 +1,5 @@
 import { afterEach } from "vitest";
-import { prisma } from '@/lib/db'
+import { prisma } from '@/app/_lib/db'
 
 afterEach(async () => {
   try {
@@ -15,7 +15,7 @@ afterEach(async () => {
     await prisma.studentProfile.deleteMany(); 
     await prisma.user.deleteMany(); 
 
-  } catch (err: any) {
+  } catch (err) {
     console.warn("Cleanup warning (safe to ignore if first run):", err.message);
   }
 });

@@ -1,11 +1,13 @@
 import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
+    plugins: [react()],
     resolve: {
         tsconfigPaths: true
     },
     test: {
-        include: ['tests/**/*.test.ts'],
+        include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
         exclude:  ['**/node_modules/**, **/.git/**'],
         globals: true,
         testTimeout: 10_000,// after 10 seconds
@@ -14,11 +16,12 @@ export default defineConfig({
         // Automatically clean up after each test to ensure isolation
         clearMocks: true,
         restoreMocks: true,
+        // Use jsdom for all tests (works for both UI and API mocking)
+        environment: 'jsdom',
         // Ensure tests run sequentially to avoid database conflicts
         pool: 'threads',
         coverage: {
-            provider: "v8",
-            enabled:true
-        },
+            provider: 'v8'
+        }
     },
 });

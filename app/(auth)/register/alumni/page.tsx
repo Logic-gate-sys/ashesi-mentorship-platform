@@ -5,8 +5,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Input } from "@/app/_components/ui/Input";
-import { Button } from "@/app/_components/ui/Button";
+import { Input, Button} from "@/app/_components/ui/_index";
 import { alumniRegisterSchema } from "@/app/_schemas/alumni.schema";
 
 
