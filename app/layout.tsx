@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/app/_lib/context/auth-context";
+import { defaultAuthConfig } from "@/app/_lib/context/auth.config";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,6 +20,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children,}: Readonly<{ children: React.ReactNode}>) {
+  // AuthProvider is now configurable - you can pass custom config:
+  // const customConfig = createAuthConfig('custom-app-name');
+  // <AuthProvider config={customConfig}>{children}</AuthProvider>
+  // 
+  // Or use the defaultAuthConfig which is automatically applied if no config is provided
+  
   return (
     <html lang="en">
       <body

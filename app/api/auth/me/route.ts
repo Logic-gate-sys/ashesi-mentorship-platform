@@ -5,16 +5,24 @@ import { prisma } from '@/app/_utils/db';
 
 export async function GET(request: NextRequest) {
   try {
+    // Get accessToken from Authorization header
     const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
+    let token = null;
+
+    if (authHeader?.startsWith('Bearer ')) {
+      token = authHeader.slice(7); // Extract token after "Bearer "
+    } else {
+      // Fallback: try to get from refreshToken cookie if accessToken not provided
+      token = request.cookies.get('refresh_token')?.value;
+    }
+
+    if (!token) {
       return NextResponse.json(
-        { errors: { message: 'Missing or invalid authorization header' } },
+        { errors: { message: 'Not authenticated' } },
         { status: 401 }
       );
     }
 
-    const token = authHeader.slice(7); 
-    // const token = authHeader.split('.')[1]; 
     const payload = await verifyJWT(token);
 
     if (!payload) {

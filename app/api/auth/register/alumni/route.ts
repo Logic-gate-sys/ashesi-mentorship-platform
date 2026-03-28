@@ -52,18 +52,33 @@ export async function POST(request: NextRequest) {
       include: { alumniProfile: true },
     });
 
-    // Generate JWT token
-    const token = createJWT({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    });
-
-    return NextResponse.json(
+    // Generate JWT tokens
+    const accessToken = await createJWT(
       {
-        token,
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+      '15m' // Access token expires in 15 minutes
+    );
+
+    const refreshToken = await createJWT(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+      '7d' // Refresh token expires in 7 days
+    );
+
+    // Create response with accessToken in body and refreshToken in httpOnly cookie
+    const response = NextResponse.json(
+      {
+        accessToken, // Client should store this in sessionStorage
         user: {
           id: user.id,
           email: user.email,
@@ -74,6 +89,17 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
+
+    // Set refresh token as httpOnly cookie (7 days max-age: 604800 seconds)
+    response.cookies.set('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 604800, // 7 days
+      path: '/',
+    });
+
+    return response;
   } catch (error) {
     // Handle validation errors
     if (error instanceof ZodError) {

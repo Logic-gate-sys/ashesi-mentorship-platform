@@ -13,7 +13,7 @@ import { useMentorMetrics } from '@/app/_hooks/useMentorMetrics';
 import { usePendingRequests } from '@/app/_hooks/usePendingRequests';
 import { useMentorCapacity } from '@/app/_hooks/useMentorCapacity';
 import { useMentorshipCycle } from '@/app/_hooks/useMentorshipCycle';
-import { mockActiveMentees, mockUpcomingSessions, } from './mock-data';
+import { useMentorDashboardData } from '@/app/_hooks/useMentorDashboardData';
 
 export default function MentorDashboard() {
   const { metrics, loading: metricsLoading, error: metricsError } = useMentorMetrics();
@@ -26,7 +26,7 @@ export default function MentorDashboard() {
   } = usePendingRequests();
   const { capacity } = useMentorCapacity();
   const { cycle } = useMentorshipCycle();
-  const [activeMentees, setActiveMentees] = useState(mockActiveMentees);
+  const { data: dashboardData, loading: dashboardLoading, error: dashboardError } = useMentorDashboardData();
   const [acceptError, setAcceptError] = useState<string | null>(null);
 
   const handleAcceptRequest = async (requestId: string) => {
@@ -36,12 +36,6 @@ export default function MentorDashboard() {
     if (!result.success) {
       setAcceptError(result.error || 'Failed to accept request');
       return;
-    }
-
-    // Move from pending to active on success
-    const accepted = pendingRequests.find((r) => r.id === requestId);
-    if (accepted) {
-      setActiveMentees([...activeMentees, { ...accepted, status: 'active' }]);
     }
   };
 
@@ -300,29 +294,62 @@ export default function MentorDashboard() {
       {/* Active Mentees Section */}
       <DashboardSection
         title="Active Mentees"
-        subtitle={`You are currently mentoring ${activeMentees.length} student${activeMentees.length !== 1 ? 's' : ''}`}
+        subtitle={`You are currently mentoring ${dashboardData?.activeMentees.length || 0} student${(dashboardData?.activeMentees.length || 0) !== 1 ? 's' : ''}`}
       >
-        <div className="grid gap-4 md:grid-cols-2 lg:gap-6">
-          {activeMentees.map((mentee) => (
-            <RelationshipCard
-              key={mentee.id}
-              {...mentee}
-              onMessage={() => console.log(`Message ${mentee.id}`)}
-              onSchedule={() => console.log(`Schedule with ${mentee.id}`)}
-            />
-          ))}
-        </div>
+        {dashboardLoading ? (
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
+            <p className="text-gray-600 text-sm">Loading mentees...</p>
+          </div>
+        ) : dashboardError ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+            <p className="text-red-600 text-sm">Failed to load mentees: {dashboardError}</p>
+          </div>
+        ) : dashboardData?.activeMentees.length === 0 ? (
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
+            <p className="text-gray-600 text-sm">No active mentees yet. Accept requests to get started!</p>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:gap-6">
+            {dashboardData?.activeMentees.map((mentee) => (
+              <RelationshipCard
+                key={mentee.id}
+                id={mentee.id}
+                name={mentee.studentName}
+                role="Mentee"
+                program={mentee.goal}
+                initials={mentee.studentName
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')
+                  .toUpperCase()}
+                status="active"
+                onMessage={() => console.log(`Message ${mentee.id}`)}
+                onSchedule={() => console.log(`Schedule with ${mentee.id}`)}
+              />
+            ))}
+          </div>
+        )}
       </DashboardSection>
 
       {/* Upcoming Sessions Section */}
       <DashboardSection
         title="Upcoming Sessions"
-        subtitle={`You have ${mockUpcomingSessions.length} session${mockUpcomingSessions.length !== 1 ? 's' : ''} scheduled`}
+        subtitle={`You have ${dashboardData?.upcomingSessions.length || 0} session${(dashboardData?.upcomingSessions.length || 0) !== 1 ? 's' : ''} scheduled`}
       >
-        <SessionsList
-          sessions={mockUpcomingSessions}
-          onJoinSession={(sessionId) => console.log(`Join session ${sessionId}`)}
-        />
+        {dashboardLoading ? (
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
+            <p className="text-gray-600 text-sm">Loading sessions...</p>
+          </div>
+        ) : dashboardError ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+            <p className="text-red-600 text-sm">Failed to load sessions: {dashboardError}</p>
+          </div>
+        ) : (
+          <SessionsList
+            sessions={dashboardData?.upcomingSessions || []}
+            onJoinSession={(sessionId) => console.log(`Join session ${sessionId}`)}
+          />
+        )}
       </DashboardSection>
     </DashboardContainer>
   );

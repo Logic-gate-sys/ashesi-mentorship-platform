@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { AuthConfig, defaultAuthConfig } from './auth.config';
 
 export interface User {
   id: string;
@@ -14,7 +15,6 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   
@@ -25,36 +25,100 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateProfile: (data: any) => Promise<void>;
   fetchCurrentUser: () => Promise<void>;
+  getAccessToken: () => string | null;
+  refreshAccessToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const TOKEN_KEY = 'mentor_app_token';
-const USER_KEY = 'mentor_app_user';
+export interface AuthProviderProps {
+  children: React.ReactNode;
+  config?: AuthConfig;
+}
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children, config = defaultAuthConfig }: AuthProviderProps) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const isRefreshing = useRef(false);
+  const refreshPromiseRef = useRef<Promise<string | null> | null>(null);
 
-  // Load token from localStorage on mount
+  // Verify auth on mount by checking if refreshToken cookie exists
   useEffect(() => {
-    const savedToken = localStorage.getItem(TOKEN_KEY);
-    const savedUser = localStorage.getItem(USER_KEY);
+    if (isInitialized) return;
     
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
-    }
+    fetchCurrentUser().finally(() => {
+      setIsInitialized(true);
+    });
   }, []);
 
-  const saveAuthData = useCallback((token: string, user: User) => {
-    setToken(token);
+  const getAccessToken = useCallback((): string | null => {
+    if (typeof window === 'undefined') return null;
+    return sessionStorage.getItem(config.accessTokenStorageKey);
+  }, [config]);
+
+  const saveAuthData = useCallback((user: User, accessToken: string) => {
     setUser(user);
-    localStorage.setItem(TOKEN_KEY, token);
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
-  }, []);
+    // Store access token in sessionStorage (cleared on page close)
+    // Store user info in sessionStorage (not the refreshToken - that's in httpOnly cookie)
+    sessionStorage.setItem(config.userStorageKey, JSON.stringify(user));
+    sessionStorage.setItem(config.accessTokenStorageKey, accessToken);
+  }, [config]);
+
+  const clearAuthData = useCallback(() => {
+    setUser(null);
+    sessionStorage.removeItem(config.userStorageKey);
+    sessionStorage.removeItem(config.accessTokenStorageKey);
+  }, [config]);
+
+  const refreshAccessToken = useCallback(async (): Promise<string | null> => {
+    // Prevent multiple simultaneous refresh attempts
+    if (isRefreshing.current && refreshPromiseRef.current) {
+      return refreshPromiseRef.current;
+    }
+
+    isRefreshing.current = true;
+
+    try {
+      const promise = fetch('/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'include', // Send refresh_token cookie
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            // Refresh failed, clear auth data and redirect to login
+            clearAuthData();
+            router.push('/login');
+            return null;
+          }
+          const data = await res.json();
+          const newAccessToken = data.accessToken;
+          // Update stored access token
+          sessionStorage.setItem(config.accessTokenStorageKey, newAccessToken);
+          return newAccessToken;
+        })
+        .catch((error) => {
+          console.error('Token refresh error:', error);
+          clearAuthData();
+          router.push('/login');
+          return null;
+        })
+        .finally(() => {
+          isRefreshing.current = false;
+          refreshPromiseRef.current = null;
+        });
+
+      refreshPromiseRef.current = promise;
+      return promise;
+    } catch (error) {
+      isRefreshing.current = false;
+      console.error('Token refresh error:', error);
+      clearAuthData();
+      router.push('/login');
+      return null;
+    }
+  }, [clearAuthData, router, config]);
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -64,6 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
+          credentials: 'include', // Receive refreshToken cookie
         });
 
         if (!response.ok) {
@@ -72,8 +137,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         const data = await response.json();
-        saveAuthData(data.token, data.user);
-        router.push(data.user.role === 'STUDENT' ? '/student/dashboard' : '/alumni/dashboard');
+        saveAuthData(data.user, data.accessToken);
+        router.push(data.user.role === 'STUDENT' ? '/student/dashboard' : '/mentor');
       } finally {
         setIsLoading(false);
       }
@@ -89,6 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
+          credentials: 'include', // Receive refreshToken cookie
         });
 
         if (!response.ok) {
@@ -97,7 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         const result = await response.json();
-        saveAuthData(result.token, result.user);
+        saveAuthData(result.user, result.accessToken);
         router.push('/student/dashboard');
       } finally {
         setIsLoading(false);
@@ -114,6 +180,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
+          credentials: 'include', // Receive refreshToken cookie
         });
 
         if (!response.ok) {
@@ -122,8 +189,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         const result = await response.json();
-        saveAuthData(result.token, result.user);
-        router.push('/alumni/dashboard');
+        saveAuthData(result.user, result.accessToken);
+        router.push('/mentor');
       } finally {
         setIsLoading(false);
       }
@@ -134,84 +201,123 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     setIsLoading(true);
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      setUser(null);
-      setToken(null);
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(USER_KEY);
+      // Call logout endpoint to clear refresh token cookie on server
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include',
+      });
+      clearAuthData();
       router.push('/login');
     } finally {
       setIsLoading(false);
     }
-  }, [router]);
+  }, [router, clearAuthData]);
+
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const accessToken = getAccessToken();
+      
+      // Call /api/auth/me with accessToken
+      const response = await fetch('/api/auth/me', {
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+        credentials: 'include', // Include refreshToken cookie for fallback
+      });
+
+      if (!response.ok) {
+        // If 401, try to refresh token and retry
+        if (response.status === 401 && accessToken) {
+          const newAccessToken = await refreshAccessToken();
+          if (newAccessToken) {
+            // Retry with new token
+            const retryResponse = await fetch('/api/auth/me', {
+              headers: { Authorization: `Bearer ${newAccessToken}` },
+              credentials: 'include',
+            });
+            if (retryResponse.ok) {
+              const data = await retryResponse.json();
+              setUser(data.user);
+              sessionStorage.setItem(config.userStorageKey, JSON.stringify(data.user));
+              return;
+            }
+          }
+        }
+        // Not authenticated or token refresh failed
+        clearAuthData();
+        return;
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      sessionStorage.setItem(config.userStorageKey, JSON.stringify(data.user));
+    } catch (error) {
+      console.error('Failed to fetch current user:', error);
+      clearAuthData();
+    }
+  }, [getAccessToken, refreshAccessToken, clearAuthData, config]);
 
   const updateProfile = useCallback(
     async (data: any) => {
-      if (!token) throw new Error('Not authenticated');
-      
       setIsLoading(true);
       try {
+        const accessToken = getAccessToken();
         const response = await fetch('/api/auth/profile', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+            ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
           },
+          credentials: 'include',
           body: JSON.stringify(data),
         });
 
         if (!response.ok) {
+          // Try to refresh token if 401
+          if (response.status === 401) {
+            const newAccessToken = await refreshAccessToken();
+            if (newAccessToken) {
+              const retryResponse = await fetch('/api/auth/profile', {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${newAccessToken}`,
+                },
+                credentials: 'include',
+                body: JSON.stringify(data),
+              });
+              if (retryResponse.ok) {
+                const result = await retryResponse.json();
+                setUser(result.user);
+                sessionStorage.setItem(config.userStorageKey, JSON.stringify(result.user));
+                return;
+              }
+            }
+          }
           const error = await response.json();
           throw new Error(error.errors?.message || 'Update failed');
         }
 
         const result = await response.json();
-        saveAuthData(token, result.user);
+        setUser(result.user);
+        sessionStorage.setItem(config.userStorageKey, JSON.stringify(result.user));
       } finally {
         setIsLoading(false);
       }
     },
-    [token, saveAuthData]
+    [getAccessToken, refreshAccessToken, config]
   );
-
-  const fetchCurrentUser = useCallback(async () => {
-    if (!token) return;
-
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch user');
-      }
-
-      const data = await response.json();
-      setUser(data.user);
-      localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-    } catch (error) {
-      // Token might be invalid, logout
-      setUser(null);
-      setToken(null);
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(USER_KEY);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [token]);
 
   const value: AuthContextType = {
     user,
-    token,
     isLoading,
-    isAuthenticated: !!user && !!token,
+    isAuthenticated: !!user && !!getAccessToken(),
     login,
     registerStudent,
     registerAlumni,
     logout,
     updateProfile,
     fetchCurrentUser,
+    getAccessToken,
+    refreshAccessToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

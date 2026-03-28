@@ -16,9 +16,11 @@ const getSecret = (): Uint8Array => {
   return new TextEncoder().encode(env.JWT_SECRET);
 };
 
-export async function createJWT(payload: Omit<CustomPayload, 'iat' | 'exp'>): Promise<string> {
+export async function createJWT(
+  payload: Omit<CustomPayload, 'iat' | 'exp'>,
+  expiresIn: string = env.JWT_EXPIRES_IN || '7d'
+): Promise<string> {
   const secret = getSecret();
-  const expiresIn = env.JWT_EXPIRES_IN ||'7d'; 
 
   const token = await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })

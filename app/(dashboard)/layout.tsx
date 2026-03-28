@@ -20,6 +20,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       router.push(redirectUrl);
     }
   }, [user, isLoading, router]);
+  
 
   if (isLoading || !user || user.role !== 'ALUMNI') {
     return (
