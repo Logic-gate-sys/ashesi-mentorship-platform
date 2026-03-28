@@ -1,5 +1,10 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import { config } from 'dotenv'
+import { resolve } from 'path'
+
+// Load test environment variables before any tests run
+config({ path: resolve(process.cwd(), '.env.test') })
 
 export default defineConfig({
     plugins: [react()],

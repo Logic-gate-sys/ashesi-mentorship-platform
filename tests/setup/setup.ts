@@ -1,5 +1,6 @@
 import { afterEach } from "vitest";
 import { prisma } from '@/app/_utils/db'
+import '@testing-library/jest-dom';
 
 afterEach(async () => {
   try {

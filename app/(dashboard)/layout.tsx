@@ -1,35 +1,47 @@
-import { redirect } from 'next/navigation'
-import { cookies }  from 'next/headers'
-import AppShell from '../_components/layout/Appshell';
-import { decodeJWT } from '../_utils/jwt';
+'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { DashboardSidebar } from '@/app/_components/dashboard';
+import { useAuth } from '@/app/_lib/context/auth-context';
 
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
 
-export default async function DashboardLayout({ children }: {children: React.ReactNode}) {
-//   const cookieStore = await cookies()
-//   const token       = cookieStore.get('token')?.value || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzcl83ODkwMTIzNDUiLCJyb2xlIjoiU1RVREVOVCIsImZpcnN0TmFtZSI6IkphbmUiLCJsYXN0TmFtZSI6IkRvZSIsImV4cCI6MTcxMTQwNDAwMH0.dummy-signature'
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/login');
+      return;
+    }
 
-//   // No token → back to login
-//   if (!token) redirect('/login')
+    if (!isLoading && user && user.role !== 'ALUMNI') {
+      const redirectUrl = user.role === 'STUDENT' ? '/student/dashboard' : '/';
+      router.push(redirectUrl);
+    }
+  }, [user, isLoading, router]);
 
-//   const payload = decodeJWT(token)
+  if (isLoading || !user || user.role !== 'ALUMNI') {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-accent mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
-//   // Malformed or expired token → back to login
-//   if (!payload || payload.exp * 1000 < Date.now()) redirect('/login')
-
-//   const { role, firstName, lastName } = payload
-//   const name     = `${firstName} ${lastName}`
-//   const initials = `${firstName[0]}${lastName[0]}`.toUpperCase()
-const role = "STUDENT";
-const initials = 'JL'
+  const initials = `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
+  const name = `${user.firstName} ${user.lastName}`;
 
   return (
-    <AppShell
-      role={role}
-      name={"Jane"}
-      initials={initials}
-    >
-      {children}
-    </AppShell>
-  )
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      <DashboardSidebar role="MENTOR" name={name} initials={initials} />
+
+      <main className="flex-1 ml-20 lg:ml-64 overflow-y-auto">
+        {children}
+      </main>
+    </div>
+  );
 }

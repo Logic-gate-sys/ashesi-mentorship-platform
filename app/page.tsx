@@ -164,7 +164,7 @@ export default function HomePage() {
      <Hero/>
 
       <section className="bg-white px-10 py-6 border-b border-border">
-        <div className="max-w-[1000px] mx-auto flex items-center gap-3.5 flex-wrap">
+        <div className="max-w-250 mx-auto flex items-center gap-3.5 flex-wrap">
           <span className="font-body text-[12px] font-bold text-text-sub uppercase tracking-[0.1em] mr-3 whitespace-nowrap">
             Industries we serve
           </span>
@@ -177,7 +177,7 @@ export default function HomePage() {
       </section>
 
       <section className="px-10 py-28 bg-background">
-        <div className="max-w-[1000px] mx-auto">
+        <div className="max-w-250 mx-auto">
           <div className="mb-16">
             <span className="font-body text-[13px] font-bold text-primary uppercase tracking-[0.12em]">
               Core features
@@ -196,7 +196,7 @@ export default function HomePage() {
       </section>
 
       <section id="how-it-works" className="px-10 py-28 bg-white">
-        <div className="max-w-[1000px] mx-auto">
+        <div className="max-w-250 mx-auto">
           <div className="mb-16">
             <span className="font-body text-[13px] font-bold text-primary uppercase tracking-[0.12em]">
               Getting started
