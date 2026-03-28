@@ -67,6 +67,7 @@ const mentors = [
     tagClass: 'tag-primary',
     initials: 'AO',
     avatarBg: 'bg-primary',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AmaOwusu',
     sessions: 24,
     skills: ['Product Strategy', 'Fintech', 'Agile'],
   },
@@ -79,6 +80,7 @@ const mentors = [
     tagClass: 'bg-accent/10 text-accent',
     initials: 'KA',
     avatarBg: 'bg-accent',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=KofiAsante',
     sessions: 18,
     skills: ['Backend', 'System Design', 'Go'],
   },
@@ -91,6 +93,7 @@ const mentors = [
     tagClass: 'tag-primary',
     initials: 'AB',
     avatarBg: 'bg-primary-light',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AbenaBoateng',
     sessions: 31,
     skills: ['Strategy', 'Leadership', 'Analytics'],
   },
@@ -203,10 +206,28 @@ export default function HomePage() {
             </h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {steps.map((step, idx) => (
-              <StepCard key={step.number} {...step} />
-            ))}
+          {/* Steps with connecting arrows */}
+          <div className="relative w-full">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+              {steps.map((step, idx) => (
+                <div key={step.number} className={`relative ${idx === 0 ? 'lg:pl-3' : ''}`}>
+                  <StepCard {...step} />
+                  {/* Arrow to next step - visible on desktop only */}
+                  {idx < steps.length - 1 && (
+                    <div className="hidden lg:flex absolute -right-8 top-1/3 items-center justify-center w-6 h-8">
+                      <svg width="32" height="8" viewBox="0 0 32 8" className="absolute">
+                        <defs>
+                          <marker id="triangleright" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#7F1D1D" />
+                          </marker>
+                        </defs>
+                        <line x1="0" y1="4" x2="28" y2="4" stroke="#7F1D1D" strokeWidth="2.5" markerEnd="url(#triangleright)" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Inline sign-up prompt */}
