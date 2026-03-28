@@ -11,7 +11,7 @@ export default function LegalTopbar({ title, backHref = '/' }: { title: string; 
         >
           ← Back
         </button>
-        <span className="font-display font-bold text-[14px] text-brand tracking-tight">
+        <span className="font-display font-bold text-[14px] text-primary tracking-tight">
           AshesiConnect
         </span>
         <span className="text-border text-[12px] mx-0.5">›</span>

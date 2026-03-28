@@ -3,11 +3,9 @@ import { Mentee } from "@/app/_types/types"
 
 // Refined tag styles with subtle borders for a crisper look
 const tagStyles: Record<string, { bg: string; text: string; border: string }> = {
-  orange: { bg: 'bg-orange-300',   text: 'text-orange-700',  border: 'border-orange-200' },
-  yellow: { bg: 'bg-yellow-500',   text: 'text-yellow-700',  border: 'border-yellow-200' },
+  primary: { bg: 'bg-primary/10',   text: 'text-primary',  border: 'border-primary/20' },
+  'primary-light': { bg: 'bg-primary-light/10',  text: 'text-primary-light', border: 'border-primary-light/30' },
   purple: { bg: 'bg-purple-500',   text: 'text-purple-700',  border: 'border-purple-200' },
-  green:  { bg: 'bg-emerald-500',  text: 'text-emerald-700', border: 'border-emerald-200' },
-  blue:   { bg: 'bg-blue-500',     text: 'text-blue-700',    border: 'border-blue-200' },
 }
 
 // Fallback style just in case a tag string doesn't match

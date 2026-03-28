@@ -49,7 +49,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
               { value: '4.9★', label: 'Rating' },
             ].map(stat => (
               <div key={stat.label} className="border-l border-white/20 pl-4">
-                <p className="font-display font-bold text-accent text-2xl tracking-tight leading-none mb-1">
+                <p className="font-display font-bold text-primary-light text-2xl tracking-tight leading-none mb-1">
                   {stat.value}
                 </p>
                 <p className="font-body text-xs text-white/50 font-medium">
@@ -76,7 +76,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
         {/* Mobile Header */}
         <div className="absolute top-5 left-5 lg:hidden flex items-center gap-2.5">
-          <div className="w-9 h-9 bg-accent rounded-[8px] flex items-center justify-center shadow-md">
+          <div className="w-9 h-9 bg-primary-light rounded-[8px] flex items-center justify-center shadow-md">
             <span className="font-display font-extrabold text-white text-sm leading-none">A</span>
           </div>
           <span className="font-display font-bold text-text-primary text-[16px] tracking-tight">

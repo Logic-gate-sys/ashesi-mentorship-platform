@@ -17,17 +17,16 @@
   --color-primary-light:    #A02E2E;  /* Lighter accent */
   --color-primary-50:       #F9F3F3;  /* Background tint */
 
-  /* ── ACCENT COLORS ────────────────────────────────────────── */
-  --color-accent:           #FF6B2B;  /* Vibrant orange */
-  --color-accent-dark:      #E85A1A;  /* Hover state */
-  --color-accent-light:     #FFB89C;  /* Light tint */
-  --color-accent-50:        #FFF5F0;  /* Background tint */
+  /* ── SECONDARY ACCENT COLORS (Using maroon spectrum) ────── */
+  --color-accent:           #A02E2E;  /* Light maroon accent */
+  --color-accent-dark:      #7F1D1D;  /* Primary maroon */
+  --color-accent-light:     #C24242;  /* Lighter maroon */
+  --color-accent-50:        #F9F3F3;  /* Background tint */  
 
   /* ── SECONDARY COLORS ────────────────────────────────────– */
-  --color-success:          #10B981;
   --color-warning:          #F59E0B;
   --color-danger:           #EF4444;
-  --color-info:             #3B82F6;
+  --color-info:             #7F1D1D;  /* Using primary maroon instead of blue */
 
   /* ── NEUTRAL PALETTE ────────────────────────────────────– */
   --color-white:            #FFFFFF;
@@ -55,7 +54,7 @@
   --shadow-md:      0 4px 12px rgba(15, 20, 40, 0.12);
   --shadow-lg:      0 8px 24px rgba(15, 20, 40, 0.14);
   --shadow-primary: 0 4px 16px rgba(127, 29, 29, 0.16);
-  --shadow-accent:  0 4px 16px rgba(255, 107, 43, 0.20);
+  --shadow-accent:  0 4px 16px rgba(160, 46, 46, 0.16);
 
   /* ── BORDER RADIUS ──────────────────────────────────────– */
   --radius-sm:      6px;
@@ -193,6 +192,19 @@
     border-color: var(--color-primary-dark);
   }
 
+  /* Secondary on dark background */
+  .btn-secondary-inverse {
+    background-color: transparent;
+    color: var(--color-text-inverse);
+    border: 1.5px solid var(--color-text-inverse);
+  }
+  .btn-secondary-inverse:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-text-inverse);
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+  }
+
   /* Ghost - Minimal */
   .btn-ghost {
     background-color: transparent;
@@ -203,6 +215,19 @@
     background-color: var(--color-surface-alt);
     border-color: var(--color-text-secondary);
     color: var(--color-text-primary);
+  }
+
+  /* Dark - For dark backgrounds */
+  .btn-dark {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--color-text-inverse);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+  }
+  .btn-dark:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-base);
+    transform: translateY(-1px);
   }
 
   /* Success */
@@ -300,6 +325,7 @@
   .tag-success { background-color: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
   .tag-warning { background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
   .tag-danger { background-color: #FEE2E2; color: #7F1D1D; border: 1px solid #FECACA; }
+  .tag-purple { background-color: #F5F3FF; color: #6D28D9; border: 1px solid #DDD6FE; }
 
   /* ── TEXT UTILITIES ────────────────────────────– */
   .text-primary { color: var(--color-primary); }
@@ -310,16 +336,19 @@
   .text-success { color: var(--color-success); }
   .text-warning { color: var(--color-warning); }
   .text-danger { color: var(--color-danger); }
+  .text-tag-purple { color: #7C3AED; }
 
   /* ── BACKGROUND UTILITIES ───────────────────── */
   .bg-primary { background-color: var(--color-primary); }
   .bg-primary-50 { background-color: var(--color-primary-50); }
   .bg-accent { background-color: var(--color-accent); }
   .bg-accent-50 { background-color: var(--color-accent-50); }
+  .bg-tag-purple { background-color: #7C3AED; }
 
   /* ── BORDER UTILITIES ───────────────────────── */
   .border-primary { border-color: var(--color-primary); }
   .border-accent { border-color: var(--color-accent); }
+  .border-tag-purple { border-color: #7C3AED; }
 
   /* ── DIVIDER / SEPARATOR ────────────────────── */
   .divider { height: 1px; background-color: var(--color-border); }

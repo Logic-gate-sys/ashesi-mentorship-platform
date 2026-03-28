@@ -58,7 +58,7 @@ function PasswordStrengthIndicator({ password, requirements }: { password: strin
   let strengthText = 'Weak'
   
   if (strength >= 80) {
-    strengthColor = 'var(--color-success)'
+    strengthColor = 'var(--color-primary-light)'
     strengthText = 'Strong'
   } else if (strength >= 60) {
     strengthColor = 'var(--color-warning)'
@@ -350,7 +350,7 @@ export default function StudentRegisterPage() {
 
       {/* ── PAGE HEADING ────────────────────────────────────────── */}
       <div className="mb-10">
-        <h1 className="font-display font-bold text-[36px] text-brand tracking-tight leading-tight mb-3">
+        <h1 className="font-display font-bold text-[36px] text-primary tracking-tight leading-tight mb-3">
           Create your account
         </h1>
         <p className="font-body text-[16px] text-text-sub">
@@ -632,7 +632,7 @@ export default function StudentRegisterPage() {
                   }}
                   className="flex-1 h-[44px] px-4 border border-border rounded-[10px] 
                     font-body text-[15px] outline-none transition-colors
-                    focus:border-brand focus:shadow-[0_0_0_3px_rgba(127,29,29,0.10)]"
+                    focus:border-primary focus:shadow-[0_0_0_3px_rgba(127,29,29,0.10)]"
                 />
                 <button
                   type="button"
@@ -660,8 +660,8 @@ export default function StudentRegisterPage() {
                       key={interest}
                       type="button"
                       onClick={() => addInterest(interest)}
-                      className="px-4 py-2 bg-brand/8 border border-brand/20 text-brand rounded-[10px] 
-                        font-body text-[13px] hover:bg-brand/12 transition-colors"
+                      className="px-4 py-2 bg-primary/8 border border-primary/20 text-primary rounded-[10px] 
+                        font-body text-[13px] hover:bg-primary/12 transition-colors"
                     >
                       + {interest}
                     </button>
@@ -678,14 +678,14 @@ export default function StudentRegisterPage() {
                   {interests.map((interest, idx) => (
                     <div
                       key={interest}
-                      className="px-4 py-2 bg-brand/10 border border-brand/30 text-brand rounded-[10px] 
+                      className="px-4 py-2 bg-primary/10 border border-primary/30 text-primary rounded-[10px] 
                         font-body text-[13px] flex items-center gap-2"
                     >
                       {interest}
                       <button
                         type="button"
                         onClick={() => removeInterest(idx)}
-                        className="text-brand/60 hover:text-brand transition-colors font-bold"
+                        className="text-primary/60 hover:text-primary transition-colors font-bold"
                       >
                         ×
                       </button>
@@ -796,7 +796,7 @@ export default function StudentRegisterPage() {
             </div>
 
             {/* Terms & Privacy Agreement */}
-            <div className="space-y-4 p-6 bg-brand/5 border border-brand/15 rounded-[12px]">
+            <div className="space-y-4 p-6 bg-primary/5 border border-primary/15 rounded-[12px]">
               <div className="space-y-3">
                 {/* Terms of Service */}
                 <div className="flex items-start gap-3">

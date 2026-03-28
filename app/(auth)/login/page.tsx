@@ -52,11 +52,11 @@ export default function LoginPage() {
 
       {/* Server error banner */}
       {serverError && (
-        <div className="mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-[8px] flex items-start gap-2.5">
-          <div className="shrink-0 mt-0.5 text-red-500">
+        <div className="mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-base flex items-start gap-2.5">
+          <div className="shrink-0 mt-0.5 text-red-800">
             <ErrorIcon />
           </div>
-          <p className="font-body text-[14px] text-red-600">{serverError}</p>
+          <p className="font-body text-[14px] text-red-800">{serverError}</p>
         </div>
       )}
 
@@ -98,13 +98,13 @@ export default function LoginPage() {
           <label className="flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
-              className="w-4 h-4 rounded accent-brand cursor-pointer"
+              className="w-4 h-4 rounded accent-primary cursor-pointer"
             />
             <span className="font-body text-[14px] text-text-sub">Keep me logged in</span>
           </label>
           <Link
             href="/forgot-password"
-            className="font-body text-[14px] font-medium text-brand hover:opacity-80 transition-opacity"
+            className="font-body text-[14px] font-medium text-primary hover:opacity-80 transition-opacity"
           >
             Forgot password?
           </Link>
@@ -116,7 +116,7 @@ export default function LoginPage() {
           size="lg"
           full
           loading={isLoading}
-          className="mt-6 text-red-900"
+          className="mt-6"
         >
           Log in
         </Button>
@@ -134,9 +134,9 @@ export default function LoginPage() {
 
         <Link
           href="/register/student"
-          className="card p-6 flex flex-col items-center gap-3 text-center hover:border-brand transition-colors group min-h-[140px] justify-center"
+          className="card p-6 flex flex-col items-center gap-3 text-center hover:border-primary transition-colors group min-h-[140px] justify-center"
         >
-          <div className="w-12 h-12 rounded-[10px] bg-brand/10 flex items-center justify-center group-hover:bg-brand/15 transition-colors text-brand">
+          <div className="w-12 h-12 rounded-[10px] bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors text-primary">
             <StudentIcon />
           </div>
           <div>
@@ -164,7 +164,7 @@ export default function LoginPage() {
         Don&apos;t have an account?{' '}
         <Link
           href="/register/student"
-          className="font-semibold text-brand hover:opacity-80 transition-opacity"
+            className="font-semibold text-primary hover:opacity-80 transition-opacity"
         >
           Sign up
         </Link>

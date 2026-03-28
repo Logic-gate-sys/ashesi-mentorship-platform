@@ -72,7 +72,7 @@ export default function Sidebar({ role, initials, badges = {} }: SidebarProps) {
       {/* Logo mark */}
       <Link
         href={role === 'STUDENT' ? '/student/dashboard' : '/alumni/dashboard'}
-        className="w-9 h-9 bg-brand rounded-[10px] flex items-center justify-center mb-6 shrink-0 hover:opacity-90 transition-opacity"
+        className="w-9 h-9 bg-primary rounded-[10px] flex items-center justify-center mb-6 shrink-0 hover:opacity-90 transition-opacity"
       >
         <span className="font-display font-extrabold text-white text-base leading-none">A</span>
       </Link>
@@ -98,14 +98,14 @@ export default function Sidebar({ role, initials, badges = {} }: SidebarProps) {
             >
               {/* Active left bar */}
               {active && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-brand rounded-r-full" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
               )}
 
               {getIcon(item.iconKey)}
 
               {/* Badge */}
               {badgeCount && badgeCount > 0 ? (
-                <div className="absolute top-1.5 right-1.5 min-w-[16px] h-[16px] bg-brand rounded-full flex items-center justify-center px-[3px]">
+                <div className="absolute top-1.5 right-1.5 min-w-[16px] h-[16px] bg-primary rounded-full flex items-center justify-center px-[3px]">
                   <span className="font-body text-[9px] font-bold text-white leading-none">
                     {badgeCount > 9 ? '9+' : badgeCount}
                   </span>
@@ -144,7 +144,7 @@ export default function Sidebar({ role, initials, badges = {} }: SidebarProps) {
         </button>
 
         {/* Avatar */}
-        <div className="w-8 h-8 rounded-full bg-brand flex items-center justify-center mt-3 cursor-pointer hover:opacity-90 transition-opacity shrink-0">
+        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center mt-3 cursor-pointer hover:opacity-90 transition-opacity shrink-0">
           <span className="font-display font-bold text-white text-[11px] leading-none">
             {initials}
           </span>

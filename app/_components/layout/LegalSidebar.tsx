@@ -12,7 +12,7 @@ export default function LegalSidebar({ backHref = '/' }: LegalSidebarProps) {
       {/* Logo mark */}
       <button
         onClick={() => window.close()}
-        className="w-9 h-9 bg-brand rounded-[10px] flex items-center justify-center shrink-0 hover:opacity-90 transition-opacity cursor-pointer"
+        className="w-9 h-9 bg-primary rounded-[10px] flex items-center justify-center shrink-0 hover:opacity-90 transition-opacity cursor-pointer"
         title="Back to registration"
       >
         <span className="font-display font-extrabold text-white text-base leading-none">A</span>

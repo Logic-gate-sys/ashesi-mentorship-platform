@@ -58,7 +58,7 @@ function SelectField({
           ${
             error
               ? "border-red-400 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.15)]"
-              : "border-border hover:border-[#c0bfbf] focus:border-brand focus:shadow-[0_0_0_3px_rgba(255,107,43,0.15)]"
+              : "border-border hover:border-[#c0bfbf] focus:border-primary focus:shadow-[0_0_0_3px_rgba(127,29,29,0.15)]"
           }
         `}
         {...props}
@@ -85,7 +85,7 @@ function Steps({ current }: { current: 1 | 2 | 3 }) {
             className={`
             w-6 h-6 rounded-full flex items-center justify-center
             font-body text-[11px] font-bold transition-colors shrink-0
-            ${current >= step ? "bg-brand text-white" : "bg-border text-text-muted"}
+            ${current >= step ? "bg-primary text-white" : "bg-border text-text-muted"}
           `}
           >
             {current > step ? (

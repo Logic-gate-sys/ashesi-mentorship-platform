@@ -44,7 +44,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               outline-none transition-all duration-150
               ${error
                 ? 'border-red-400 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.15)]'
-                : 'border-border hover:border-[#c0bfbf] focus:border-brand focus:shadow-[0_0_0_3px_rgba(255,107,43,0.15)]'
+                : 'border-border hover:border-[#c0bfbf] focus:border-primary focus:shadow-[0_0_0_3px_rgba(127,29,29,0.10)]'
               }
               ${left  ? 'pl-10' : 'pl-4'}
               ${right ? 'pr-10' : 'pr-4'}

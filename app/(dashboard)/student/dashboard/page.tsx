@@ -7,7 +7,7 @@ interface Mentor {
   name:     string
   role:     string
   company:  string
-  industry: 'orange' | 'yellow' | 'purple' | 'green' | 'blue'
+  industry: 'primary' | 'warning' | 'purple' | 'primary-light' | 'danger'
   label:    string
   initials: string
   avatar:   string
@@ -44,7 +44,7 @@ const activeMentors: Mentor[] = [
     name:     'Ama Owusu',
     role:     'Product Manager',
     company:  'Stanbic Bank',
-    industry: 'green',
+    industry: 'primary-light',
     label:    'Finance',
     initials: 'AO',
     avatar:   '#0C5C3E',
@@ -57,7 +57,7 @@ const activeMentors: Mentor[] = [
     name:     'Kofi Asante',
     role:     'Software Engineer',
     company:  'Google',
-    industry: 'yellow',
+    industry: 'warning',
     label:    'Technology',
     initials: 'KA',
     avatar:   '#185FA5',
@@ -143,16 +143,16 @@ const pendingRequests: Request[] = [
 // ── Helpers ───────────────────────────────────────────────────
 
 const industryStyles: Record<string, { bg: string; text: string }> = {
-  orange: { bg: 'bg-accent/10',       text: 'text-accent'       },
-  yellow: { bg: 'bg-warning/10',      text: 'text-warning'      },
-  purple: { bg: 'bg-primary-light/10',text: 'text-primary-light'},
-  green:  { bg: 'bg-success/10',      text: 'text-success'      },
-  blue:   { bg: 'bg-info/10',         text: 'text-info'         },
+  primary: { bg: 'bg-primary/10',       text: 'text-primary'       },
+  warning: { bg: 'bg-warning/10',      text: 'text-warning'      },
+  purple: { bg: 'bg-purple-500/10',text: 'text-purple-700'},
+  'primary-light': { bg: 'bg-primary-light/10', text: 'text-primary-light' },
+  danger:   { bg: 'bg-danger/10', text: 'text-danger' },
 }
 
 const statusStyles = {
   PENDING:  { bg: 'bg-warning/10',    text: 'text-warning',    dot: 'bg-warning'   },
-  ACCEPTED: { bg: 'bg-success/10',    text: 'text-success',   dot: 'bg-success'  },
+  ACCEPTED: { bg: 'bg-primary-light/10', text: 'text-primary-light', dot: 'bg-primary-light' },
   DECLINED: { bg: 'bg-danger/10',     text: 'text-danger',     dot: 'bg-danger'     },
 }
 
@@ -221,7 +221,7 @@ function MentorCard({ m }: { m: Mentor }) {
           </div>
           <div className="h-[5px] bg-page rounded-full overflow-hidden">
             <div
-              className="h-full bg-brand rounded-full transition-all"
+              className="h-full bg-primary rounded-full transition-all"
               style={{ width: `${m.progress}%` }}
             />
           </div>
@@ -274,7 +274,7 @@ export default async function StudentDashboardPage() {
                 h-[34px] px-4 rounded-full font-body text-[13px] font-medium
                 border transition-colors duration-150
                 ${i === 0
-                  ? 'bg-brand text-white border-brand shadow-[0_2px_8px_rgba(255,107,43,0.28)]'
+                  ? 'bg-primary text-white border-primary shadow-[0_2px_8px_rgba(127,29,29,0.28)]'
                   : 'bg-white text-secondary border-border hover:border-primary hover:text-primary'}
               `}
             >

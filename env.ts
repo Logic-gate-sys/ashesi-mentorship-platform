@@ -15,10 +15,15 @@ import { z } from 'zod'
 process.env.APP_STAGE = process.env.VITEST ? 'test' : (process.env.APP_STAGE || 'dev')
 
 // Load the appropriate .env file based on APP_STAGE
-customEnvConfig({
-  path: process.cwd(),
-  env: process.env.APP_STAGE,
-})
+try {
+  customEnvConfig({
+    path: process.cwd(),
+    env: process.env.APP_STAGE,
+  })
+} catch (error) {
+  // Gracefully handle custom-env loading issues in build/runtime contexts
+  console.warn('Failed to load custom-env configuration:', error instanceof Error ? error.message : 'Unknown error')
+}
 
 // ── Environment Validation Schema ─────────────────────────────────────
 
