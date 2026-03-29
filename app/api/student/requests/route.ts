@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/app/_utils/db';
 import { requirePermission } from '@/app/_lib/abac/middleware';
 import { buildPermissionFilter } from '@/app/_lib/abac/engine';
+import { MentorshipRequestService, ProfileService, NotificationService } from '@/app/_services';
 import {
   createMentorshipRequestSchema,
   listMentorshipRequestsQuerySchema,
@@ -32,19 +32,7 @@ export async function POST(request: NextRequest) {
     const { user, permissions } = authResult;
 
     // Get student profile
-    const studentProfile = await prisma.studentProfile.findUnique({
-      where: { userId: user.id },
-    });
-
-    if (!studentProfile) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Student profile not found',
-        },
-        { status: 404 }
-      );
-    }
+    const studentProfile = await ProfileService.getOrCreateStudentProfile(user.id);
 
     // Parse and validate request body
     const parseResult = await parseRequestBody(request, createMentorshipRequestSchema);
@@ -55,10 +43,7 @@ export async function POST(request: NextRequest) {
     const { alumniId, goal, message } = parseResult.data;
 
     // Verify alumni exists and is available
-    const alumniProfile = await prisma.alumniProfile.findUnique({
-      where: { id: alumniId },
-      include: { user: true },
-    });
+    const alumniProfile = await ProfileService.getAlumniById(alumniId);
 
     if (!alumniProfile) {
       return notFoundResponse('Alumni');
@@ -74,53 +59,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check for existing pending request
-    const existingRequest = await prisma.mentorshipRequest.findFirst({
-      where: {
-        studentId: studentProfile.id,
-        alumniId,
-        status: 'PENDING',
-      },
-    });
-
-    if (existingRequest) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'You already have a pending request with this mentor',
-        },
-        { status: 409 }
-      );
-    }
-
-    // Create mentorship request
-    const mentorshipRequest = await prisma.mentorshipRequest.create({
-      data: {
-        studentId: studentProfile.id,
-        alumniId,
-        goal,
-        message,
-        status: 'PENDING',
-      },
-      include: {
-        student: {
-          include: { user: true },
-        },
-        alumni: {
-          include: { user: true },
-        },
-      },
-    });
+    // Create mentorship request (service handles duplicate checking)
+    const mentorshipRequest = await MentorshipRequestService.createRequest(
+      studentProfile.id,
+      { alumniId, goal, message }
+    );
 
     // Create notification for alumni
-    await prisma.notification.create({
-      data: {
-        userId: alumniProfile.userId,
-        type: 'REQUEST_RECEIVED',
-        title: 'New Mentorship Request',
-        body: `${studentProfile.user.firstName} ${studentProfile.user.lastName} sent you a mentorship request`,
-        link: `/mentor/requests/${mentorshipRequest.id}`,
-      },
+    await NotificationService.createNotification(alumniProfile.userId, {
+      type: 'REQUEST_RECEIVED',
+      title: 'New Mentorship Request',
+      message: `${studentProfile.user.firstName} ${studentProfile.user.lastName} sent you a mentorship request`,
+      relatedId: mentorshipRequest.id,
+      relatedType: 'MENTORSHIP_REQUEST',
     });
 
     return successResponse(mentorshipRequest, 'Mentorship request created successfully', 201);
@@ -153,35 +104,19 @@ export async function GET(request: NextRequest) {
 
     const { status, limit, offset, sortBy, sortOrder } = queryResult.data;
 
-    // Build where clause from permissions
-    // This ensures users only see requests they're authorized to access
+    // Build permission filter
     const permissionFilter = buildPermissionFilter(permissions, 'mentorship_request', 'list');
     
-    // Combine permission filter with status filter
-    const whereClause: any = { ...permissionFilter };
+    // Add status filter if provided
+    const filter: any = { ...permissionFilter };
     if (status) {
-      whereClause.status = status;
+      filter.status = status;
     }
 
-    // Get total count
-    const total = await prisma.mentorshipRequest.count({ where: whereClause });
-
-    // Get requests with pagination
-    const requests = await prisma.mentorshipRequest.findMany({
-      where: whereClause,
-      include: {
-        student: {
-          include: { user: true },
-        },
-        alumni: {
-          include: { user: true },
-        },
-      },
-      orderBy: {
-        [sortBy]: sortOrder,
-      },
-      take: limit,
-      skip: offset,
+    // Use service to fetch requests with pagination
+    const { requests, total } = await MentorshipRequestService.listRequests(filter, {
+      limit,
+      offset,
     });
 
     return paginatedResponse(requests, limit, offset, total);
