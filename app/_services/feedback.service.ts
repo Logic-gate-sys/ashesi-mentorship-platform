@@ -9,14 +9,14 @@ export class SessionFeedbackService {
   /**
    * Create or update session feedback
    */
-  async createFeedback(sessionId: string,data: {  rating: number  feedback?: string  topics?: string}) {
+  static async createFeedback(sessionId: string, data: { rating: number; feedback?: string; topics?: string }) {
     // Check if feedback already exists
     const existing = await prisma.sessionFeedback.findFirst({
       where: { sessionId },
     })
 
     if (existing) {
-      return this.updateFeedback(existing.id, data)
+      return SessionFeedbackService.updateFeedback(existing.id, data)
     }
 
     return prisma.sessionFeedback.create({
