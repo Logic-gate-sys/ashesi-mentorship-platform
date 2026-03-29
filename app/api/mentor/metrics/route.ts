@@ -1,67 +1,83 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/app/_utils/db'
+import { requireAuth } from '@/app/_lib/abac/middleware'
 
 interface MetricItem {
-  value: string | number;
-  label: string;
+  value: string | number
+  label: string
 }
 
 /**
  * GET /api/mentor/metrics
- * 
  * Fetches mentor impact metrics (mentees, sessions, hours, rating)
- * 
- * Query params:
- * - mentorId: string (optional, defaults to current user)
- * 
- * Response:
- * {
- *   success: boolean
- *   data: MetricItem[]
- *   error?: string
- * }
  */
 export async function GET(request: NextRequest) {
   try {
-    // TODO: In production, extract mentorId from JWT token
-    const searchParams = request.nextUrl.searchParams;
-    const mentorId = searchParams.get('mentorId') || 'current-user';
+    // Authenticate user
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
 
-    // TODO: Replace with actual database query
-    // For now, return mock data
+    const { user } = authResult
+
+    // Get alumni profile for the current user
+    const alumniProfile = await prisma.alumniProfile.findUnique({
+      where: { userId: user.id },
+      include: {
+        requests: {
+          where: { status: 'ACCEPTED' },
+        },
+        sessions: {
+          include: { feedback: true },
+        },
+      },
+    })
+
+    if (!alumniProfile) {
+      return NextResponse.json({ success: false, error: 'Alumni profile not found' }, { status: 404 })
+    }
+
+    // Calculate metrics
+    const activeMentees = alumniProfile.requests.length
+    const totalSessions = alumniProfile.sessions.length
+    const totalHours = alumniProfile.sessions.reduce((sum, session) => {
+      return sum + (session.duration || 0)
+    }, 0)
+    const avgRating =
+      totalSessions > 0
+        ? (
+            alumniProfile.sessions.reduce((sum, session) => {
+              return sum + (session.feedback?.rating || 0)
+            }, 0) / totalSessions
+          ).toFixed(1)
+        : '0'
+
     const metrics: MetricItem[] = [
       {
-        value: '8',
+        value: activeMentees,
         label: 'Active Mentees',
       },
       {
-        value: '32',
-        label: 'Sessions',
+        value: totalSessions,
+        label: 'Total Sessions',
       },
       {
-        value: '24h',
-        label: 'Hours/Month',
+        value: `${totalHours}h`,
+        label: 'Total Hours',
       },
       {
-        value: '4.8',
-        label: 'Rating',
+        value: avgRating,
+        label: 'Average Rating',
       },
-    ];
+    ]
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: metrics,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, data: metrics }, { status: 200 })
   } catch (error) {
-    console.error('Error fetching mentor metrics:', error);
+    console.error('Error fetching mentor metrics:', error)
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch mentor metrics',
-      },
+      { success: false, error: 'Failed to fetch mentor metrics' },
       { status: 500 }
-    );
+    )
   }
 }

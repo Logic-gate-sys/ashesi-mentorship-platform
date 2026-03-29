@@ -1,49 +1,55 @@
-import { NextRequest, NextResponse } from 'next/server';
-
-interface ActiveMentee {
-  id: string;
-  name: string;
-  status: 'active';
-}
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/app/_utils/db'
+import { requireAuth } from '@/app/_lib/abac/middleware'
 
 const MENTOR_CAPACITY = {
   MAX: 3,
   RECOMMENDED_MAX: 2,
   RECOMMENDED_MIN: 1,
-};
+}
 
 /**
  * GET /api/mentor/capacity
- * 
  * Get mentor's current mentoring capacity status
- * 
- * Response:
- * {
- *   success: boolean
- *   data: {
- *     activeMentees: number
- *     maxCapacity: number
- *     recommendedCapacity: { min: number, max: number }
- *     canAcceptMore: boolean
- *     capacityStatus: 'ideal' | 'good' | 'full' | 'over_capacity'
- *     message: string
- *   }
- * }
  */
 export async function GET(request: NextRequest) {
   try {
-    // TODO: In production, extract mentorId from JWT token and query database
-    const activeMentees = 2; // Mock data - should query actual active mentees
+    // Authenticate user
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
 
-    const canAcceptMore = activeMentees < MENTOR_CAPACITY.MAX;
-    
-    let capacityStatus: 'ideal' | 'good' | 'full' | 'over_capacity';
+    const { user } = authResult
+
+    // Get alumni profile and active mentees
+    const alumniProfile = await prisma.alumniProfile.findUnique({
+      where: { userId: user.id },
+      include: {
+        requests: {
+          where: { status: 'ACCEPTED' },
+          select: { id: true },
+        },
+      },
+    })
+
+    if (!alumniProfile) {
+      return NextResponse.json(
+        { success: false, error: 'Alumni profile not found' },
+        { status: 404 }
+      )
+    }
+
+    const activeMentees = alumniProfile.requests.length
+    const canAcceptMore = activeMentees < MENTOR_CAPACITY.MAX
+
+    let capacityStatus: 'ideal' | 'good' | 'full' | 'over_capacity'
     if (activeMentees >= MENTOR_CAPACITY.MAX) {
-      capacityStatus = 'full';
+      capacityStatus = 'full'
     } else if (activeMentees > MENTOR_CAPACITY.RECOMMENDED_MAX) {
-      capacityStatus = 'good';
+      capacityStatus = 'good'
     } else {
-      capacityStatus = 'ideal';
+      capacityStatus = 'ideal'
     }
 
     const messages = {
@@ -51,7 +57,7 @@ export async function GET(request: NextRequest) {
       good: 'You are at a manageable level. Can accept 1 more mentee.',
       full: 'You have reached maximum capacity (3 students).',
       over_capacity: 'You are mentoring more than recommended.',
-    };
+    }
 
     return NextResponse.json(
       {
@@ -69,15 +75,12 @@ export async function GET(request: NextRequest) {
         },
       },
       { status: 200 }
-    );
+    )
   } catch (error) {
-    console.error('Error fetching mentor capacity:', error);
+    console.error('Error fetching mentor capacity:', error)
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch mentor capacity',
-      },
+      { success: false, error: 'Failed to fetch mentor capacity' },
       { status: 500 }
-    );
+    )
   }
 }

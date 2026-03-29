@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyJWT } from '@/app/_utils/jwt';
-import { prisma } from '@/app/_utils/db';
-import { updateProfileSchema } from '@/app/_schemas/auth.schema';
-import { ZodError } from 'zod';
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/app/_utils/db'
+import { requireAuth, requirePermission } from '@/app/_lib/abac/middleware'
+import { updateProfileSchema } from '@/app/_schemas/auth.schema'
+import { getPermittedFields } from '@/app/_lib/abac/engine'
+import { ZodError } from 'zod'
 
 /**
  * PATCH /api/auth/profile
@@ -10,79 +11,68 @@ import { ZodError } from 'zod';
  */
 export async function PATCH(request: NextRequest) {
   try {
-    // Get accessToken from Authorization header
-    const authHeader = request.headers.get('authorization');
-    let token = null;
-
-    if (authHeader?.startsWith('Bearer ')) {
-      token = authHeader.slice(7); // Extract token after "Bearer "
-    } else {
-      // Fallback: try to get from refreshToken cookie if accessToken not provided
-      token = request.cookies.get('refresh_token')?.value;
+    // Authenticate and get user
+    const authResult = await requirePermission(request, 'user_profile', 'update')
+    if (authResult instanceof NextResponse) {
+      return authResult
     }
 
-    if (!token) {
-      return NextResponse.json(
-        { errors: { message: 'Not authenticated' } },
-        { status: 401 }
-      );
-    }
+    const { user, permissions } = authResult
 
-    const payload = await verifyJWT(token);
+    const body = await request.json()
+    const validatedData = updateProfileSchema.parse(body)
 
-    if (!payload) {
-      return NextResponse.json(
-        { errors: { message: 'Invalid or expired token' } },
-        { status: 401 }
-      );
-    }
+    // Get permitted fields for this user
+    const permittedData = getPermittedFields(
+      permissions,
+      'user_profile',
+      'update',
+      validatedData,
+      { userId: user.id }
+    )
 
-    const body = await request.json();
-    const validatedData = updateProfileSchema.parse(body);
-
-    // Update user profile
-    const user = await prisma.user.update({
-      where: { id: payload.id },
+    // Update user profile with only permitted fields
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
       data: {
-        ...(validatedData.firstName && { firstName: validatedData.firstName }),
-        ...(validatedData.lastName && { lastName: validatedData.lastName }),
-        ...(validatedData.avatarUrl && { avatarUrl: validatedData.avatarUrl }),
+        ...(permittedData.firstName && { firstName: permittedData.firstName }),
+        ...(permittedData.lastName && { lastName: permittedData.lastName }),
+        ...(permittedData.avatarUrl && { avatarUrl: permittedData.avatarUrl }),
       },
       include: {
         studentProfile: true,
         alumniProfile: true,
       },
-    });
+    })
 
     return NextResponse.json(
       {
         user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          avatarUrl: user.avatarUrl,
-          studentProfile: user.studentProfile,
-          alumniProfile: user.alumniProfile,
+          id: updatedUser.id,
+          email: updatedUser.email,
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          role: updatedUser.role,
+          avatarUrl: updatedUser.avatarUrl,
+          isVerified: updatedUser.isVerified,
+          isActive: updatedUser.isActive,
+          studentProfile: updatedUser.studentProfile,
+          alumniProfile: updatedUser.alumniProfile,
         },
       },
       { status: 200 }
-    );
+    )
   } catch (error) {
     // Handle validation errors
     if (error instanceof ZodError) {
-      const fieldErrors = error.flatten().fieldErrors;
-      return NextResponse.json(
-        { errors: fieldErrors },
-        { status: 400 }
-      );
+      const fieldErrors = error.flatten().fieldErrors
+      return NextResponse.json({ errors: fieldErrors }, { status: 400 })
     }
 
-    console.error('[UPDATE_PROFILE_ERROR]', error);
+    console.error('[UPDATE_PROFILE_ERROR]', error)
     return NextResponse.json(
       { errors: { message: 'Failed to update profile' } },
       { status: 500 }
-    );
+    )
   }
 }

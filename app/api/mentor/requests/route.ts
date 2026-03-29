@@ -1,112 +1,89 @@
-import { NextRequest, NextResponse } from 'next/server';
-
-interface PendingRequest {
-  id: string;
-  name: string;
-  role: string;
-  program: string;
-  initials: string;
-  status: 'pending';
-  lastInteraction: string;
-}
+import { NextRequest, NextResponse } from 'next/server'
+import { requirePermission, requireAuth } from '@/app/_lib/abac/middleware'
+import { buildPermissionFilter } from '@/app/_lib/abac/engine'
+import { MentorshipRequestService, NotificationService } from '@/app/_services'
 
 /**
  * GET /api/mentor/requests
- * 
- * Fetches pending mentorship requests for the mentor
- * 
- * Query params:
- * - mentorId: string (optional, defaults to current user)
- * - status: 'pending' | 'accepted' | 'declined' (optional, defaults to 'pending')
- * - limit: number (optional, defaults to 10)
- * 
- * Response:
- * {
- *   success: boolean
- *   data: PendingRequest[]
- *   total: number
- *   error?: string
- * }
+ * List mentorship requests for current user (Alumni/Admin only)
+ * Filters requests based on alumni role - alumni see only their requests
  */
 export async function GET(request: NextRequest) {
   try {
-    // TODO: In production, extract mentorId from JWT token
-    const searchParams = request.nextUrl.searchParams;
-    const mentorId = searchParams.get('mentorId') || 'current-user';
-    const status = searchParams.get('status') || 'pending';
-    const limit = parseInt(searchParams.get('limit') || '10', 10);
+    const authResult = await requirePermission(request, 'mentorship_request', 'list')
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
 
-    // TODO: Replace with actual database query
-    // For now, return mock data
-    const requests: PendingRequest[] = [
-      {
-        id: '1',
-        name: 'Ama Asante',
-        role: 'Computer Science Student',
-        program: 'BSc Computer Science',
-        initials: 'AA',
-        status: 'pending',
-        lastInteraction: '2 days ago',
-      },
-      {
-        id: '2',
-        name: 'Kwame Osei',
-        role: 'Business Student',
-        program: 'BSc Business Administration',
-        initials: 'KO',
-        status: 'pending',
-        lastInteraction: '1 week ago',
-      },
-      {
-        id: '3',
-        name: 'Nada Mensah',
-        role: 'Engineering Student',
-        program: 'BSc Engineering',
-        initials: 'NM',
-        status: 'pending',
-        lastInteraction: '3 days ago',
-      },
-    ];
+    const { user, permissions } = authResult
+
+    // Build permission-based filter
+    const filter = buildPermissionFilter(permissions, 'mentorship_request', 'list')
+
+    // Get query params
+    const searchParams = request.nextUrl.searchParams
+    const status = (searchParams.get('status') || 'PENDING') as string
+    const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 100)
+    const offset = parseInt(searchParams.get('offset') || '0')
+
+    // Use service to fetch requests
+    const { requests, total } = await MentorshipRequestService.listRequests(filter, {
+      status,
+      limit,
+      offset,
+    })
 
     return NextResponse.json(
       {
         success: true,
-        data: requests.slice(0, limit),
-        total: requests.length,
+        data: requests.map(req => ({
+          id: req.id,
+          status: req.status,
+          studentName: `${req.student.user.firstName} ${req.student.user.lastName}`,
+          studentEmail: req.student.user.email,
+          studentMajor: req.student.major,
+          goal: req.goal,
+          message: req.message,
+          createdAt: req.createdAt,
+          updatedAt: req.updatedAt,
+        })),
+        pagination: {
+          total,
+          limit,
+          offset,
+          hasMore: offset + limit < total,
+        },
       },
       { status: 200 }
-    );
+    )
   } catch (error) {
-    console.error('Error fetching mentor requests:', error);
+    console.error('Error fetching mentor requests:', error)
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to fetch mentor requests',
+        error: 'Failed to fetch mentorship requests',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
 /**
  * POST /api/mentor/requests
- * 
- * Accept a mentorship request
- * 
- * Constraints:
- * - Maximum 3 active mentees
- * - Recommended: 1-2 mentees for 3-6 months
+ * Accept a mentorship request (Alumni only)
  */
-interface AcceptRequestBody {
-  requestId: string;
-}
-
-const MENTOR_MAX_CAPACITY = 3;
-
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as AcceptRequestBody;
-    const { requestId } = body;
+    const authResult = await requireAuth(request)
+    if (authResult instanceof NextResponse) {
+      return authResult
+    }
+
+    const { user } = authResult
+
+    // Parse request body
+    const body = await request.json()
+    const { requestId } = body as { requestId: string }
 
     if (!requestId) {
       return NextResponse.json(
@@ -115,84 +92,105 @@ export async function POST(request: NextRequest) {
           error: 'requestId is required',
         },
         { status: 400 }
-      );
+      )
     }
 
-    // TODO: In production, extract mentorId from JWT token
-    // TODO: Query database to get current active mentees count
-    const currentActiveMentees = 2; // Mock data
+    // Find the request
+    const mentorshipRequest = await prisma.mentorshipRequest.findUnique({
+      where: { id: requestId },
+      include: {
+        student: {
+          include: { user: true },
+        },
+        alumni: {
+          include: { user: true },
+        },
+      },
+    })
 
-    // Check if mentor has reached max capacity
-    if (currentActiveMentees >= MENTOR_MAX_CAPACITY) {
+    if (!mentorshipRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: `Cannot accept request: You have reached your maximum mentoring capacity (${MENTOR_MAX_CAPACITY} students). Please complete or end a mentorship to accept new students.`,
-          code: 'CAPACITY_EXCEEDED',
-          data: {
-            currentMentees: currentActiveMentees,
-            maxCapacity: MENTOR_MAX_CAPACITY,
-          },
+          error: 'Mentorship request not found',
         },
-        { status: 403 }
-      );
+        { status: 404 }
+      )
     }
 
-    // TODO: Update database to move request from pending to active mentoree
-    
-    // Mock student and mentor data (in production, query from database)
-    const student = {
-      id: 'student_001',
-      email: 'ama.asante@ashesi.edu.gh',
-      name: 'Ama Asante',
-    };
+    // Check permission - alumni can only accept requests directed to them
+    if (
+      user.role === 'ALUMNI' &&
+      mentorshipRequest.alumniId !== user.alumniProfile?.id
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'You do not have permission to accept this request',
+        },
+        { status: 403 }
+      )
+    }
 
-    const mentor = {
-      userId: 'mentor_current',
-      email: 'mentor@ashesi.edu.gh',
-      name: 'Dr. Kwame Asante',
-      title: 'Senior Software Engineer at Google',
-      bio: 'Passionate about mentoring young tech talents with 10+ years of industry experience.',
-      rating: 4.8,
-    };
+    // Check status
+    if (mentorshipRequest.status !== 'PENDING') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Cannot accept request with status: ${mentorshipRequest.status}`,
+        },
+        { status: 409 }
+      )
+    }
 
-    // Send student paired email asynchronously
-    (async () => {
-      try {
-        const { sendStudentPairedEmail } = await import('@/app/_services/email/emailHelpers');
-        const result = await sendStudentPairedEmail(
-          { userId: student.id, email: student.email, name: student.name },
-          mentor,
-          requestId
-        );
+    // Update request
+    const updated = await prisma.mentorshipRequest.update({
+      where: { id: requestId },
+      data: {
+        status: 'ACCEPTED',
+        updatedAt: new Date(),
+      },
+      include: {
+        student: {
+          include: { user: true },
+        },
+        alumni: {
+          include: { user: true },
+        },
+      },
+    })
 
-        if (!result.success) {
-          console.error('Failed to send student paired email:', result.error);
-        }
-      } catch (emailError) {
-        console.error('Error sending student paired email:', emailError);
-      }
-    })();
+    // Send notification to student
+    await prisma.notification.create({
+      data: {
+        userId: mentorshipRequest.student.userId,
+        type: 'REQUEST_ACCEPTED',
+        title: 'Mentorship Accepted',
+        body: `${mentorshipRequest.alumni.user.firstName} ${mentorshipRequest.alumni.user.lastName} accepted your mentorship request`,
+        link: `/dashboard/sessions?requestId=${requestId}`,
+        isRead: false,
+      },
+    })
 
     return NextResponse.json(
       {
         success: true,
         data: {
-          id: requestId,
-          status: 'accepted',
-          message: `Mentorship accepted! Confirmation email sent to ${student.email}`,
+          id: updated.id,
+          status: updated.status,
+          message: 'Request accepted successfully',
         },
       },
       { status: 200 }
-    );
+    )
   } catch (error) {
-    console.error('Error accepting mentor request:', error);
+    console.error('Error accepting mentorship request:', error)
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to accept mentor request',
+        error: 'Failed to accept mentorship request',
       },
       { status: 500 }
-    );
+    )
   }
 }

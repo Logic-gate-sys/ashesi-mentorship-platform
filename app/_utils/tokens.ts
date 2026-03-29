@@ -11,8 +11,11 @@
 
 import { SignJWT } from 'jose';
 
-const secret = new TextEncoder().encode(
-  process.env.EMAIL_TOKEN_SECRET || 'development-secret-change-in-production'
+const secret = new Uint8Array(
+  Buffer.from(
+    process.env.EMAIL_TOKEN_SECRET || 'development-secret-change-in-production',
+    'utf-8'
+  )
 );
 
 export interface MagicTokenPayload {

@@ -1,29 +1,18 @@
-import { config as customEnvConfig } from 'custom-env'
 import { z } from 'zod'
 
 // ── Load Environment Variables ────────────────────────────────────────
 
 /**
- * Load environment variables based on APP_STAGE
- * custom-env will load .env.{APP_STAGE} file
- * Falls back to .env if stage-specific file doesn't exist
+ * Environment variables are loaded in the following order:
+ * 1. vitest.config.ts loads .env.test via dotenv (for tests)
+ * 2. next.config.ts/build process loads .env.{NODE_ENV} (for Next.js)
+ * 3. Runtime loads .env (for local development)
  * 
  * File precedence (highest to lowest):
  * 1. .env.{APP_STAGE} (e.g., .env.production, .env.dev, .env.test)
  * 2. .env (default)
  */
 process.env.APP_STAGE = process.env.VITEST ? 'test' : (process.env.APP_STAGE || 'dev')
-
-// Load the appropriate .env file based on APP_STAGE
-try {
-  customEnvConfig({
-    path: process.cwd(),
-    env: process.env.APP_STAGE,
-  })
-} catch (error) {
-  // Gracefully handle custom-env loading issues in build/runtime contexts
-  console.warn('Failed to load custom-env configuration:', error instanceof Error ? error.message : 'Unknown error')
-}
 
 // ── Environment Validation Schema ─────────────────────────────────────
 

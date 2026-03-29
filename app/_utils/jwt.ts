@@ -13,7 +13,14 @@ export interface CustomPayload extends JWTPayload{
 }
 
 const getSecret = (): Uint8Array => {
-  return new TextEncoder().encode(env.JWT_SECRET);
+  const secret = env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined');
+  }
+  
+  // Use Buffer instead of TextEncoder for better cross-environment compatibility
+  // This works in both Node.js and test environments
+  return new Uint8Array(Buffer.from(secret, 'utf-8'));
 };
 
 export async function createJWT(
