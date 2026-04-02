@@ -92,11 +92,3 @@ async function getHandler(request: NextRequest) {
 
 export const POST = withErrorHandling(postHandler)
 export const GET = withErrorHandling(getHandler)
-      where: { id },
-    });
-
-    return successResponse(null, 'Availability deleted successfully');
-  } catch (error) {
-    return serverErrorResponse(error as Error, 'Failed to delete availability');
-  }
-}

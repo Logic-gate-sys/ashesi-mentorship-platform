@@ -7,11 +7,11 @@ const BASE_URL = 'http://localhost:3000';
 
 describe('Auth API - Registration & Authentication', () => {
   beforeAll(async () => {
-    await clearDatabase();
+    await cleanupAllData();
   });
 
   afterAll(async () => {
-    await clearDatabase();
+    await cleanupAllData();
   });
 
 
@@ -170,7 +170,7 @@ describe('Auth API - Registration & Authentication', () => {
 
     beforeEach(async () => {
       // Create test user
-      await clearDatabase();
+      await cleanupAllData();
       const response = await request(BASE_URL)
         .post('/api/auth/register/student')
         .send({
@@ -237,7 +237,7 @@ describe('Auth API - Registration & Authentication', () => {
     let token: string;
 
     beforeEach(async () => {
-      await clearDatabase();
+      await cleanupAllData();
       const response = await request(BASE_URL)
         .post('/api/auth/register/student')
         .send({
@@ -295,7 +295,7 @@ describe('Auth API - Registration & Authentication', () => {
     let token: string;
 
     beforeEach(async () => {
-      await clearDatabase();
+      await cleanupAllData();
       const response = await request(BASE_URL)
         .post('/api/auth/register/student')
         .send({

@@ -1,54 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import request from 'supertest';
-import { prisma } from '@/app/_utils/db';
 import { createJWT } from '@/app/_utils/jwt';
-import { hashPassword } from '@/app/_utils/password';
+import { createTestUser } from '../helpers/factories';
+import { cleanupAllData, createStudentProfileDirect, createAlumniProfileDirect, createMentorshipRequestDirect, deleteUser } from '../helpers/database.helpers';
 
 const BASE_URL = 'http://localhost:3000';
-
-// Helper to create test user
-async function createTestUser(role: 'STUDENT' | 'ALUMNI' | 'ADMIN') {
-  const user = await prisma.user.create({
-    data: {
-      email: `test-${role.toLowerCase()}-${Date.now()}@ashesi.edu.gh`,
-      passwordHash: hashPassword('TestPass123!'),
-      role,
-      firstName: 'Test',
-      lastName: role,
-      isVerified: true,
-      isActive: true,
-    },
-  });
-
-  return user;
-}
-
-// Helper to create test student profile
-async function createStudentProfile(userId: string) {
-  return await prisma.studentProfile.create({
-    data: {
-      userId,
-      yearGroup: 2,
-      major: 'Computer Science',
-      interests: ['Web Dev', 'Machine Learning'],
-    },
-  });
-}
-
-// Helper to create test alumni profile
-async function createAlumniProfile(userId: string) {
-  return await prisma.alumniProfile.create({
-    data: {
-      userId,
-      graduationYear: 2022,
-      major: 'Computer Science',
-      company: 'Tech Corp',
-      jobTitle: 'Software Engineer',
-      industry: 'TECHNOLOGY',
-      isAvailable: true,
-    },
-  });
-}
 
 // Helper to get JWT token
 async function getToken(userId: string) {
@@ -78,8 +34,19 @@ describe('Mentorship Requests API', () => {
     alumniUser = await createTestUser('ALUMNI');
 
     // Create profiles
-    studentProfile = await createStudentProfile(studentUser.id);
-    alumniProfile = await createAlumniProfile(alumniUser.id);
+    studentProfile = await createStudentProfileDirect(studentUser.id, {
+      yearGroup: 2,
+      major: 'Computer Science',
+      interests: ['Web Dev', 'Machine Learning'],
+    });
+    alumniProfile = await createAlumniProfileDirect(alumniUser.id, {
+      graduationYear: 2022,
+      major: 'Computer Science',
+      company: 'Tech Corp',
+      jobTitle: 'Software Engineer',
+      industry: 'TECHNOLOGY',
+      isAvailable: true,
+    });
 
     // Get tokens
     studentToken = await getToken(studentUser.id);
@@ -87,10 +54,7 @@ describe('Mentorship Requests API', () => {
   });
 
   afterAll(async () => {
-    await prisma.mentorshipRequest.deleteMany();
-    await prisma.alumniProfile.deleteMany();
-    await prisma.studentProfile.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanupAllData();
   });
 
   describe('POST /api/student/requests', () => {
@@ -220,7 +184,14 @@ describe('Mentorship Requests API', () => {
 
     it('should prevent non-assigned alumni from accepting', async () => {
       const otherAlumniUser = await createTestUser('ALUMNI');
-      const otherAlumniProfile = await createAlumniProfile(otherAlumniUser.id);
+      const otherAlumniProfile = await createAlumniProfileDirect(otherAlumniUser.id, {
+        graduationYear: 2022,
+        major: 'Computer Science',
+        company: 'Tech Corp',
+        jobTitle: 'Software Engineer',
+        industry: 'TECHNOLOGY',
+        isAvailable: true,
+      });
       const otherToken = await getToken(otherAlumniUser.id);
 
       const response = await request(BASE_URL)
@@ -230,8 +201,7 @@ describe('Mentorship Requests API', () => {
       expect(response.status).toBe(403);
 
       // Cleanup
-      await prisma.alumniProfile.delete({ where: { id: otherAlumniProfile.id } });
-      await prisma.user.delete({ where: { id: otherAlumniUser.id } });
+      await deleteUser(otherAlumniUser.id);
     });
   });
 });
@@ -248,31 +218,33 @@ describe('Sessions API', () => {
   beforeAll(async () => {
     studentUser = await createTestUser('STUDENT');
     alumniUser = await createTestUser('ALUMNI');
-    studentProfile = await createStudentProfile(studentUser.id);
-    alumniProfile = await createAlumniProfile(alumniUser.id);
+    studentProfile = await createStudentProfileDirect(studentUser.id, {
+      yearGroup: 2,
+      major: 'Computer Science',
+      interests: ['Web Dev', 'Machine Learning'],
+    });
+    alumniProfile = await createAlumniProfileDirect(alumniUser.id, {
+      graduationYear: 2022,
+      major: 'Computer Science',
+      company: 'Tech Corp',
+      jobTitle: 'Software Engineer',
+      industry: 'TECHNOLOGY',
+      isAvailable: true,
+    });
     studentToken = await getToken(studentUser.id);
     alumniToken = await getToken(alumniUser.id);
 
     // Create and accept a mentorship request
-    const req = await prisma.mentorshipRequest.create({
-      data: {
-        studentId: studentProfile.id,
-        alumniId: alumniProfile.id,
-        goal: 'Learn web development and system design best practices',
-        status: 'ACCEPTED',
-      },
+    const req = await createMentorshipRequestDirect(studentProfile.id, alumniProfile.id, {
+      goal: 'Learn web development and system design best practices',
+      status: 'ACCEPTED',
     });
 
     request_ = req;
   });
 
   afterAll(async () => {
-    await prisma.session.deleteMany();
-    await prisma.sessionFeedback.deleteMany();
-    await prisma.mentorshipRequest.deleteMany();
-    await prisma.alumniProfile.deleteMany();
-    await prisma.studentProfile.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanupAllData();
   });
 
   describe('POST /api/sessions', () => {
@@ -351,14 +323,19 @@ describe('Availability API', () => {
 
   beforeAll(async () => {
     alumniUser = await createTestUser('ALUMNI');
-    alumniProfile = await createAlumniProfile(alumniUser.id);
+    alumniProfile = await createAlumniProfileDirect(alumniUser.id, {
+      graduationYear: 2022,
+      major: 'Computer Science',
+      company: 'Tech Corp',
+      jobTitle: 'Software Engineer',
+      industry: 'TECHNOLOGY',
+      isAvailable: true,
+    });
     alumniToken = await getToken(alumniUser.id);
   });
 
   afterAll(async () => {
-    await prisma.availability.deleteMany();
-    await prisma.alumniProfile.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanupAllData();
   });
 
   describe('POST /api/alumni/availability', () => {
@@ -433,18 +410,27 @@ describe('ABAC Permissions', () => {
 
   beforeAll(async () => {
     studentUser = await createTestUser('STUDENT');
-    await createStudentProfile(studentUser.id);
+    await createStudentProfileDirect(studentUser.id, {
+      yearGroup: 2,
+      major: 'Computer Science',
+      interests: ['Web Dev', 'Machine Learning'],
+    });
     studentToken = await getToken(studentUser.id);
 
     const alumniUser = await createTestUser('ALUMNI');
-    await createAlumniProfile(alumniUser.id);
+    await createAlumniProfileDirect(alumniUser.id, {
+      graduationYear: 2022,
+      major: 'Computer Science',
+      company: 'Tech Corp',
+      jobTitle: 'Software Engineer',
+      industry: 'TECHNOLOGY',
+      isAvailable: true,
+    });
     alumniToken = await getToken(alumniUser.id);
   });
 
   afterAll(async () => {
-    await prisma.studentProfile.deleteMany();
-    await prisma.alumniProfile.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanupAllData();
   });
 
   it('only students can create mentorship requests', async () => {

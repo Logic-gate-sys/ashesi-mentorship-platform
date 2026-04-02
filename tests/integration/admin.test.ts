@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import { createJWT } from '@/app/_utils/jwt';
-import { hashPassword } from '@/app/_utils/password';
 import { createTestUser } from '../helpers/factories';
 import { cleanupAllData, deleteUser, updateUserStatus, createNotificationDirect } from '../helpers/database.helpers';
 
@@ -21,7 +20,7 @@ async function getToken(userId: string, role: string = 'ADMIN') {
 }
 
 describe('Admin - Mentorship Cycles', () => {
-  let adminUser: any;
+  let adminUser;
   let adminToken: string;
   let cycleId: string;
 
@@ -368,7 +367,7 @@ describe('ABAC Permission System', () => {
     // User can only see their own notifications
     const notification = await createNotificationDirect(studentUser.id, 'TEST', {
       title: 'Test',
-      message: 'Test notification',
+      body: 'Test notification',
     });
 
     // Student can access their own notifications

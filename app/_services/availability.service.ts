@@ -12,7 +12,7 @@ export class AvailabilityService {
   static async createAvailability(
     alumniId: string,
     data: {
-      dayOfWeek: number
+      dayOfWeek: string
       startTime: string
       endTime: string
     }

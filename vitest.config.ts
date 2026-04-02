@@ -21,17 +21,9 @@ export default defineConfig({
         // Automatically clean up after each test to ensure isolation
         clearMocks: true,
         restoreMocks: true,
-        // Use node environment by default (needed for crypto, prisma, etc)
-        environment: 'node',
-        // UI tests need jsdom - mark with @vitest/ui tag
-        environments: ['node', 'jsdom'],
-        environmentMatchGlobs: [
-            ['tests/ui/**', 'jsdom'],
-            ['tests/unit/dashboard/**', 'jsdom'],
-            ['tests/integration/mentor-dashboard.test.tsx', 'jsdom'],
-        ],
-        // Ensure tests run sequentially to avoid database conflicts
+        environment:'node',
         pool: 'threads',
+        // allow rest coverage witht he v8 engine
         coverage: {
             provider: 'v8'
         }

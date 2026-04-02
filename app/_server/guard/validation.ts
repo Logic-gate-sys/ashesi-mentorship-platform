@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import { ZodObject } from "zod"
+import type { ZodObject } from "zod"
 
-export function validateRequestBody(schema: ZodObject) {
+export function validateRequestBody(schema: ZodObject<any, any, any, any>) {
   return async (req: NextRequest) => {
     const body = await req.json()
 
@@ -23,7 +23,7 @@ export function validateRequestBody(schema: ZodObject) {
   }
 }
 
-export function validateRequestQuery(schema: ZodObject) {
+export function validateRequestQuery(schema: ZodObject<any, any, any, any>) {
   return async (req: NextRequest) => {
     const query = Object.fromEntries(req.nextUrl.searchParams)
 
@@ -47,7 +47,7 @@ export function validateRequestQuery(schema: ZodObject) {
 }
 
 
-export function validateRequestParams (schema: ZodObject) {
+export function validateRequestParams (schema: ZodObject<any, any, any, any>) {
   return async (req:NextRequest,) => {
     const result = schema.safeParse((req as any).params)
 

@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 import { Buffer } from 'buffer';
 
 // Ensure Buffer is available in jsdom test environment
-// jose library requires Buffer for Uint8Array conversion
+//  Buffer for Uint8Array conversion in jose
 if (typeof global.Buffer === 'undefined') {
   (globalThis).Buffer = Buffer;
 }

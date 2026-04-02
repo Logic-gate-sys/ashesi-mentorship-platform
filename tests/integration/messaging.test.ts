@@ -1,25 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import request from 'supertest';
-import { prisma } from '@/app/_utils/db';
 import { createJWT } from '@/app/_utils/jwt';
-import { hashPassword } from '@/app/_utils/password';
+import { createTestUser } from '../helpers/factories';
+import { cleanupAllData, deleteUser, createStudentProfileDirect, createAlumniProfileDirect, createMentorshipRequestDirect, createSessionDirect, createNotificationDirect, findConversationParticipant, findNotificationById } from '../helpers/database.helpers';
 
 const BASE_URL = 'http://localhost:3000';
-
-async function createTestUser(role: 'STUDENT' | 'ALUMNI' | 'ADMIN') {
-  const user = await prisma.user.create({
-    data: {
-      email: `test-${role.toLowerCase()}-${Date.now()}@ashesi.edu.gh`,
-      passwordHash: hashPassword('TestPass123!'),
-      role,
-      firstName: 'Test',
-      lastName: role,
-      isVerified: true,
-      isActive: true,
-    },
-  });
-  return user;
-}
 
 async function getToken(userId: string) {
   return await createJWT(
@@ -49,10 +34,7 @@ describe('Messaging API', () => {
   });
 
   afterAll(async () => {
-    await prisma.message.deleteMany();
-    await prisma.conversationParticipant.deleteMany();
-    await prisma.conversation.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanupAllData();
   });
 
   describe('POST /api/messages/conversations', () => {
@@ -178,7 +160,7 @@ describe('Messaging API', () => {
       expect(response.status).toBe(403);
 
       // Cleanup
-      await prisma.user.delete({ where: { id: otherUser.id } });
+      await deleteUser(otherUser.id);
     });
 
     it('should retrieve conversation messages with pagination', async () => {
@@ -216,7 +198,7 @@ describe('Messaging API', () => {
       expect(response.status).toBe(403);
 
       // Cleanup
-      await prisma.user.delete({ where: { id: otherUser.id } });
+      await deleteUser(otherUser.id);
     });
 
     it('should mark conversation as read', async () => {
@@ -227,14 +209,7 @@ describe('Messaging API', () => {
       expect(response.status).toBe(200);
 
       // Verify lastReadAt was updated
-      const participant = await prisma.conversationParticipant.findUnique({
-        where: {
-          conversationId_userId: {
-            conversationId,
-            userId: user2.id,
-          },
-        },
-      });
+      const participant = await findConversationParticipant(conversationId, user2.id);
 
       expect(participant?.lastReadAt).toBeDefined();
       expect(participant?.lastReadAt).not.toBeNull();
@@ -258,61 +233,40 @@ describe('Session Feedback API', () => {
     alumniToken = await getToken(alumniUser.id);
 
     // Create profiles
-    studentProfile = await prisma.studentProfile.create({
-      data: {
-        userId: studentUser.id,
-        yearGroup: 2,
-        major: 'Computer Science',
-        interests: ['Web Dev'],
-      },
+    studentProfile = await createStudentProfileDirect(studentUser.id, {
+      yearGroup: 2,
+      major: 'Computer Science',
+      interests: ['Web Dev'],
     });
 
-    alumniProfile = await prisma.alumniProfile.create({
-      data: {
-        userId: alumniUser.id,
-        graduationYear: 2022,
-        major: 'CS',
-        company: 'Tech',
-        jobTitle: 'Engineer',
-        industry: 'TECHNOLOGY',
-      },
+    alumniProfile = await createAlumniProfileDirect(alumniUser.id, {
+      graduationYear: 2022,
+      major: 'CS',
+      company: 'Tech',
+      jobTitle: 'Engineer',
+      industry: 'TECHNOLOGY',
     });
 
     // Create request and session
-    const req = await prisma.mentorshipRequest.create({
-      data: {
-        studentId: studentProfile.id,
-        alumniId: alumniProfile.id,
-        goal: 'Learn web development and system design best practices',
-        status: 'ACCEPTED',
-      },
+    const req = await createMentorshipRequestDirect(studentProfile.id, alumniProfile.id, {
+      goal: 'Learn web development and system design best practices',
+      status: 'ACCEPTED',
     });
 
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + 7);
 
-    const session = await prisma.session.create({
-      data: {
-        requestId: req.id,
-        studentId: studentProfile.id,
-        alumniId: alumniProfile.id,
-        topic: 'Web Dev Basics',
-        scheduledAt: futureDate,
-        duration: 60,
-        status: 'COMPLETED',
-      },
+    const session = await createSessionDirect(req.id, 'Web Dev Basics', {
+      scheduledAt: futureDate,
+      duration: 60,
+      status: 'COMPLETED',
     });
 
     sessionId = session.id;
   });
 
   afterAll(async () => {
-    await prisma.sessionFeedback.deleteMany();
-    await prisma.session.deleteMany();
-    await prisma.mentorshipRequest.deleteMany();
-    await prisma.studentProfile.deleteMany();
-    await prisma.alumniProfile.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanupAllData();
   });
 
   describe('POST /api/sessions/:sessionId/feedback', () => {
@@ -384,21 +338,16 @@ describe('Notification API', () => {
     token = await getToken(user.id);
 
     // Create a test notification
-    const notification = await prisma.notification.create({
-      data: {
-        userId: user.id,
-        type: 'REQUEST_RECEIVED',
-        title: 'Test Notification',
-        body: 'This is a test notification',
-      },
+    const notification = await createNotificationDirect(user.id, 'REQUEST_RECEIVED', {
+      title: 'Test Notification',
+      body: 'This is a test notification',
     });
 
     notificationId = notification.id;
   });
 
   afterAll(async () => {
-    await prisma.notification.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanupAllData();
   });
 
   describe('GET /api/notifications', () => {
@@ -436,13 +385,9 @@ describe('Notification API', () => {
   describe('DELETE /api/notifications/:id', () => {
     it('should delete a notification', async () => {
       // Create a notification to delete
-      const notification = await prisma.notification.create({
-        data: {
-          userId: user.id,
-          type: 'SESSION_REMINDER',
-          title: 'To Delete',
-          body: 'Delete me',
-        },
+      const notification = await createNotificationDirect(user.id, 'SESSION_REMINDER', {
+        title: 'To Delete',
+        body: 'Delete me',
       });
 
       const response = await request(BASE_URL)
@@ -452,9 +397,7 @@ describe('Notification API', () => {
       expect(response.status).toBe(200);
 
       // Verify it's deleted
-      const check = await prisma.notification.findUnique({
-        where: { id: notification.id },
-      });
+      const check = await findNotificationById(notification.id);
 
       expect(check).toBeNull();
     });

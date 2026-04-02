@@ -7,7 +7,8 @@
 // Mentorship Request DTO
 export interface MentorshipRequestDTO {
   id: string
-  status: string  studentName: string
+  status: string
+  studentName: string
   studentEmail: string
   studentMajor: string
   goal: string
@@ -119,7 +120,7 @@ export interface StudentProfileDTO {
   lastName: string
   email: string
   major: string
-  grad Year: number | null
+  gradYear: number | null
   bio: string | null
   createdAt: string
   updatedAt: string

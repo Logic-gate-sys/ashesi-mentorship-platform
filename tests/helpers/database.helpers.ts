@@ -1,13 +1,5 @@
 import { prisma } from '@/app/_utils/db';
 
-/**
- * Database cleanup helpers
- * Abstracts all direct Prisma calls from test files
- */
-
-/**
- * Clean up all database tables in correct FK dependency order
- */
 export async function cleanupAllData() {
   try {
     // Delete in correct order to respect foreign key constraints
@@ -20,7 +12,6 @@ export async function cleanupAllData() {
       prisma.mentorshipRequest.deleteMany(),
       prisma.alumniProfile.deleteMany(),
       prisma.studentProfile.deleteMany(),
-      prisma.mentorshipCycle.deleteMany(),
       prisma.conversationParticipant.deleteMany(),
       prisma.conversation.deleteMany(),
     ]);
@@ -31,18 +22,13 @@ export async function cleanupAllData() {
   }
 }
 
-/**
- * Delete a specific user by ID
- */
+
 export async function deleteUser(userId: string) {
   return await prisma.user.delete({
     where: { id: userId },
   });
 }
 
-/**
- * Create a student profile directly
- */
 export async function createStudentProfileDirect(userId: string, overrides = {}) {
   return await prisma.studentProfile.create({
     data: {
@@ -55,9 +41,7 @@ export async function createStudentProfileDirect(userId: string, overrides = {})
   });
 }
 
-/**
- * Create an alumni profile directly
- */
+
 export async function createAlumniProfileDirect(userId: string, overrides = {}) {
   return await prisma.alumniProfile.create({
     data: {
@@ -74,18 +58,16 @@ export async function createAlumniProfileDirect(userId: string, overrides = {}) 
   });
 }
 
-/**
- * Create a mentorship request directly
- */
+
 export async function createMentorshipRequestDirect(
   studentId: string,
-  alumniProfileId: string,
+  alumniId: string,
   overrides = {}
 ) {
   return await prisma.mentorshipRequest.create({
     data: {
       studentId,
-      alumniProfileId,
+      alumniId,
       goal: 'Learn web development and system design best practices',
       status: 'ACCEPTED',
       ...overrides,
@@ -93,20 +75,28 @@ export async function createMentorshipRequestDirect(
   });
 }
 
-/**
- * Create a session directly
- */
 export async function createSessionDirect(
   requestId: string,
   topic: string,
   overrides = {}
 ) {
+  // Get the request to extract student and alumni IDs
+  const request = await prisma.mentorshipRequest.findUnique({
+    where: { id: requestId },
+  });
+
+  if (!request) {
+    throw new Error(`Mentorship request not found: ${requestId}`);
+  }
+
   const futureDate = new Date();
   futureDate.setDate(futureDate.getDate() + 7);
 
   return await prisma.session.create({
     data: {
-      mentorshipRequestId: requestId,
+      requestId,
+      studentId: request.studentId,
+      alumniId: request.alumniId,
       topic,
       duration: 60,
       scheduledAt: futureDate,
@@ -116,9 +106,7 @@ export async function createSessionDirect(
   });
 }
 
-/**
- * Create a notification directly
- */
+
 export async function createNotificationDirect(
   userId: string,
   type: string,
@@ -129,25 +117,21 @@ export async function createNotificationDirect(
       userId,
       type,
       title: 'Test Notification',
-      message: 'This is a test notification',
+      body: 'This is a test notification',
       isRead: false,
       ...overrides,
     },
   });
 }
 
-/**
- * Find a user by email
- */
+
 export async function findUserByEmail(email: string) {
   return await prisma.user.findUnique({
     where: { email },
   });
 }
 
-/**
- * Find a conversation participant
- */
+
 export async function findConversationParticipant(
   conversationId: string,
   userId: string
@@ -162,9 +146,7 @@ export async function findConversationParticipant(
   });
 }
 
-/**
- * Update user status
- */
+
 export async function updateUserStatus(
   userId: string,
   isActive: boolean,
@@ -181,34 +163,22 @@ export async function updateUserStatus(
   });
 }
 
-/**
- * Create a cycle directly
- */
+
 export async function createCycleDirect(
   name: string,
   startDate: Date,
   endDate: Date,
   overrides = {}
 ) {
-  return await prisma.mentorshipCycle.create({
-    data: {
-      name,
-      startDate,
-      endDate,
-      ...overrides,
-    },
-  });
+  throw new Error('MentorshipCycle model does not exist in the current schema');
 }
 
-/**
- * Clean up specific tables
- */
+
 export async function cleanupTables(...tables: string[]) {
   const tableMap: Record<string, any> = {
     users: prisma.user,
     students: prisma.studentProfile,
     alumni: prisma.alumniProfile,
-    cycles: prisma.mentorshipCycle,
     requests: prisma.mentorshipRequest,
     sessions: prisma.session,
     feedback: prisma.sessionFeedback,
@@ -223,4 +193,11 @@ export async function cleanupTables(...tables: string[]) {
       await tableMap[table].deleteMany();
     }
   }
+}
+
+
+export async function findNotificationById(id: string) {
+  return await prisma.notification.findUnique({
+    where: { id },
+  });
 }
