@@ -1,126 +1,115 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { requirePermission } from '@/app/_lib/abac/middleware';
-import { buildPermissionFilter } from '@/app/_lib/abac/engine';
-import { MentorshipRequestService, ProfileService, NotificationService } from '@/app/_services';
-import {
-  createMentorshipRequestSchema,
-  listMentorshipRequestsQuerySchema,
-} from '@/app/_schemas/request.schema';
-import {
-  successResponse,
-  paginatedResponse,
-  validationErrorResponse,
-  notFoundResponse,
-  serverErrorResponse,
-  parseRequestBody,
-  parseQueryParams,
-} from '@/app/_utils/api-response';
+import { NextRequest, NextResponse } from 'next/server'
+import { requirePermission } from '@/app/_lib/abac/middleware'
+import { buildPermissionFilter } from '@/app/_lib/abac/engine'
+import { MentorshipRequestService, ProfileService, NotificationService } from '@/app/_services'
+import { createMentorshipRequestSchema } from '@/app/_schemas/request.schema'
+import { withErrorHandling, NotFoundError, ConflictError } from '@/app/_middleware'
+import { successResponse, paginatedResponse, validationErrorResponse } from '@/app/_utils/api-response'
+import { parsePaginationParams } from '@/app/_lib/query-parser'
+import { toMentorshipRequestDTO } from '@/app/_dtos'
+import { validateMentorshipRequest } from '@/app/_validators'
+import { z } from 'zod'
 
 /**
  * POST /api/student/requests
- * Create a new mentorship request (Student only)
+ * Create a new mentorship request
  */
-export async function POST(request: NextRequest) {
-  try {
-    // Authentication & Authorization
-    const authResult = await requirePermission(request, 'mentorship_request', 'create');
+async function postHandler(request: NextRequest) {
+  const authResult = await requirePermission(request, 'mentorship_request', 'create')
 
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
-
-    const { user, permissions } = authResult;
-
-    // Get student profile
-    const studentProfile = await ProfileService.getOrCreateStudentProfile(user.id);
-
-    // Parse and validate request body
-    const parseResult = await parseRequestBody(request, createMentorshipRequestSchema);
-    if (!parseResult.success) {
-      return parseResult.error;
-    }
-
-    const { alumniId, goal, message } = parseResult.data;
-
-    // Verify alumni exists and is available
-    const alumniProfile = await ProfileService.getAlumniById(alumniId);
-
-    if (!alumniProfile) {
-      return notFoundResponse('Alumni');
-    }
-
-    if (!alumniProfile.isAvailable) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'This mentor is not currently available',
-        },
-        { status: 409 }
-      );
-    }
-
-    // Create mentorship request (service handles duplicate checking)
-    const mentorshipRequest = await MentorshipRequestService.createRequest(
-      studentProfile.id,
-      { alumniId, goal, message }
-    );
-
-    // Create notification for alumni
-    await NotificationService.createNotification(alumniProfile.userId, {
-      type: 'REQUEST_RECEIVED',
-      title: 'New Mentorship Request',
-      message: `${studentProfile.user.firstName} ${studentProfile.user.lastName} sent you a mentorship request`,
-      relatedId: mentorshipRequest.id,
-      relatedType: 'MENTORSHIP_REQUEST',
-    });
-
-    return successResponse(mentorshipRequest, 'Mentorship request created successfully', 201);
-  } catch (error) {
-    return serverErrorResponse(error as Error, 'Failed to create mentorship request');
+  if (authResult instanceof NextResponse) {
+    return authResult
   }
+
+  const { user } = authResult
+
+  const studentProfile = await ProfileService.getOrCreateStudentProfile(user.id)
+  if (!studentProfile) {
+    throw new NotFoundError('Student profile')
+  }
+
+  const body = await request.json()
+  const parseResult = createMentorshipRequestSchema.safeParse(body)
+
+  if (!parseResult.success) {
+    return validationErrorResponse(parseResult.error)
+  }
+
+  const { alumniId, goal, message } = parseResult.data
+
+  const alumniProfile = await ProfileService.getAlumniById(alumniId)
+  if (!alumniProfile) {
+    throw new NotFoundError('Alumni')
+  }
+
+  if (!alumniProfile.isAvailable) {
+    throw new ConflictError('This mentor is not currently available')
+  }
+
+  const existingRequests = await MentorshipRequestService.listRequests(
+    { studentId: studentProfile.id, alumniId, statusIn: ['PENDING', 'ACCEPTED'] },
+    { limit: 1, offset: 0 }
+  )
+
+  validateMentorshipRequest(
+    { studentId: studentProfile.id, alumniId, goal, message },
+    existingRequests.total
+  )
+
+  const mentorshipRequest = await MentorshipRequestService.createRequest(
+    studentProfile.id,
+    { alumniId, goal, message }
+  )
+
+  await NotificationService.createNotification(
+    alumniProfile.userId,
+    'REQUEST_RECEIVED',
+    'New Mentorship Request',
+    `${studentProfile.user.firstName} ${studentProfile.user.lastName} sent you a mentorship request`,
+    `/dashboard/requests?requestId=${mentorshipRequest.id}`
+  )
+
+  const dto = toMentorshipRequestDTO(mentorshipRequest)
+  return successResponse(dto, 'Mentorship request created successfully', 201)
 }
 
 /**
  * GET /api/student/requests
- * List mentorship requests for the authenticated user (Student/Alumni/Admin)
- * Uses permission-based filtering to ensure users only see their authorized requests
+ * List mentorship requests with permission-based filtering
  */
-export async function GET(request: NextRequest) {
-  try {
-    // Authentication & Authorization
-    const authResult = await requirePermission(request, 'mentorship_request', 'list');
+async function getHandler(request: NextRequest) {
+  const authResult = await requirePermission(request, 'mentorship_request', 'list')
 
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
-
-    const { user, permissions } = authResult;
-
-    // Parse query parameters
-    const queryResult = parseQueryParams(request, listMentorshipRequestsQuerySchema);
-    if (!queryResult.success) {
-      return queryResult.error;
-    }
-
-    const { status, limit, offset, sortBy, sortOrder } = queryResult.data;
-
-    // Build permission filter
-    const permissionFilter = buildPermissionFilter(permissions, 'mentorship_request', 'list');
-    
-    // Add status filter if provided
-    const filter: any = { ...permissionFilter };
-    if (status) {
-      filter.status = status;
-    }
-
-    // Use service to fetch requests with pagination
-    const { requests, total } = await MentorshipRequestService.listRequests(filter, {
-      limit,
-      offset,
-    });
-
-    return paginatedResponse(requests, limit, offset, total);
-  } catch (error) {
-    return serverErrorResponse(error as Error, 'Failed to fetch mentorship requests');
+  if (authResult instanceof NextResponse) {
+    return authResult
   }
+
+  const { permissions } = authResult
+
+  const pagination = parsePaginationParams(request)
+  const statusParam = request.nextUrl.searchParams.get('status')
+  const statusSchema = z.enum(['PENDING', 'ACCEPTED', 'DECLINED', 'COMPLETED']).optional()
+
+  const statusResult = statusSchema.safeParse(statusParam)
+  if (!statusResult.success) {
+    return validationErrorResponse(statusResult.error)
+  }
+
+  const filter = buildPermissionFilter(permissions, 'mentorship_request', 'list')
+
+  if (statusResult.data) {
+    filter.status = statusResult.data
+  }
+
+  const { requests, total } = await MentorshipRequestService.listRequests(filter, {
+    limit: pagination.limit,
+    offset: pagination.offset,
+  })
+
+  const dtos = requests.map(toMentorshipRequestDTO)
+
+  return paginatedResponse(dtos, pagination.limit, pagination.offset, total)
 }
+
+export const POST = withErrorHandling(postHandler)
+export const GET = withErrorHandling(getHandler)

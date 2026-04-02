@@ -13,10 +13,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // Validate request body
     const validatedData = alumniRegisterSchema.parse(body);
 
-    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email: validatedData.email },
     });
@@ -28,10 +26,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
     const passwordHash = hashPassword(validatedData.password);
 
-    // Create user and alumni profile
     const user = await prisma.user.create({
       data: {
         email: validatedData.email,
@@ -52,7 +48,6 @@ export async function POST(request: NextRequest) {
       include: { alumniProfile: true },
     });
 
-    // Generate JWT tokens
     const accessToken = await createJWT(
       {
         id: user.id,
@@ -61,7 +56,7 @@ export async function POST(request: NextRequest) {
         firstName: user.firstName,
         lastName: user.lastName,
       },
-      '15m' // Access token expires in 15 minutes
+      '15m'
     );
 
     const refreshToken = await createJWT(
@@ -72,10 +67,9 @@ export async function POST(request: NextRequest) {
         firstName: user.firstName,
         lastName: user.lastName,
       },
-      '7d' // Refresh token expires in 7 days
+      '7d'
     );
 
-    // Create response with accessToken in body and refreshToken in httpOnly cookie
     const response = NextResponse.json(
       {
         accessToken, // Client should store this in sessionStorage
@@ -90,7 +84,6 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
 
-    // Set refresh token as httpOnly cookie (7 days max-age: 604800 seconds)
     response.cookies.set('refresh_token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -101,7 +94,6 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-    // Handle validation errors
     if (error instanceof ZodError) {
       const fieldErrors = error.flatten().fieldErrors;
       return NextResponse.json(

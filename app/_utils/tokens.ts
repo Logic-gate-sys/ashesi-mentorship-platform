@@ -11,12 +11,22 @@
 
 import { SignJWT } from 'jose';
 
-const secret = new Uint8Array(
-  Buffer.from(
-    process.env.EMAIL_TOKEN_SECRET || 'development-secret-change-in-production',
-    'utf-8'
-  )
-);
+// Create Uint8Array that works with jose - mirrors the approach in jwt.ts
+const createSecret = (): Uint8Array => {
+  const secretString = process.env.EMAIL_TOKEN_SECRET || 'development-secret-change-in-production';
+  
+  // Use Buffer.from like in jwt.ts - this ensures compatibility with jose
+  // Buffer is available in jsdom due to setup.ts global setup
+  if (typeof Buffer !== 'undefined') {
+    return new Uint8Array(Buffer.from(secretString, 'utf-8'));
+  }
+  
+  // Fallback for environments without Buffer (shouldn't reach here with test setup)
+  const encoder = new TextEncoder();
+  return new Uint8Array(encoder.encode(secretString));
+};
+
+const secret = createSecret();
 
 export interface MagicTokenPayload {
   userId: string;
@@ -52,7 +62,7 @@ export async function generateMagicToken(
     action,
     email,
     expiresAt,
-    oneTime: false, // Track usage in database if needed
+    oneTime: false,
   };
 
   try {

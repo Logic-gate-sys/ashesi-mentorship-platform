@@ -2,195 +2,101 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requirePermission, requireAuth } from '@/app/_lib/abac/middleware'
 import { buildPermissionFilter } from '@/app/_lib/abac/engine'
 import { MentorshipRequestService, NotificationService } from '@/app/_services'
+import { withErrorHandling, NotFoundError, ForbiddenError, ConflictError } from '@/app/_middleware'
+import { paginatedResponse, successResponse, validationErrorResponse } from '@/app/_utils/api-response'
+import { parsePaginationParams } from '@/app/_lib/query-parser'
+import { toMentorshipRequestDTO } from '@/app/_dtos'
+import { z } from 'zod'
 
 /**
  * GET /api/mentor/requests
- * List mentorship requests for current user (Alumni/Admin only)
- * Filters requests based on alumni role - alumni see only their requests
+ * List mentorship requests with pagination
  */
-export async function GET(request: NextRequest) {
-  try {
-    const authResult = await requirePermission(request, 'mentorship_request', 'list')
-    if (authResult instanceof NextResponse) {
-      return authResult
-    }
-
-    const { user, permissions } = authResult
-
-    // Build permission-based filter
-    const filter = buildPermissionFilter(permissions, 'mentorship_request', 'list')
-
-    // Get query params
-    const searchParams = request.nextUrl.searchParams
-    const status = (searchParams.get('status') || 'PENDING') as string
-    const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 100)
-    const offset = parseInt(searchParams.get('offset') || '0')
-
-    // Use service to fetch requests
-    const { requests, total } = await MentorshipRequestService.listRequests(filter, {
-      status,
-      limit,
-      offset,
-    })
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: requests.map(req => ({
-          id: req.id,
-          status: req.status,
-          studentName: `${req.student.user.firstName} ${req.student.user.lastName}`,
-          studentEmail: req.student.user.email,
-          studentMajor: req.student.major,
-          goal: req.goal,
-          message: req.message,
-          createdAt: req.createdAt,
-          updatedAt: req.updatedAt,
-        })),
-        pagination: {
-          total,
-          limit,
-          offset,
-          hasMore: offset + limit < total,
-        },
-      },
-      { status: 200 }
-    )
-  } catch (error) {
-    console.error('Error fetching mentor requests:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch mentorship requests',
-      },
-      { status: 500 }
-    )
+async function getHandler(request: NextRequest) {
+  const authResult = await requirePermission(request, 'mentorship_request', 'list')
+  if (authResult instanceof NextResponse) {
+    return authResult
   }
+
+  const { permissions } = authResult
+
+  const pagination = parsePaginationParams(request)
+  const statusParam = request.nextUrl.searchParams.get('status') || 'PENDING'
+  const statusSchema = z.enum(['PENDING', 'ACCEPTED', 'DECLINED', 'COMPLETED'])
+
+  const statusResult = statusSchema.safeParse(statusParam)
+  if (!statusResult.success) {
+    return validationErrorResponse(statusResult.error)
+  }
+
+  const filter = buildPermissionFilter(permissions, 'mentorship_request', 'list')
+  const { requests, total } = await MentorshipRequestService.listRequests(filter, {
+    status: statusResult.data,
+    limit: pagination.limit,
+    offset: pagination.offset,
+  })
+
+  const dtos = requests.map(toMentorshipRequestDTO)
+
+  return paginatedResponse(dtos, pagination.limit, pagination.offset, total, 200)
 }
 
 /**
  * POST /api/mentor/requests
- * Accept a mentorship request (Alumni only)
+ * Accept a mentorship request
  */
-export async function POST(request: NextRequest) {
-  try {
-    const authResult = await requireAuth(request)
-    if (authResult instanceof NextResponse) {
-      return authResult
-    }
+const acceptRequestSchema = z.object({
+  requestId: z.string().uuid('Invalid request ID'),
+})
 
-    const { user } = authResult
-
-    // Parse request body
-    const body = await request.json()
-    const { requestId } = body as { requestId: string }
-
-    if (!requestId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'requestId is required',
-        },
-        { status: 400 }
-      )
-    }
-
-    // Find the request
-    const mentorshipRequest = await prisma.mentorshipRequest.findUnique({
-      where: { id: requestId },
-      include: {
-        student: {
-          include: { user: true },
-        },
-        alumni: {
-          include: { user: true },
-        },
-      },
-    })
-
-    if (!mentorshipRequest) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Mentorship request not found',
-        },
-        { status: 404 }
-      )
-    }
-
-    // Check permission - alumni can only accept requests directed to them
-    if (
-      user.role === 'ALUMNI' &&
-      mentorshipRequest.alumniId !== user.alumniProfile?.id
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'You do not have permission to accept this request',
-        },
-        { status: 403 }
-      )
-    }
-
-    // Check status
-    if (mentorshipRequest.status !== 'PENDING') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Cannot accept request with status: ${mentorshipRequest.status}`,
-        },
-        { status: 409 }
-      )
-    }
-
-    // Update request
-    const updated = await prisma.mentorshipRequest.update({
-      where: { id: requestId },
-      data: {
-        status: 'ACCEPTED',
-        updatedAt: new Date(),
-      },
-      include: {
-        student: {
-          include: { user: true },
-        },
-        alumni: {
-          include: { user: true },
-        },
-      },
-    })
-
-    // Send notification to student
-    await prisma.notification.create({
-      data: {
-        userId: mentorshipRequest.student.userId,
-        type: 'REQUEST_ACCEPTED',
-        title: 'Mentorship Accepted',
-        body: `${mentorshipRequest.alumni.user.firstName} ${mentorshipRequest.alumni.user.lastName} accepted your mentorship request`,
-        link: `/dashboard/sessions?requestId=${requestId}`,
-        isRead: false,
-      },
-    })
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          id: updated.id,
-          status: updated.status,
-          message: 'Request accepted successfully',
-        },
-      },
-      { status: 200 }
-    )
-  } catch (error) {
-    console.error('Error accepting mentorship request:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to accept mentorship request',
-      },
-      { status: 500 }
-    )
+async function postHandler(request: NextRequest) {
+  const authResult = await requireAuth(request)
+  if (authResult instanceof NextResponse) {
+    return authResult
   }
+
+  const { user } = authResult
+
+  const body = await request.json()
+  const parseResult = acceptRequestSchema.safeParse(body)
+
+  if (!parseResult.success) {
+    return validationErrorResponse(parseResult.error)
+  }
+
+  const { requestId } = parseResult.data
+  const mentorshipRequest = await MentorshipRequestService.getRequestById(requestId)
+
+  if (!mentorshipRequest) {
+    throw new NotFoundError('Mentorship request')
+  }
+
+  // Check permission - alumni can only accept requests directed to them
+  if (
+    user.role === 'ALUMNI' &&
+    mentorshipRequest.alumniId !== user.alumniProfile?.id
+  ) {
+    throw new ForbiddenError('You do not have permission to accept this request')
+  }
+
+  if (mentorshipRequest.status !== 'PENDING') {
+    throw new ConflictError(`Cannot accept request with status: ${mentorshipRequest.status}`)
+  }
+
+  const updated = await MentorshipRequestService.acceptRequest(requestId)
+
+  await NotificationService.createNotification(
+    mentorshipRequest.student.userId,
+    'REQUEST_ACCEPTED',
+    'Mentorship Accepted',
+    `${mentorshipRequest.alumni.user.firstName} ${mentorshipRequest.alumni.user.lastName} accepted your mentorship request`,
+    `/dashboard/sessions?requestId=${requestId}`
+  )
+
+  const dto = toMentorshipRequestDTO(updated)
+
+  return successResponse(dto, 'Request accepted successfully', 200)
 }
+
+export const GET = withErrorHandling(getHandler)
+export const POST = withErrorHandling(postHandler)

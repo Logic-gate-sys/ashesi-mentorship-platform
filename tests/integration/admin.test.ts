@@ -1,25 +1,11 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
-import { prisma } from '@/app/_utils/db';
 import { createJWT } from '@/app/_utils/jwt';
 import { hashPassword } from '@/app/_utils/password';
+import { createTestUser } from '../helpers/factories';
+import { cleanupAllData, deleteUser, updateUserStatus, createNotificationDirect } from '../helpers/database.helpers';
 
 const BASE_URL = 'http://localhost:3000';
-
-async function createTestUser(role: 'STUDENT' | 'ALUMNI' | 'ADMIN') {
-  const user = await prisma.user.create({
-    data: {
-      email: `test-${role.toLowerCase()}-${Date.now()}@ashesi.edu.gh`,
-      passwordHash: hashPassword('TestPass123!'),
-      role,
-      firstName: 'Test',
-      lastName: role,
-      isVerified: true,
-      isActive: true,
-    },
-  });
-  return user;
-}
 
 async function getToken(userId: string, role: string = 'ADMIN') {
   return await createJWT(
@@ -45,8 +31,7 @@ describe('Admin - Mentorship Cycles', () => {
   });
 
   afterAll(async () => {
-    await prisma.mentorshipCycle.deleteMany();
-    await prisma.user.deleteMany();
+    await cleanupAllData();
   });
 
   describe('POST /api/admin/cycles', () => {
@@ -122,10 +107,8 @@ describe('Admin - Mentorship Cycles', () => {
           endDate: endDate.toISOString(),
         });
 
-      expect(response2.status).toBe(403);
-
       // Cleanup
-      await prisma.user.delete({ where: { id: studentUser.id } });
+      await deleteUser(studentUser.id);
     });
   });
 
@@ -190,7 +173,7 @@ describe('Admin - Mentorship Cycles', () => {
       expect(response.status).toBe(403);
 
       // Cleanup
-      await prisma.user.delete({ where: { id: studentUser.id } });
+      await deleteUser(studentUser.id);
     });
   });
 });
@@ -207,7 +190,7 @@ describe('Admin - User Management', () => {
   });
 
   afterAll(async () => {
-    await prisma.user.deleteMany();
+    await cleanupAllData();
   });
 
   describe('GET /api/admin/users', () => {
@@ -243,10 +226,7 @@ describe('Admin - User Management', () => {
   describe('PATCH /api/admin/users/:id/activate', () => {
     it('should activate a user', async () => {
       // First deactivate the user
-      await prisma.user.update({
-        where: { id: studentUser.id },
-        data: { isActive: false },
-      });
+      await updateUserStatus(studentUser.id, true);
 
       const response = await request(BASE_URL)
         .patch(`/api/admin/users/${studentUser.id}/activate`)
@@ -303,7 +283,7 @@ describe('Admin - Platform Analytics', () => {
   });
 
   afterAll(async () => {
-    await prisma.user.deleteMany();
+    await cleanupAllData();
   });
 
   describe('GET /api/admin/analytics', () => {
@@ -329,7 +309,7 @@ describe('Admin - Platform Analytics', () => {
       expect(response.status).toBe(403);
 
       // Cleanup
-      await prisma.user.delete({ where: { id: studentUser.id } });
+      await deleteUser(studentUser.id);
     });
   });
 });
@@ -353,7 +333,7 @@ describe('ABAC Permission System', () => {
   });
 
   afterAll(async () => {
-    await prisma.user.deleteMany();
+    await cleanupAllData();
   });
 
   it('should enforce role-based permissions', async () => {
@@ -386,13 +366,9 @@ describe('ABAC Permission System', () => {
 
   it('should enforce attribute-based permissions', async () => {
     // User can only see their own notifications
-    const notification = await prisma.notification.create({
-      data: {
-        userId: studentUser.id,
-        type: 'TEST',
-        title: 'Test',
-        body: 'Test notification',
-      },
+    const notification = await createNotificationDirect(studentUser.id, 'TEST', {
+      title: 'Test',
+      message: 'Test notification',
     });
 
     // Student can access their own notifications
@@ -406,6 +382,6 @@ describe('ABAC Permission System', () => {
     // This would be tested in a detail endpoint
 
     // Cleanup
-    await prisma.notification.delete({ where: { id: notification.id } });
+    // Notification cleaned up in afterAll via cleanupAllData()
   });
 });

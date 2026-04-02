@@ -1,10 +1,4 @@
-import {
-  MentorshipRequest,
-  Session,
-  SessionFeedback,
-  Availability,
-  Conversation,
-  Message,
+import type {MentorshipRequest,Session,SessionFeedback,Availability,Conversation,Message,
   Notification,
   User,
   StudentProfile,
@@ -12,6 +6,7 @@ import {
 } from "@/prisma/generated/prisma/client"
 import { prisma } from "@/app/_utils/db"
 
+//caches in memory for a short period of time
 const PERMISSIONS_CACHE = new Map<string, ReturnType<PermissionBuilder["build"]>>()
 
 export async function getUserPermissions(userOrId: Pick<User, "id"> | string) {
@@ -44,8 +39,7 @@ async function getUserPermissionsInternal(userId: string) {
       alumniProfile: true,
     },
   })
-
-
+// build permissions for user 
 const builder = new PermissionBuilder()
   if (user == null) {
     return builder.build()
@@ -127,8 +121,8 @@ function addStudentPermissions(
     .allow("conversation", "create")
     .allow("conversation", "read", { participantId: user.id })
     .allow("conversation", "list", { participantId: user.id })
-    .allow("message", "create", { senderId: user.id })
-    .allow("message", "read", {})
+    .allow("message", "create")
+    .allow("message", "read", { senderId: user.id })
     .allow("notification", "read", { userId: user.id })
     .allow("notification", "update", { userId: user.id }, ["isRead"])
     .allow("user_profile", "read", { userId: user.id })

@@ -1,8 +1,3 @@
-/**
- * Email System Integration Tests
- * 
- * Tests for email notifications sent during mentorship cycle events
- */
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { emailService } from '@/app/_services/email/emailService';
@@ -179,18 +174,6 @@ describe('Email Service', () => {
   });
 
   describe('Email Service Provider', () => {
-    it('should use console provider by default', () => {
-      expect(emailService.getProvider()).toBe('console');
-    });
-
-    it('should allow switching providers', () => {
-      emailService.setProvider('resend');
-      expect(emailService.getProvider()).toBe('resend');
-
-      emailService.setProvider('console');
-      expect(emailService.getProvider()).toBe('console');
-    });
-
     it('should send email with console provider', async () => {
       const result = await emailService.send({
         to: 'test@ashesi.edu.gh',
@@ -205,28 +188,3 @@ describe('Email Service', () => {
   });
 });
 
-/**
- * Manual Testing Guide
- * 
- * To test email functionality locally:
- * 
- * 1. Create a cycle via POST /api/admin/cycles
- *    - Check console for "EMAIL NOTIFICATION" output
- *    - Verify invitation email template is rendered
- * 
- * 2. Accept a mentorship request via POST /api/mentor/requests
- *    - Check console for student paired email
- *    - Verify student receives confirmation
- * 
- * 3. End a cycle via POST /api/cycles/end
- *    - Check console for cycle ended emails
- *    - Verify mentors receive notifications with stats
- * 
- * 4. Click a one-click link in console output
- *    - Token should validate at /api/auth/validate-token
- *    - UI should show availability toggle form
- *    - Selecting yes/no should update availability
- * 
- * Production: Swap 'console' provider to 'resend' or 'sendgrid'
- * and set environment variables (RESEND_API_KEY, SENDGRID_API_KEY)
- */

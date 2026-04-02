@@ -1,59 +1,39 @@
 /**
  * POST /api/auth/validate-token
- * 
  * Validates a magic token from an email link
  * Used for one-click availability toggle, mentorship confirmations, etc.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyMagicToken } from '@/app/_utils/tokens';
+import { NextRequest } from 'next/server'
+import { verifyMagicToken } from '@/app/_utils/tokens'
+import { withErrorHandling, ValidationError, UnauthorizedError } from '@/app/_middleware'
+import { successResponse } from '@/app/_utils/api-response'
+import { z } from 'zod'
 
-interface ValidateTokenBody {
-  token: string;
-}
+const validateTokenSchema = z.object({
+  token: z.string().min(1, 'Token is required'),
+})
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = (await request.json()) as ValidateTokenBody;
-    const { token } = body;
+async function handler(request: NextRequest) {
+  const body = await request.json()
+  const parse = validateTokenSchema.safeParse(body)
 
-    if (!token) {
-      return NextResponse.json(
-        {
-          valid: false,
-          error: 'Token is required',
-        },
-        { status: 400 }
-      );
-    }
-
-    const result = await verifyMagicToken(token);
-
-    if (!result.valid) {
-      return NextResponse.json(
-        {
-          valid: false,
-          error: result.error || 'Invalid token',
-        },
-        { status: 401 }
-      );
-    }
-
-    return NextResponse.json(
-      {
-        valid: true,
-        payload: result.payload,
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error('Error validating token:', error);
-    return NextResponse.json(
-      {
-        valid: false,
-        error: 'Token validation failed',
-      },
-      { status: 500 }
-    );
+  if (!parse.success) {
+    throw new ValidationError('Invalid request body')
   }
+
+  const { token } = parse.data
+  const result = await verifyMagicToken(token)
+
+  if (!result.valid) {
+    throw new UnauthorizedError(result.error || 'Invalid token')
+  }
+
+  return successResponse(
+    { valid: true, payload: result.payload },
+    'Token validated successfully',
+    200
+  )
 }
+
+export const POST = withErrorHandling(handler)

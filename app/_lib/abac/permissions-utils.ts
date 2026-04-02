@@ -1,9 +1,6 @@
-import { User, StudentProfile, AlumniProfile } from "@/prisma/generated/prisma/client"
 import { getUserPermissions, UserPermissions, buildPermissionFilter } from "./engine"
 
-/**
- * Get user with full data needed for permissions
- */
+// Get user with full data needed for permissions
 export async function getUserForPermissions(userId: string) {
   const { prisma } = await import("@/app/_utils/db")
   
@@ -16,17 +13,13 @@ export async function getUserForPermissions(userId: string) {
   })
 }
 
-/**
- * Get permissions for a user and cache them
- */
+
+// Get permissions for a user and cache them
 export async function getAndCacheUserPermissions(userId: string) {
   return getUserPermissions(userId)
 }
 
-/**
- * Build a Prisma where clause for list/read operations
- * Automatically filters by what user can access
- */
+// Build a Prisma where clause for list/read operations Automatically filters by what user can access
 export function buildListFilter<Res extends keyof import('./engine').Resources>(
   permissions: UserPermissions,
   resource: Res,
@@ -37,9 +30,8 @@ export function buildListFilter<Res extends keyof import('./engine').Resources>(
   return buildPermissionFilter(permissions, resource, action as any)
 }
 
-/**
- * Attach permission filters to different resource types
- */
+
+// Attach permission filters to different resource types
 export const permissionFilters = {
   /**
    * Get mentorship request filter based on user role

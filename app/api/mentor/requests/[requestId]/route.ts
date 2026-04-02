@@ -1,217 +1,126 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/app/_utils/db'
 import { requirePermission } from '@/app/_lib/abac/middleware'
-import {
-  successResponse,
-  notFoundResponse,
-  serverErrorResponse,
-  parseRequestBody,
-} from '@/app/_utils/api-response'
+import { MentorshipRequestService, NotificationService } from '@/app/_services'
+import { withErrorHandling, NotFoundError, ConflictError, ValidationError } from '@/app/_middleware'
+import { successResponse, validationErrorResponse } from '@/app/_utils/api-response'
+import { toMentorshipRequestDTO } from '@/app/_dtos'
+import { z } from 'zod'
 
 /**
  * GET /api/mentor/requests/:requestId
  * Get a specific mentorship request details
  */
-export async function GET(
+async function getHandler(
   request: NextRequest,
   context: { params: { requestId: string } }
 ) {
-  try {
-    const { requestId } = context.params
+  const { requestId } = context.params
 
-    // Get the request
-    const mentorshipRequest = await prisma.mentorshipRequest.findUnique({
-      where: { id: requestId },
-      include: {
-        student: {
-          include: { user: true },
-        },
-        alumni: {
-          include: { user: true },
-        },
-      },
-    })
-
-    if (!mentorshipRequest) {
-      return notFoundResponse('Mentorship request')
-    }
-
-    // Check permission - can read if admin or involved in request
-    const authResult = await requirePermission(
-      request,
-      'mentorship_request',
-      'read',
-      {
-        type: 'mentorship_request',
-        alumniId: mentorshipRequest.alumniId,
-        studentId: mentorshipRequest.studentId,
-      }
-    )
-
-    if (authResult instanceof NextResponse) {
-      return authResult
-    }
-
-    return successResponse(
-      {
-        id: mentorshipRequest.id,
-        status: mentorshipRequest.status,
-        goal: mentorshipRequest.goal,
-        message: mentorshipRequest.message,
-        student: {
-          id: mentorshipRequest.student.id,
-          name: `${mentorshipRequest.student.user.firstName} ${mentorshipRequest.student.user.lastName}`,
-          email: mentorshipRequest.student.user.email,
-          major: mentorshipRequest.student.major,
-          yearGroup: mentorshipRequest.student.yearGroup,
-        },
-        alumni: {
-          id: mentorshipRequest.alumni.id,
-          name: `${mentorshipRequest.alumni.user.firstName} ${mentorshipRequest.alumni.user.lastName}`,
-          email: mentorshipRequest.alumni.user.email,
-          company: mentorshipRequest.alumni.company,
-          jobTitle: mentorshipRequest.alumni.jobTitle,
-        },
-        createdAt: mentorshipRequest.createdAt,
-        updatedAt: mentorshipRequest.updatedAt,
-      },
-      'Request details'
-    )
-  } catch (error) {
-    return serverErrorResponse(error as Error, 'Failed to fetch request')
+  if (!requestId || typeof requestId !== 'string') {
+    throw new ValidationError('Invalid request ID')
   }
+
+  const mentorshipRequest = await MentorshipRequestService.getRequestDetails(requestId)
+
+  if (!mentorshipRequest) {
+    throw new NotFoundError('Mentorship request')
+  }
+
+  const authResult = await requirePermission(
+    request,
+    'mentorship_request',
+    'read',
+    {
+      type: 'mentorship_request',
+      alumniId: mentorshipRequest.alumniId,
+      studentId: mentorshipRequest.studentId,
+    }
+  )
+
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
+  const dto = toMentorshipRequestDTO(mentorshipRequest)
+
+  return successResponse(dto, 'Request details retrieved')
 }
 
 /**
  * POST /api/mentor/requests/:requestId
- * Accept or decline a mentorship request (Alumni only)
- *
- * Body:
- * {
- *   action: 'accept' | 'decline',
- *   reason?: string (for decline)
- * }
+ * Accept or decline a mentorship request
  */
-export async function POST(
+const actionSchema = z.object({
+  action: z.enum(['accept', 'decline']),
+  reason: z.string().optional(),
+})
+
+async function postHandler(
   request: NextRequest,
   context: { params: { requestId: string } }
 ) {
-  try {
-    const { requestId } = context.params
+  const { requestId } = context.params
 
-    // Get the request first
-    const mentorshipRequest = await prisma.mentorshipRequest.findUnique({
-      where: { id: requestId },
-      include: {
-        student: {
-          include: { user: true },
-        },
-        alumni: {
-          include: { user: true },
-        },
-      },
-    })
-
-    if (!mentorshipRequest) {
-      return notFoundResponse('Mentorship request')
-    }
-
-    // Check permission
-    const authResult = await requirePermission(request, 'mentorship_request', 'accept', {
-      type: 'mentorship_request',
-      alumniId: mentorshipRequest.alumniId,
-    })
-
-    if (authResult instanceof NextResponse) {
-      return authResult
-    }
-
-    // Parse request body
-    const parseResult = await parseRequestBody(request, {})
-    if (!parseResult.success) {
-      return parseResult.error
-    }
-
-    const { action, reason } = parseResult.data as {
-      action: 'accept' | 'decline'
-      reason?: string
-    }
-
-    if (!action || !['accept', 'decline'].includes(action)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Action must be "accept" or "decline"',
-        },
-        { status: 400 }
-      )
-    }
-
-    // Check current status
-    if (mentorshipRequest.status !== 'PENDING') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Cannot ${action} a request with status: ${mentorshipRequest.status}`,
-        },
-        { status: 409 }
-      )
-    }
-
-    // Update request status
-    const newStatus = action === 'accept' ? 'ACCEPTED' : 'DECLINED'
-    const updatedRequest = await prisma.mentorshipRequest.update({
-      where: { id: requestId },
-      data: {
-        status: newStatus,
-        updatedAt: new Date(),
-      },
-      include: {
-        student: {
-          include: { user: true },
-        },
-        alumni: {
-          include: { user: true },
-        },
-      },
-    })
-
-    // Create notification for student
-    let notificationTitle: string
-    let notificationBody: string
-
-    if (action === 'accept') {
-      notificationTitle = 'Mentorship Request Accepted'
-      notificationBody = `${mentorshipRequest.alumni.user.firstName} ${mentorshipRequest.alumni.user.lastName} accepted your mentorship request`
-    } else {
-      notificationTitle = 'Mentorship Request Declined'
-      notificationBody = reason
-        ? `${mentorshipRequest.alumni.user.firstName} declined your request: ${reason}`
-        : `${mentorshipRequest.alumni.user.firstName} declined your request`
-    }
-
-    await prisma.notification.create({
-      data: {
-        userId: mentorshipRequest.student.userId,
-        type: action === 'accept' ? 'REQUEST_ACCEPTED' : 'REQUEST_DECLINED',
-        title: notificationTitle,
-        body: notificationBody,
-        link:
-          action === 'accept'
-            ? `/dashboard/sessions?requestId=${requestId}`
-            : undefined,
-        isRead: false,
-      },
-    })
-
-    return successResponse(
-      {
-        id: updatedRequest.id,
-        status: updatedRequest.status,
-      },
-      `Mentorship request ${action === 'accept' ? 'accepted' : 'declined'}`
-    )
-  } catch (error) {
-    return serverErrorResponse(error as Error, 'Failed to process mentorship request')
+  if (!requestId || typeof requestId !== 'string') {
+    throw new ValidationError('Invalid request ID')
   }
+
+  const mentorshipRequest = await MentorshipRequestService.getRequestDetails(requestId)
+
+  if (!mentorshipRequest) {
+    throw new NotFoundError('Mentorship request')
+  }
+
+  const authResult = await requirePermission(request, 'mentorship_request', 'accept', {
+    type: 'mentorship_request',
+    alumniId: mentorshipRequest.alumniId,
+  })
+
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
+
+  const body = await request.json()
+  const parseResult = actionSchema.safeParse(body)
+
+  if (!parseResult.success) {
+    return validationErrorResponse(parseResult.error)
+  }
+
+  const { action, reason } = parseResult.data
+
+  if (mentorshipRequest.status !== 'PENDING') {
+    throw new ConflictError(
+      `Cannot ${action} a request with status: ${mentorshipRequest.status}`
+    )
+  }
+
+  const updatedRequest = action === 'accept'
+    ? await MentorshipRequestService.acceptRequest(requestId)
+    : await MentorshipRequestService.declineRequest(requestId)
+
+  const notificationType = action === 'accept' ? 'REQUEST_ACCEPTED' : 'REQUEST_DECLINED'
+  const notificationTitle = action === 'accept' ? 'Mentorship Request Accepted' : 'Mentorship Request Declined'
+  const notificationMessage = reason
+    ? `${mentorshipRequest.alumni.user.firstName} ${action === 'accept' ? 'accepted' : 'declined'} your request: ${reason}`
+    : `${mentorshipRequest.alumni.user.firstName} ${action === 'accept' ? 'accepted' : 'declined'} your mentorship request`
+
+  await NotificationService.createNotification(
+    mentorshipRequest.student.userId,
+    notificationType,
+    notificationTitle,
+    notificationMessage,
+    `/dashboard/requests?requestId=${requestId}`
+  )
+
+  const dto = toMentorshipRequestDTO(updatedRequest)
+
+  return successResponse(
+    dto,
+    `Mentorship request ${action === 'accept' ? 'accepted' : 'declined'}`,
+    200
+  )
 }
+
+export const GET = withErrorHandling(getHandler)
+export const POST = withErrorHandling(postHandler)

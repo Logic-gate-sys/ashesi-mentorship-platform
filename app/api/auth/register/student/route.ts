@@ -32,10 +32,7 @@ import { Role } from '@/prisma/generated/prisma/enums'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-
-    // ── Step 1: Validate input against schema ─────────────────────────
     const result = studentRegisterSchema.safeParse(body)
-
     if (!result.success) {
       const errors: Record<string, string> = {}
       
@@ -55,7 +52,6 @@ export async function POST(request: NextRequest) {
 
     const validatedData = result.data
 
-    // ── Step 2: Check for duplicate email ──────────────────────────────
     const existingUser = await prisma.user.findUnique({
       where: { email: validatedData.email },
     })
@@ -67,30 +63,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── Step 3: Hash password for security ─────────────────────────────
     const passwordHash = hashPassword(validatedData.password)
 
-    // ── Step 4: Create user record with student profile ────────────────
     const user = await prisma.user.create({
       data: {
-        // User base fields
         email: validatedData.email,
         passwordHash,
         role: Role.STUDENT,
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
 
-        // Student profile with all form data
         studentProfile: {
           create: {
-            // Step 2: Profile data
             yearGroup: validatedData.year,
             major: validatedData.major,
-
-            // Step 4: Interests
             interests: validatedData.interests || [],
-
-            // Step 5: Optional profile links
             bio: validatedData.bio || null,
             linkedin: validatedData.linkedin || null,
           },
@@ -99,7 +86,6 @@ export async function POST(request: NextRequest) {
       include: { studentProfile: true },
     })
 
-    // ── Step 5: Generate JWT authentication tokens ─────────────────────
     const accessToken = await createJWT(
       {
         id: user.id,
@@ -107,7 +93,7 @@ export async function POST(request: NextRequest) {
         firstName: user.firstName,
         lastName: user.lastName,
       },
-      '15m' // Access token expires in 15 minutes
+      '15m'
     )
 
     const refreshToken = await createJWT(
@@ -117,10 +103,9 @@ export async function POST(request: NextRequest) {
         firstName: user.firstName,
         lastName: user.lastName,
       },
-      '7d' // Refresh token expires in 7 days
+      '7d'
     )
 
-    // ── Step 6: Return success response with tokens ────────────────────
     const response = NextResponse.json(
       {
         accessToken, // Client should store this in sessionStorage
@@ -142,7 +127,6 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
 
-    // Set refresh token as httpOnly cookie (7 days max-age: 604800 seconds)
     response.cookies.set('refresh_token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -155,7 +139,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Student registration error:', error)
 
-    // Handle specific database errors
     if (error instanceof Error) {
       if (error.message.includes('Unique constraint failed')) {
         return NextResponse.json(
@@ -164,7 +147,6 @@ export async function POST(request: NextRequest) {
         )
       }
       
-      // Log unexpected errors for debugging
       console.error('Unexpected error during registration:', error.message)
     }
 
