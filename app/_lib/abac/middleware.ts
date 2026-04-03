@@ -107,10 +107,7 @@ export async function requirePermission<Res extends keyof Resources>(
   return { user, permissions }
 }
 
-/**
- * Require just authentication (no resource permission check)
- * Used for basic auth on endpoints that don't restrict by resource
- */
+
 export async function requireAuth(request: NextRequest) {
   const user = await extractUserFromRequest(request)
 

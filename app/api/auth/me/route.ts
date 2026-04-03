@@ -4,7 +4,6 @@ import { requireAuth } from '@/app/_lib/abac/middleware'
 
 export async function GET(request: NextRequest) {
   try {
-    // Use middleware to extract and verify user
     const authResult = await requireAuth(request)
 
     if (authResult instanceof NextResponse) {

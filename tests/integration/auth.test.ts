@@ -180,10 +180,10 @@ describe('Auth API - Registration & Authentication', () => {
           'Authorization': `Bearer ${token}`,
         },
       });
-
+      console.log("ABOUT TO HIT REQUEST"); 
       const res = await authMe(req);
       const body = await res.json();
-      console.log('RESPONSE: ', body)
+      console.log("RESPONSE: ", body)
 
       expect(res.status).toBe(200);
       expect(body.user).toBeDefined();
