@@ -1,14 +1,3 @@
-/**
- * Magic Token Generation for One-Click Email Links
- * 
- * Tokens are JWT-based, signed with a secret, and include:
- * - User ID (alumni/mentor)
- * - Cycle ID
- * - Action (toggle-availability, confirm-match, etc.)
- * - Expiration (7 days by default)
- * - One-time use flag (validation at usage)
- */
-
 import { SignJWT } from 'jose';
 
 const secret = new Uint8Array(
@@ -33,9 +22,7 @@ export interface TokenValidationResult {
   error?: string;
 }
 
-/**
- * Generate a signed magic token for email links
- */
+
 export async function generateMagicToken(
   userId: string,
   email: string,

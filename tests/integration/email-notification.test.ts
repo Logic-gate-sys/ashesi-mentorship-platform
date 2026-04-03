@@ -1,22 +1,8 @@
-/**
- * Email System Integration Tests
- * 
- * Tests for email notifications sent during mentorship cycle events
- */
-
 import { describe, it, expect, beforeEach } from 'vitest';
 import { emailService } from '@/app/_services/email/emailService';
 import { emailTemplates } from '@/app/_services/email/templates';
-import {
-  sendCycleInvitationEmail,
-  sendCycleEndedEmail,
-  sendStudentPairedEmail,
-} from '@/app/_services/email/emailHelpers';
-import {
-  generateMagicToken,
-  verifyMagicToken,
-  generateAvailabilityLink,
-} from '@/app/_utils/tokens';
+import {sendCycleInvitationEmail,sendCycleEndedEmail,sendStudentPairedEmail} from '@/app/_services/email/emailHelpers';
+import {generateMagicToken,verifyMagicToken,generateAvailabilityLink} from '@/app/_utils/tokens';
 
 describe('Email Service', () => {
   beforeEach(() => {

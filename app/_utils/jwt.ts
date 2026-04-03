@@ -5,11 +5,11 @@ import { env } from '../../env';
 export interface CustomPayload extends JWTPayload{
   id: string;
   role: 'STUDENT' | 'ALUMNI' | 'ADMIN';
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
-  iat: number;
-  exp: number;
+  iat?: number;
+  exp?: number;
 }
 
 const getSecret = (): Uint8Array => {

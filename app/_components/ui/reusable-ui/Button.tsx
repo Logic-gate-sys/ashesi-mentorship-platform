@@ -23,16 +23,7 @@ const sizes: Record<Size, string> = {
   lg: "h-[52px] px-8 text-[16px] font-bold",
 };
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      variant = "primary",
-      size = "md",
-      loading = false,
-      full = false,
-      disabled,
-      className = "",
-      children,
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(( {variant = "primary",size = "md",loading = false,full = false,disabled,className = "",children,
       ...props
     },
     ref,
@@ -61,4 +52,4 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 Button.displayName = "Button";
-export default Button ;
+export default Button;

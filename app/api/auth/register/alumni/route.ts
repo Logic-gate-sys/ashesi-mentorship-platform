@@ -3,34 +3,37 @@ import { prisma } from '@/app/_utils/db';
 import { createJWT } from '@/app/_utils/jwt';
 import { hashPassword } from '@/app/_utils/password';
 import { alumniRegisterSchema } from '@/app/_schemas/auth.schema';
-import { ZodError } from 'zod';
 
-/**
- * POST /api/auth/register/alumni
- * Register a new alumni user
- */
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
     // Validate request body
-    const validatedData = alumniRegisterSchema.parse(body);
-
-    // Check if user already exists
+    const result = alumniRegisterSchema.safeParse(body);
+    if(!result.success){
+      return NextResponse.json({
+        success: false,
+        details: result.error.issues.map((iss)=>({
+          path: iss.path.join("."),
+          message:iss.message
+        }))
+      },
+      {status:400}
+    )
+    }
+    const validatedData = result.data; 
     const existingUser = await prisma.user.findUnique({
       where: { email: validatedData.email },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { errors: { email: 'Email already registered' } },
+        { errors: { email: 'Invalid request body' } },
         { status: 409 }
       );
     }
 
-    // Hash password
     const passwordHash = hashPassword(validatedData.password);
-
     // Create user and alumni profile
     const user = await prisma.user.create({
       data: {
@@ -49,7 +52,15 @@ export async function POST(request: NextRequest) {
           },
         },
       },
-      include: { alumniProfile: true },
+      select: {
+        id: true,
+       email: true,
+       firstName:true,
+       lastName:true,
+       role:true,
+       alumniProfile: true
+      }
+
     });
 
     // Generate JWT tokens
@@ -63,7 +74,6 @@ export async function POST(request: NextRequest) {
       },
       '15m' // Access token expires in 15 minutes
     );
-
     const refreshToken = await createJWT(
       {
         id: user.id,
@@ -74,23 +84,15 @@ export async function POST(request: NextRequest) {
       },
       '7d' // Refresh token expires in 7 days
     );
-
-    // Create response with accessToken in body and refreshToken in httpOnly cookie
+    // response json
     const response = NextResponse.json(
       {
-        accessToken, // Client should store this in sessionStorage
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-        },
+        token: accessToken, 
+        user: user,
       },
       { status: 201 }
     );
-
-    // Set refresh token as httpOnly cookie (7 days max-age: 604800 seconds)
+    // refresh token in cookie
     response.cookies.set('refresh_token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -100,19 +102,9 @@ export async function POST(request: NextRequest) {
     });
 
     return response;
-  } catch (error) {
-    // Handle validation errors
-    if (error instanceof ZodError) {
-      const fieldErrors = error.flatten().fieldErrors;
-      return NextResponse.json(
-        { errors: fieldErrors },
-        { status: 400 }
-      );
-    }
-
-    console.error('[ALUMNI_REGISTER_ERROR]', error);
+  } catch (err) {
     return NextResponse.json(
-      { errors: { message: 'Registration failed' } },
+      { errors: { message: 'Registration failed', details:err.message } },
       { status: 500 }
     );
   }

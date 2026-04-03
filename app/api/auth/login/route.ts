@@ -3,64 +3,53 @@ import { prisma } from '@/app/_utils/db';
 import { createJWT } from '@/app/_utils/jwt';
 import { verifyPassword } from '@/app/_utils/password';
 import { loginSchema } from '@/app/_schemas/auth.schema';
-import { ZodError } from 'zod';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // Validate request body
-    const validatedData = loginSchema.parse(body);
+    const result = loginSchema.safeParse(body);
+    if(!result.success){
+      return NextResponse.json(
+        {
+          success: false, 
+          message:'Invalid request body',
+          details: result.error.issues.map((iss)=>({
+            path: iss.path.join("."),
+            message:iss.message
+          }) )
+        }, 
+        {status:400}
+      )
+    }
+    const validatedData = result.data ; 
 
     // Find user by email
     const user = await prisma.user.findUnique({
       where: { email: validatedData.email },
+      select: {
+        id:true,
+        email:true,
+        passwordHash:true,
+        role:true,
+        firstName:true,
+        lastName:true
+      }
     });
 
-    if (!user) {
+    if (!user || !verifyPassword(validatedData.password, user.passwordHash)) {
       return NextResponse.json(
-        { errors: { message: 'Invalid email or password' } },
+        { errors: { message: 'Invalid login details' } },
         { status: 401 }
       );
     }
-
-    // Verify password
-    const isPasswordValid = verifyPassword(validatedData.password, user.passwordHash);
-
-    if (!isPasswordValid) {
-      return NextResponse.json(
-        { errors: { message: 'Invalid email or password' } },
-        { status: 401 }
-      );
-    }
-
+    const {id, email, role,firstName, lastName} = user ; 
     // Generate tokens
-    const accessToken = await createJWT(
-      {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
-      '15m' // Access token expires in 15 minutes
-    );
+    const accessToken = await createJWT({id, email, role, firstName, lastName,}, '15m');
+    const refreshToken = await createJWT({id, email,role, firstName,lastName}, '7d' )
 
-    const refreshToken = await createJWT(
-      {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
-      '7d' // Refresh token expires in 7 days
-    );
-
-    // Create response with accessToken in body and refreshToken in httpOnly cookie
     const response = NextResponse.json(
       {
-        accessToken, // Client should store this in sessionStorage
+       token: accessToken, 
         user: {
           id: user.id,
           email: user.email,
@@ -71,8 +60,6 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-
-    // Set refresh token as httpOnly cookie (7 days max-age: 604800 seconds)
     response.cookies.set('refresh_token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -80,21 +67,12 @@ export async function POST(request: NextRequest) {
       maxAge: 604800, // 7 days
       path: '/',
     });
-
+ 
+    // return response
     return response;
-  } catch (error) {
-    // Handle validation errors
-    if (error instanceof ZodError) {
-      const fieldErrors = error.flatten().fieldErrors;
-      return NextResponse.json(
-        { errors: fieldErrors },
-        { status: 400 }
-      );
-    }
-
-    console.error('[LOGIN_ERROR]', error);
+  } catch (err) {
     return NextResponse.json(
-      { errors: { message: 'Login failed' } },
+      { errors: { message: 'Login failed', details:err.message } },
       { status: 500 }
     );
   }
