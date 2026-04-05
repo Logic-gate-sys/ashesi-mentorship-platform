@@ -1,14 +1,14 @@
 'use client'
-
+import { StepIndicator } from '@/app/_components/ui/StepIndictor'
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Input, Button } from '@/app/_components/ui/_index'
 import { useAuth } from '@/app/_lib/context/auth-context'
 import { studentRegisterSchema, validateStrongPassword } from '@/app/_schemas/auth.schema'
-import { EyeIcon, CheckIcon, ErrorIcon } from '@/app/_components/ui/icons'
+import { EyeIcon, ErrorIcon } from '@/app/_components/ui/icons'
+import { PasswordStrengthIndicator } from '@/app/_components/ui/reusable-ui/PasswordStrenght'
 
 type StudentRegisterInput = z.infer<typeof studentRegisterSchema>
 
@@ -39,140 +39,6 @@ const SUGGESTED_INTERESTS = [
   'Finance',
 ]
 
-// ── Password Strength Indicator ────────────────────────────────────
-
-interface PasswordRequirements {
-  minLength: boolean
-  uppercase: boolean
-  lowercase: boolean
-  number: boolean
-  specialChar: boolean
-}
-
-function PasswordStrengthIndicator({ password, requirements }: { password: string; requirements: PasswordRequirements }) {
-  const met = Object.values(requirements).filter(Boolean).length
-  const total = Object.values(requirements).length
-  const strength = total === 0 ? 0 : Math.round((met / total) * 100)
-  
-  let strengthColor = 'var(--color-danger)'
-  let strengthText = 'Weak'
-  
-  if (strength >= 80) {
-    strengthColor = 'var(--color-primary-light)'
-    strengthText = 'Strong'
-  } else if (strength >= 60) {
-    strengthColor = 'var(--color-warning)'
-    strengthText = 'Fair'
-  }
-
-  return (
-    <div className="space-y-3 p-4 bg-surface rounded-lg border border-border">
-      {/* Strength bar */}
-      <div className="flex items-center gap-2">
-        <div className="flex-1 h-1.5 bg-border rounded-full overflow-hidden">
-          <div 
-            className="h-full transition-all duration-300"
-            style={{ backgroundColor: strengthColor, width: `${strength}%` }}
-          />
-        </div>
-        <span className="text-[12px] font-semibold text-text-muted whitespace-nowrap">
-          {strengthText}
-        </span>
-      </div>
-
-      {/* Requirements checklist */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 text-[12px]">
-          <CheckIcon checked={requirements.minLength} />
-          <span className={requirements.minLength ? 'text-text-primary' : 'text-text-muted'}>
-            At least 8 characters
-          </span>
-        </div>
-        <div className="flex items-center gap-2 text-[12px]">
-          <CheckIcon checked={requirements.uppercase} />
-          <span className={requirements.uppercase ? 'text-text-primary' : 'text-text-muted'}>
-            One uppercase letter (A-Z)
-          </span>
-        </div>
-        <div className="flex items-center gap-2 text-[12px]">
-          <CheckIcon checked={requirements.lowercase} />
-          <span className={requirements.lowercase ? 'text-text-primary' : 'text-text-muted'}>
-            One lowercase letter (a-z)
-          </span>
-        </div>
-        <div className="flex items-center gap-2 text-[12px]">
-          <CheckIcon checked={requirements.number} />
-          <span className={requirements.number ? 'text-text-primary' : 'text-text-muted'}>
-            One number (0-9)
-          </span>
-        </div>
-        <div className="flex items-center gap-2 text-[12px]">
-          <CheckIcon checked={requirements.specialChar} />
-          <span className={requirements.specialChar ? 'text-text-primary' : 'text-text-muted'}>
-            One special character (!@#$%^&*-_=+)
-          </span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── Step Indicator ────────────────────────────────────────────────────
-
-function StepIndicator({ current, totalSteps }: { current: number; totalSteps: number }) {
-  const steps = ['Personal', 'Profile', 'Security', 'Interests', 'Connect', 'Legal']
-  
-  return (
-    <div className="mb-10">
-      {/* Step progress bar */}
-      <div className="flex items-center gap-2 mb-6">
-        {steps.map((label, i) => {
-          const stepNum = i + 1
-          const isActive = stepNum === current
-          const isCompleted = stepNum < current
-          
-          return (
-            <div key={stepNum} className="flex items-center flex-1">
-              {/* Step circle */}
-              <div className={`
-                w-8 h-8 rounded-full flex items-center justify-center
-                font-body text-[12px] font-bold transition-all duration-200
-                shrink-0
-                ${isActive 
-                  ? 'bg-brand text-white shadow-lg scale-110' 
-                  : isCompleted 
-                  ? 'bg-red-800 text-white' 
-                  : 'bg-border text-text-muted'
-                }
-              `}>
-                {isCompleted ? '✓' : stepNum}
-              </div>
-              
-              {/* Connector line */}
-              {i < steps.length - 1 && (
-                <div className={`h-1 flex-1 mx-2 transition-colors duration-200 ${isCompleted ? 'bg-red-950' : 'bg-border'}`} />
-              )}
-            </div>
-          )
-        })}
-      </div>
-      
-      {/* Step labels */}
-      <div className="flex justify-between text-[12px] font-medium text-text-muted">
-        {steps.map((label, i) => (
-          <span 
-            key={i} 
-            className={current === i + 1 ? 'text-brand font-semibold' : ''}
-          >
-            {label}
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ── Page ──────────────────────────────────────────────────────────────
 
 export default function StudentRegisterPage() {
   const { registerStudent, isLoading } = useAuth()
@@ -186,14 +52,7 @@ export default function StudentRegisterPage() {
   const [termsAutoChecked, setTermsAutoChecked] = useState(false)
   const [privacyAutoChecked, setPrivacyAutoChecked] = useState(false)
 
-  const {
-    register,
-    handleSubmit,
-    trigger,
-    watch,
-    setValue,
-    formState: { errors, isDirty },
-  } = useForm({
+  const { register, handleSubmit, trigger, watch, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(studentRegisterSchema),
     mode: 'onTouched',
     defaultValues: {
@@ -210,7 +69,6 @@ export default function StudentRegisterPage() {
     },
   })
 
-  // Watch all fields
   const firstName = watch('firstName')
   const lastName = watch('lastName')
   const email = watch('email')
@@ -220,13 +78,12 @@ export default function StudentRegisterPage() {
   const confirm = watch('confirm')
   const interests = watch('interests')
   const bio = watch('bio')
-  const linkedin = watch('linkedin')
 
-  // Auto-check legal docs on step 6 if already scrolled to bottom
+  // Auto-check legal docs on step 6 if user has scrolled to bottom in this session
   useEffect(() => {
     if (step === 6) {
-      const termsScrolled = typeof window !== 'undefined' && localStorage.getItem('terms_scrolled_to_bottom')
-      const privacyScrolled = typeof window !== 'undefined' && localStorage.getItem('privacy_scrolled_to_bottom')
+      const termsScrolled = typeof window !== 'undefined' && sessionStorage.getItem('terms_scrolled_to_bottom')
+      const privacyScrolled = typeof window !== 'undefined' && sessionStorage.getItem('privacy_scrolled_to_bottom')
       
       if (termsScrolled) {
         setAcceptedTerms(true)
@@ -238,7 +95,13 @@ export default function StudentRegisterPage() {
       }
     }
   }, [step])
-
+  // Clear session storage after successful registration
+  const clearSessionStorage = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('terms_scrolled_to_bottom')
+      sessionStorage.removeItem('privacy_scrolled_to_bottom')
+    }
+  }
   // Password strength
   const passwordStrength = useMemo(() => {
     if (!password) return { isValid: false, requirements: { minLength: false, uppercase: false, lowercase: false, number: false, specialChar: false } }
@@ -312,7 +175,7 @@ export default function StudentRegisterPage() {
 
   // Handle back
   const handleBack = () => {
-    if (step > 1) setStep((s) => (s - 1) as any)
+    if (step > 1) setStep((s) => (s - 1) as 1 | 2 | 3 | 4 | 5 | 6)
     setServerError('')
   }
 
@@ -340,30 +203,48 @@ export default function StudentRegisterPage() {
         bio: data.bio || null,
         linkedin: data.linkedin || null,
       })
+      clearSessionStorage()
     } catch (error) {
       setServerError(error instanceof Error ? error.message : 'Registration failed')
     }
   }
 
   return (
-    <div className="w-full max-w-3xl">
-
-      {/* ── PAGE HEADING ────────────────────────────────────────── */}
-      <div className="mb-10">
-        <h1 className="font-display font-bold text-[36px] text-primary tracking-tight leading-tight mb-3">
-          Create your account
+    <div className="w-full max-w-120">
+      {/* Page heading */}
+      <div className="mb-8">
+        <h1
+          className="text-[48px] leading-16.25 text-[#181821] text-center mb-2"
+          style={{ fontFamily: "'Bree Serif', serif", fontWeight: 400 }}
+        >
+          Create Your Account
         </h1>
-        <p className="font-body text-[16px] text-text-sub">
-          Join the Ashesi mentorship network and find the guidance you need
+        <p className="text-center text-[14px] text-[#666] mt-2">
+          Step {step} of 6
         </p>
       </div>
 
-      {/* ── STEP INDICATOR ────────────────────────────────────── */}
       <StepIndicator current={step} totalSteps={6} />
+
+      {/* Switch Registration Type */}
+      <div className="text-center mt-4 mb-6">
+        <p
+          className="text-xs text-[#666] mb-2"
+          style={{ fontFamily: "'Quicksand', sans-serif" }}
+        >
+          Are you an alumnus/mentor?{' '}
+          <Link
+            href="/register/alumni"
+            className="font-bold text-[#923D41] hover:text-[#7B1427] cursor-pointer"
+          >
+            Register here instead
+          </Link>
+        </p>
+      </div>
 
       {/* ── ERROR MESSAGE ─────────────────────────────────────── */}
       {serverError && (
-        <div className="mb-8 px-4 py-3 bg-[#FEE2E2] border border-[#FECACA] rounded-[12px] flex items-start gap-3">
+        <div className="mb-6 px-4 py-3 bg-[#FEE2E2] border border-[#FECACA] rounded-md flex items-start gap-3">
           <div className="shrink-0 mt-0.5 w-5 h-5 text-danger">
             <ErrorIcon />
           </div>
@@ -371,63 +252,72 @@ export default function StudentRegisterPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-8">
         {/* ── STEP 1 — PERSONAL INFO ────────────────────────── */}
         {step === 1 && (
           <div className="space-y-6">
-            <div className="space-y-2">
-              <h2 className="font-display font-bold text-[24px] text-text">Personal Information</h2>
-              <p className="font-body text-[14px] text-text-sub">Start with your basic details</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="label">First name *</label>
-                <Input
-                  id="firstName"
-                  placeholder="Kwame"
-                  autoComplete="given-name"
-                  error={errors.firstName?.message}
-                  {...register('firstName')}
-                />
-              </div>
-              <div>
-                <label htmlFor="lastName" className="label">Last name *</label>
-                <Input
-                  id="lastName"
-                  placeholder="Mensah"
-                  autoComplete="family-name"
-                  error={errors.lastName?.message}
-                  {...register('lastName')}
-                />
-              </div>
+            <div>
+              <label htmlFor="firstName" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>First name *</label>
+              <input
+                id="firstName"
+                type="text"
+                placeholder="Kwame"
+                autoComplete="given-name"
+                className={`w-full h-[46px] px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                  errors.firstName ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
+                }`}
+                {...register('firstName')}
+              />
+              {errors.firstName && (
+                <p className="text-[12px] text-danger mt-2">{errors.firstName.message}</p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="email" className="label">Ashesi email address *</label>
-              <Input
+              <label htmlFor="lastName" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Last name *</label>
+              <input
+                id="lastName"
+                type="text"
+                placeholder="Mensah"
+                autoComplete="family-name"
+                className={`w-full h-[46px] px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                  errors.lastName ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
+                }`}
+                {...register('lastName')}
+              />
+              {errors.lastName && (
+                <p className="text-[12px] text-danger mt-2">{errors.lastName.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Ashesi email address *</label>
+              <input
                 id="email"
                 type="email"
                 placeholder="you@ashesi.edu.gh"
                 autoComplete="email"
-                error={errors.email?.message}
+                className={`w-full h-[46px] px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                  errors.email ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
+                }`}
                 {...register('email')}
               />
-              <p className="font-body text-[12px] text-text-muted mt-2">
-                Must be your official @ashesi.edu.gh account
-              </p>
+              <p className="text-[12px] text-[#999] mt-2">Must be your official @ashesi.edu.gh account</p>
+              {errors.email && (
+                <p className="text-[12px] text-danger mt-2">{errors.email.message}</p>
+              )}
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                className="btn btn-primary flex-1"
+                className="w-full h-[60px] bg-[#923D41] text-white font-[400] text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
                 onClick={handleNext}
                 disabled={!isStep1Valid}
+                style={{ fontFamily: "'Bree Serif', serif" }}
               >
-                Continue to profile
+                Continue
               </button>
             </div>
           </div>
@@ -436,25 +326,13 @@ export default function StudentRegisterPage() {
         {/* ── STEP 2 — PROFILE ────────────────────────────────– */}
         {step === 2 && (
           <div className="space-y-6">
-            <div className="space-y-2">
-              <h2 className="font-display font-bold text-[24px] text-text">Academic Profile</h2>
-              <p className="font-body text-[14px] text-text-sub">Tell us about your academic background</p>
-            </div>
-
-            {/* Major Selection */}
             <div>
-              <label htmlFor="major" className="label">Major / Program *</label>
+              <label htmlFor="major" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Major / Program *</label>
               <select
                 id="major"
-                className={`
-                  w-full h-[44px] bg-white border rounded-[10px]
-                  font-body text-[15px] text-text px-4
-                  outline-none transition-all duration-150
-                  ${errors.major
-                    ? 'border-danger focus:border-danger focus:shadow-[0_0_0_3px_rgba(239,68,68,0.10)]'
-                    : 'border-border hover:border-border-strong focus:border-brand focus:shadow-[0_0_0_3px_rgba(127,29,29,0.10)]'
-                  }
-                `}
+                className={`w-full h-[46px] px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                  errors.major ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
+                }`}
                 {...register('major')}
               >
                 <option value="">Select your major</option>
@@ -463,27 +341,17 @@ export default function StudentRegisterPage() {
                 ))}
               </select>
               {errors.major && (
-                <p className="font-body text-[12px] text-danger mt-2 flex items-center gap-1.5">
-                  <ErrorIcon />
-                  {errors.major.message}
-                </p>
+                <p className="text-[12px] text-danger mt-2">{errors.major.message}</p>
               )}
             </div>
 
-            {/* Year Group */}
             <div>
-              <label htmlFor="year" className="label">Current year *</label>
+              <label htmlFor="year" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Current year *</label>
               <select
                 id="year"
-                className={`
-                  w-full h-[44px] bg-white border rounded-[10px]
-                  font-body text-[15px] text-text px-4
-                  outline-none transition-all duration-150
-                  ${errors.year
-                    ? 'border-danger focus:border-danger focus:shadow-[0_0_0_3px_rgba(239,68,68,0.10)]'
-                    : 'border-border hover:border-border-strong focus:border-brand focus:shadow-[0_0_0_3px_rgba(127,29,29,0.10)]'
-                  }
-                `}
+                className={`w-full h-[46px] px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                  errors.year ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
+                }`}
                 {...register('year')}
               >
                 <option value="">Select your year</option>
@@ -493,29 +361,28 @@ export default function StudentRegisterPage() {
                 <option value="4">Year 4</option>
               </select>
               {errors.year && (
-                <p className="font-body text-[12px] text-danger mt-2 flex items-center gap-1.5">
-                  <ErrorIcon />
-                  {errors.year.message}
-                </p>
+                <p className="text-[12px] text-danger mt-2">{errors.year.message}</p>
               )}
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                className="btn btn-ghost flex-1"
+                className="w-full h-[60px] bg-white text-[#923D41] font-[400] text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
                 onClick={handleBack}
+                style={{ fontFamily: "'Bree Serif', serif" }}
               >
                 ← Back
               </button>
               <button
                 type="button"
-                className="btn btn-primary flex-1"
+                className="w-full h-[60px] bg-[#923D41] text-white font-[400] text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
                 onClick={handleNext}
                 disabled={!isStep2Valid}
+                style={{ fontFamily: "'Bree Serif', serif" }}
               >
-                Continue to security
+                Continue
               </button>
             </div>
           </div>
@@ -524,83 +391,86 @@ export default function StudentRegisterPage() {
         {/* ── STEP 3 — SECURITY ────────────────────────────── */}
         {step === 3 && (
           <div className="space-y-6">
-            <div className="space-y-2">
-              <h2 className="font-display font-bold text-[24px] text-text">Security & Password</h2>
-              <p className="font-body text-[14px] text-text-sub">Create a strong password to protect your account</p>
-            </div>
-
-            {/* Password */}
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="password" className="label">Password *</label>
-                <Input
+            <div>
+              <label htmlFor="password" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Password *</label>
+              <div className="relative">
+                <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Create a strong password"
                   autoComplete="new-password"
-                  error={errors.password?.message}
-                  right={
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(p => !p)}
-                      className="text-text-muted hover:text-text transition-colors"
-                      tabIndex={-1}
-                    >
-                      <EyeIcon open={showPassword} />
-                    </button>
-                  }
+                  className={`w-full h-[46px] px-4 pr-12 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                    errors.password ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
+                  }`}
                   {...register('password')}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(p => !p)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#923D41] hover:text-[#7B1427] transition-colors"
+                  tabIndex={-1}
+                >
+                  <EyeIcon open={showPassword} />
+                </button>
               </div>
-
-              {/* Password Strength Indicator */}
-              {password && (
-                <PasswordStrengthIndicator 
-                  password={password}
-                  requirements={passwordStrength.requirements}
-                />
+              {errors.password && (
+                <p className="text-[12px] text-danger mt-2">{errors.password.message}</p>
               )}
             </div>
 
-            {/* Confirm Password */}
-            <div>
-              <label htmlFor="confirm" className="label">Confirm password *</label>
-              <Input
-                id="confirm"
-                type={showConfirm ? 'text' : 'password'}
-                placeholder="Re-enter your password"
-                autoComplete="new-password"
-                error={errors.confirm?.message}
-                right={
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm(p => !p)}
-                    className="text-text-muted hover:text-text transition-colors"
-                    tabIndex={-1}
-                  >
-                    <EyeIcon open={showConfirm} />
-                  </button>
-                }
-                {...register('confirm')}
+            {/* Password Strength Indicator */}
+            {password && (
+              <PasswordStrengthIndicator 
+                password={password}
+                requirements={passwordStrength.requirements}
               />
+            )}
+
+            <div>
+              <label htmlFor="confirm" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Confirm password *</label>
+              <div className="relative">
+                <input
+                  id="confirm"
+                  type={showConfirm ? 'text' : 'password'}
+                  placeholder="Re-enter your password"
+                  autoComplete="new-password"
+                  className={`w-full h-[46px] px-4 pr-12 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                    errors.confirm ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
+                  }`}
+                  {...register('confirm')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(p => !p)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#923D41] hover:text-[#7B1427] transition-colors"
+                  tabIndex={-1}
+                >
+                  <EyeIcon open={showConfirm} />
+                </button>
+              </div>
+              {errors.confirm && (
+                <p className="text-[12px] text-danger mt-2">{errors.confirm.message}</p>
+              )}
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                className="btn btn-ghost flex-1"
+                className="w-full h-[60px] bg-white text-[#923D41] font-[400] text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
                 onClick={handleBack}
+                style={{ fontFamily: "'Bree Serif', serif" }}
               >
                 ← Back
               </button>
               <button
                 type="button"
-                className="btn btn-primary flex-1"
+                className="w-full h-[60px] bg-[#923D41] text-white font-[400] text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
                 onClick={handleNext}
                 disabled={!isStep3Valid}
+                style={{ fontFamily: "'Bree Serif', serif" }}
               >
-                Continue to interests
+                Continue
               </button>
             </div>
           </div>
@@ -609,19 +479,13 @@ export default function StudentRegisterPage() {
         {/* ── STEP 4 — SKILLS & INTERESTS ───────────────────── */}
         {step === 4 && (
           <div className="space-y-6">
-            <div className="space-y-2">
-              <h2 className="font-display font-bold text-[24px] text-text">Skills & Interests</h2>
-              <p className="font-body text-[14px] text-text-sub">Tell mentors what you're passionate about</p>
-            </div>
-
-            {/* Interest input */}
             <div>
-              <label htmlFor="interestInput" className="label">Add an interest *</label>
+              <label htmlFor="interestInput" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Add an interest *</label>
               <div className="flex gap-2">
                 <input
                   id="interestInput"
                   type="text"
-                  placeholder="e.g., Fintech, Machine Learning, Web Dev"
+                  placeholder="e.g., Fintech, Machine Learning"
                   value={interestInput}
                   onChange={(e) => setInterestInput(e.target.value)}
                   onKeyDown={(e) => {
@@ -630,38 +494,32 @@ export default function StudentRegisterPage() {
                       addInterest(interestInput)
                     }
                   }}
-                  className="flex-1 h-[44px] px-4 border border-border rounded-[10px] 
-                    font-body text-[15px] outline-none transition-colors
-                    focus:border-primary focus:shadow-[0_0_0_3px_rgba(127,29,29,0.10)]"
+                  className="flex-1 h-[44px] px-4 border border-[#923D41] rounded-[10px] bg-white outline-none transition-colors focus:shadow-[0_0_0_3px_rgba(146,61,65,0.10)]"
                 />
                 <button
                   type="button"
                   onClick={() => addInterest(interestInput)}
-                  className="btn btn-primary h-[44px] px-6"
+                  className="px-6 h-[44px] bg-[#923D41] text-white rounded-[10px] hover:bg-[#7B1427] transition-all text-[14px] font-[700]"
                 >
                   Add
                 </button>
               </div>
               {errors.interests && (
-                <p className="font-body text-[12px] text-danger mt-2 flex items-center gap-1.5">
-                  <ErrorIcon />
-                  {errors.interests.message}
-                </p>
+                <p className="text-[12px] text-danger mt-2">{errors.interests.message}</p>
               )}
             </div>
 
             {/* Suggested interests */}
             {interests.length < 10 && (
               <div>
-                <p className="font-body text-[13px] font-semibold text-text-muted mb-3">Suggested interests:</p>
+                <p className="text-[13px] font-[700] text-[#666] mb-3">Suggested interests:</p>
                 <div className="flex flex-wrap gap-2">
                   {SUGGESTED_INTERESTS.filter(s => !interests.includes(s)).slice(0, 8).map(interest => (
                     <button
                       key={interest}
                       type="button"
                       onClick={() => addInterest(interest)}
-                      className="px-4 py-2 bg-primary/8 border border-primary/20 text-primary rounded-[10px] 
-                        font-body text-[13px] hover:bg-primary/12 transition-colors"
+                      className="px-4 py-2 bg-[#FAF8F8] border border-[#923D41] text-[#923D41] rounded-[10px] text-[13px] hover:bg-[#923D41] hover:text-white transition-colors"
                     >
                       + {interest}
                     </button>
@@ -673,19 +531,18 @@ export default function StudentRegisterPage() {
             {/* Selected interests */}
             {interests.length > 0 && (
               <div>
-                <p className="font-body text-[13px] font-semibold text-text-muted mb-3">Your interests ({interests.length}/10):</p>
+                <p className="text-[13px] font-[700] text-[#666] mb-3">Your interests ({interests.length}/10):</p>
                 <div className="flex flex-wrap gap-2">
                   {interests.map((interest, idx) => (
                     <div
                       key={interest}
-                      className="px-4 py-2 bg-primary/10 border border-primary/30 text-primary rounded-[10px] 
-                        font-body text-[13px] flex items-center gap-2"
+                      className="px-4 py-2 bg-[#923D41]/10 border border-[#923D41]/30 text-[#923D41] rounded-[10px] text-[13px] flex items-center gap-2"
                     >
                       {interest}
                       <button
                         type="button"
                         onClick={() => removeInterest(idx)}
-                        className="text-primary/60 hover:text-primary transition-colors font-bold"
+                        className="text-[#923D41]/60 hover:text-[#923D41] transition-colors font-bold"
                       >
                         ×
                       </button>
@@ -696,21 +553,23 @@ export default function StudentRegisterPage() {
             )}
 
             {/* Action buttons */}
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                className="btn btn-ghost flex-1"
+                className="w-full h-[60px] bg-white text-[#923D41] font-[400] text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
                 onClick={handleBack}
+                style={{ fontFamily: "'Bree Serif', serif" }}
               >
                 ← Back
               </button>
               <button
                 type="button"
-                className="btn btn-primary flex-1"
+                className="w-full h-[60px] bg-[#923D41] text-white font-[400] text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
                 onClick={handleNext}
                 disabled={!isStep4Valid}
+                style={{ fontFamily: "'Bree Serif', serif" }}
               >
-                Continue to profile links
+                Continue
               </button>
             </div>
           </div>
@@ -719,69 +578,57 @@ export default function StudentRegisterPage() {
         {/* ── STEP 5 — SOCIAL & PROFESSIONAL LINKS ────────────– */}
         {step === 5 && (
           <div className="space-y-6">
-            <div className="space-y-2">
-              <h2 className="font-display font-bold text-[24px] text-text">Profile & Links</h2>
-              <p className="font-body text-[14px] text-text-sub">Optional: Help mentors learn more about you</p>
-            </div>
-
-            {/* Bio */}
             <div>
-              <label htmlFor="bio" className="label">About you (bio)</label>
+              <label htmlFor="bio" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>About you (bio)</label>
               <textarea
                 id="bio"
-                placeholder="Tell potential mentors a bit about yourself, your goals, and what you're looking for..."
+                placeholder="Tell potential mentors a bit about yourself..."
                 rows={4}
-                className={`
-                  w-full px-4 py-3 border rounded-[10px] resize-none
-                  font-body text-[15px] outline-none transition-all
-                  ${errors.bio
-                    ? 'border-danger focus:border-danger focus:shadow-[0_0_0_3px_rgba(239,68,68,0.10)]'
-                    : 'border-border hover:border-border-strong focus:border-brand focus:shadow-[0_0_0_3px_rgba(127,29,29,0.10)]'
-                  }
-                `}
+                className={`w-full px-4 py-3 border-[1.5px] rounded-[10px] resize-none outline-none transition-all bg-[#FAF8F8] ${
+                  errors.bio ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
+                }`}
                 {...register('bio')}
               />
-              <p className="font-body text-[12px] text-text-muted mt-2">
-                {bio?.length || 0}/500 characters
-              </p>
+              <p className="text-[12px] text-[#999] mt-2">{bio?.length || 0}/500 characters</p>
               {errors.bio && (
-                <p className="font-body text-[12px] text-danger mt-2 flex items-center gap-1.5">
-                  <ErrorIcon />
-                  {errors.bio.message}
-                </p>
+                <p className="text-[12px] text-danger mt-2">{errors.bio.message}</p>
               )}
             </div>
 
-            {/* LinkedIn */}
             <div>
-              <label htmlFor="linkedin" className="label">LinkedIn profile</label>
-              <Input
+              <label htmlFor="linkedin" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>LinkedIn profile</label>
+              <input
                 id="linkedin"
                 type="url"
                 placeholder="https://linkedin.com/in/your-profile"
-                error={errors.linkedin?.message}
+                className={`w-full h-[46px] px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                  errors.linkedin ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
+                }`}
                 {...register('linkedin')}
               />
-              <p className="font-body text-[12px] text-text-muted mt-2">
-                Include the full URL starting with https://
-              </p>
+              <p className="text-[12px] text-[#999] mt-2">Include the full URL starting with https://</p>
+              {errors.linkedin && (
+                <p className="text-[12px] text-danger mt-2">{errors.linkedin.message}</p>
+              )}
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                className="btn btn-ghost flex-1"
+                className="w-full h-[60px] bg-white text-[#923D41] font-[400] text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
                 onClick={handleBack}
+                style={{ fontFamily: "'Bree Serif', serif" }}
               >
                 ← Back
               </button>
               <button
                 type="button"
-                className="btn btn-primary flex-1"
+                className="w-full h-[60px] bg-[#923D41] text-white font-[400] text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
                 onClick={handleNext}
+                style={{ fontFamily: "'Bree Serif', serif" }}
               >
-                Continue to agreements
+                Continue
               </button>
             </div>
           </div>
@@ -790,13 +637,14 @@ export default function StudentRegisterPage() {
         {/* ── STEP 6 — LEGAL ACCEPTANCE ────────────────────────── */}
         {step === 6 && (
           <div className="space-y-6">
-            <div className="space-y-2">
-              <h2 className="font-display font-bold text-[24px] text-text">Review & Accept</h2>
-              <p className="font-body text-[14px] text-text-sub">Please read and accept our policies to complete your registration</p>
+            {/* Instruction heading */}
+            <div className="mb-6">
+              <h2 className="text-[24px] font-bold text-[#181821] mb-2" style={{ fontFamily: "'Bree Serif', serif" }}>Review legal documents</h2>
+              <p className="text-[14px] text-[#666]" style={{ fontFamily: "'Quicksand', sans-serif" }}>Open each document, scroll to the bottom to mark as read</p>
             </div>
 
             {/* Terms & Privacy Agreement */}
-            <div className="space-y-4 p-6 bg-primary/5 border border-primary/15 rounded-[12px]">
+            <div className="space-y-4 p-6 bg-[#FAF8F8] border border-[#923D41]/20 rounded-[12px]">
               <div className="space-y-3">
                 {/* Terms of Service */}
                 <div className="flex items-start gap-3">
@@ -804,95 +652,107 @@ export default function StudentRegisterPage() {
                     type="checkbox"
                     id="acceptTerms"
                     checked={acceptedTerms}
-                    onChange={(e) => !termsAutoChecked && setAcceptedTerms(e.target.checked)}
-                    disabled={termsAutoChecked}
-                    className="w-5 h-5 mt-0.5 rounded border-2 border-brand cursor-pointer accent-brand disabled:cursor-not-allowed"
+                    onChange={() => {}}
+                    disabled={true}
+                    className="w-5 h-5 mt-0.5 rounded border-2 border-[#923D41] cursor-not-allowed accent-[#923D41]"
                   />
                   <div className="flex-1">
-                    <label htmlFor="acceptTerms" className="font-body text-[14px] text-text font-medium cursor-pointer block">
+                    <label htmlFor="acceptTerms" className="text-[14px] text-[#0A0909] font-[700] block" style={{ fontFamily: "'Quicksand', sans-serif" }}>
                       I have read and accept the Terms of Service *
                     </label>
-                    {termsAutoChecked && (
-                      <p className="text-[12px] text-brand font-semibold mt-1">✓ Automatically marked as read</p>
+                    {acceptedTerms && (
+                      <p className="text-[12px] text-[#923D41] font-semibold mt-1">✓ Read and marked</p>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => window.open('/legal/terms', '_blank')}
-                      className="text-brand hover:text-brand-dark text-[13px] font-semibold mt-1 underline transition-colors"
-                    >
-                      Read Terms of Service →
-                    </button>
+                    {!acceptedTerms && (
+                      <Link
+                        href="/terms"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[#923D41] hover:text-[#7B1427] text-[13px] font-semibold mt-2 px-3 py-1.5 rounded border border-[#923D41] hover:bg-[#923D41]/5 transition-all"
+                      >
+                        Open & Read →
+                      </Link>
+                    )}
                   </div>
                 </div>
 
                 {/* Privacy Policy */}
-                <div className="flex items-start gap-3 pt-2 border-t border-brand/10">
+                <div className="flex items-start gap-3 pt-2 border-t border-[#923D41]/10">
                   <input
                     type="checkbox"
                     id="acceptPrivacy"
                     checked={acceptedPrivacy}
-                    onChange={(e) => !privacyAutoChecked && setAcceptedPrivacy(e.target.checked)}
-                    disabled={privacyAutoChecked}
-                    className="w-5 h-5 mt-0.5 rounded border-2 border-brand cursor-pointer accent-brand disabled:cursor-not-allowed"
+                    onChange={() => {}}
+                    disabled={true}
+                    className="w-5 h-5 mt-0.5 rounded border-2 border-[#923D41] cursor-not-allowed accent-[#923D41]"
                   />
                   <div className="flex-1">
-                    <label htmlFor="acceptPrivacy" className="font-body text-[14px] text-text font-medium cursor-pointer block">
+                    <label htmlFor="acceptPrivacy" className="text-[14px] text-[#0A0909] font-[700] block" style={{ fontFamily: "'Quicksand', sans-serif" }}>
                       I have read and accept the Privacy Policy *
                     </label>
-                    {privacyAutoChecked && (
-                      <p className="text-[12px] text-brand font-semibold mt-1">✓ Automatically marked as read</p>
+                    {acceptedPrivacy && (
+                      <p className="text-[12px] text-[#923D41] font-semibold mt-1">✓ Read and marked</p>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => window.open('/legal/privacy', '_blank')}
-                      className="text-brand hover:text-brand-dark text-[13px] font-semibold mt-1 underline transition-colors"
-                    >
-                      Read Privacy Policy →
-                    </button>
+                    {!acceptedPrivacy && (
+                      <Link
+                        href="/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[#923D41] hover:text-[#7B1427] text-[13px] font-semibold mt-2 px-3 py-1.5 rounded border border-[#923D41] hover:bg-[#923D41]/5 transition-all"
+                      >
+                        Open & Read →
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
-
-              {/* Status message */}
-              {!acceptedTerms || !acceptedPrivacy && (
-                <div className="text-[13px] text-text-muted font-medium pt-2 border-t border-brand/10">
-                  {!acceptedTerms && !acceptedPrivacy
-                    ? '→ Please read and accept both policies to continue'
-                    : !acceptedTerms
-                    ? '→ Please read and accept the Terms of Service'
-                    : '→ Please read and accept the Privacy Policy'}
-                </div>
-              )}
             </div>
 
+            {/* Status message */}
+            {!acceptedTerms || !acceptedPrivacy && (
+              <div className="p-4 bg-[#FEF2F2] border border-[#923D41]/20 rounded-[10px]">
+                <p className="text-[13px] text-[#923D41] font-medium" style={{ fontFamily: "'Quicksand', sans-serif" }}>
+                  ⚠️ {!acceptedTerms && !acceptedPrivacy
+                    ? 'Please read both documents to continue'
+                    : !acceptedTerms
+                    ? 'Please read the Terms of Service to continue'
+                    : 'Please read the Privacy Policy to continue'}
+                </p>
+              </div>
+            )}
+
             {/* Action buttons */}
-            <div className="flex gap-3 pt-2">
+
+            {/* Action buttons */}
+            <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                className="btn btn-ghost flex-1"
+                className="w-full h-[60px] bg-white text-[#923D41] font-[400] text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
                 onClick={handleBack}
+                style={{ fontFamily: "'Bree Serif', serif" }}
               >
                 ← Back
               </button>
               <button
                 type="submit"
-                className="btn btn-primary flex-1"
+                className="w-full h-[60px] bg-[#923D41] text-white font-[400] text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E] disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!isStep6Valid || isLoading}
+                style={{ fontFamily: "'Bree Serif', serif" }}
               >
-                {isLoading ? 'Creating account...' : 'Create account'}
+                {isLoading ? 'Creating...' : 'Create'}
               </button>
             </div>
           </div>
         )}
 
-      </form>
+          </form>
 
-      {/* Sign in link */}
-      <p className="font-body text-center text-[13px] text-text-sub mt-10">
-        Already have an account?{' '}
+          {/* Sign in link - Mobile only */}
+      <p className="font-body text-center text-[13px] text-text-muted mt-8">
+        Already have an account?{" "}
         <Link
           href="/login"
-          className="font-semibold text-brand hover:text-brand-dark transition-colors"
+          className="font-semibold text-brand hover:opacity-80 transition-opacity"
         >
           Log in
         </Link>

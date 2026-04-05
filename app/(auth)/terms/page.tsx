@@ -24,9 +24,9 @@ export default function TermsPage() {
       // Check if user has scrolled to the bottom (within 100px threshold)
       if (scrollTop + clientHeight >= scrollHeight - 100) {
         setScrolledToBottom(true)
-        // Save to localStorage so registration form can detect it
+        // Save to sessionStorage so registration form can detect it (only this session)
         if (typeof window !== 'undefined') {
-          localStorage.setItem('terms_scrolled_to_bottom', 'true')
+          sessionStorage.setItem('terms_scrolled_to_bottom', 'true')
         }
       }
     }
@@ -41,7 +41,7 @@ export default function TermsPage() {
   return (
     <div 
       ref={contentRef}
-      className="w-full bg-page"
+      className="w-full max-h-screen overflow-y-auto bg-white"
     >
       <div className="max-w-4xl mx-auto px-6 py-16">
         <div className="prose prose-lg max-w-none">
@@ -195,12 +195,12 @@ export default function TermsPage() {
           {/* Footer navigation */}
           <div className="mt-16 pt-8 border-t border-border flex gap-4">
             <button
-              onClick={() => window.close()}
+              onClick={() => window.history.back()}
               className="btn btn-primary"
             >
               ← Back to registration
             </button>
-            <Link href="/legal/privacy" className="btn btn-ghost">
+            <Link href="/privacy" className="btn btn-ghost">
               Read Privacy Policy →
             </Link>
             {scrolledToBottom && (

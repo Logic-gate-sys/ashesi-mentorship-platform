@@ -1,13 +1,15 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input, Button} from "@/app/_components/ui/_index";
 import { alumniRegisterSchema } from "@/app/_schemas/alumni.schema";
+import { validateStrongPassword } from "@/app/_schemas/auth.schema";
+import { useAuth } from "@/app/_lib/context/auth-context";
 import { EyeIcon, ErrorIcon } from "@/app/_components/ui/icons";
+import { PasswordStrengthIndicator } from "@/app/_components/ui/reusable-ui/PasswordStrenght";
 
 type AlumniRegisterInput = z.infer<typeof alumniRegisterSchema>;
 
@@ -17,6 +19,9 @@ const MAJORS = [
   "Business Administration",
   "Electrical and Electronic Engineering",
   "Mechanical Engineering",
+  "Mechatronics Engineering",
+  "Economics",
+  "Law in Public Policy"
 ];
 
 const INDUSTRIES = [
@@ -29,13 +34,7 @@ const INDUSTRIES = [
   { value: "OTHER", label: "Other" },
 ];
 
-function SelectField({
-  id,
-  label,
-  error,
-  children,
-  ...props
-}: {
+function SelectField({id,label,error,children,...props}: {
   id: string;
   label: string;
   error?: string;
@@ -43,18 +42,12 @@ function SelectField({
 } & React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label
-        htmlFor={id}
-        className="font-body text-[13px] font-semibold text-text"
-      >
+      <label htmlFor={id} className="font-body text-[13px] font-semibold text-text">
         {label}
       </label>
       <select
         id={id}
-        className={`
-          w-full h-[44px] bg-surface border rounded-[8px]
-          font-body text-[14px] text-text px-4
-          outline-none transition-all duration-150 appearance-none
+        className={`w-full h-11 bg-surface border rounded-base font-body text-[14px] text-text px-4 outline-none transition-all duration-150 appearance-none
           ${
             error
               ? "border-red-400 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.15)]"
@@ -74,6 +67,9 @@ function SelectField({
     </div>
   );
 }
+
+
+
 
 function Steps({ current }: { current: 1 | 2 | 3 }) {
   const labels = ["Identity", "Career", "Security"];
@@ -119,16 +115,45 @@ function Steps({ current }: { current: 1 | 2 | 3 }) {
 }
 
 export default function AlumniRegisterPage() {
-  const router = useRouter();
+  const { registerAlumni, isLoading } = useAuth();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [termsAutoChecked, setTermsAutoChecked] = useState(false);
+  const [privacyAutoChecked, setPrivacyAutoChecked] = useState(false);
 
-  const {register, handleSubmit, trigger, formState: { errors, isSubmitting },} = useForm<AlumniRegisterInput>({
+  const {register, handleSubmit, trigger, watch, formState: { errors },} = useForm<AlumniRegisterInput>({
     resolver: zodResolver(alumniRegisterSchema),
     mode: "onTouched",
   });
+
+  const password = watch("password");
+
+  // Password strength
+  const passwordStrength = useMemo(() => {
+    if (!password) return { isValid: false, requirements: { minLength: false, uppercase: false, lowercase: false, number: false, specialChar: false } }
+    return validateStrongPassword(password)
+  }, [password])
+
+  // Auto-check legal docs on step 3 if user has scrolled to bottom in this session
+  useEffect(() => {
+    if (step === 3) {
+      const termsScrolled = typeof window !== 'undefined' && sessionStorage.getItem('terms_scrolled_to_bottom');
+      const privacyScrolled = typeof window !== 'undefined' && sessionStorage.getItem('privacy_scrolled_to_bottom');
+      
+      if (termsScrolled) {
+        setAcceptedTerms(true);
+        setTermsAutoChecked(true);
+      }
+      if (privacyScrolled) {
+        setAcceptedPrivacy(true);
+        setPrivacyAutoChecked(true);
+      }
+    }
+  }, [step]);
 
   const goNext = async (fields: (keyof AlumniRegisterInput)[]) => {
     const valid = await trigger(fields);
@@ -137,29 +162,22 @@ export default function AlumniRegisterPage() {
 
   const goBack = () => setStep((s) => Math.max(s - 1, 1) as 1 | 2 | 3);
 
+  const clearSessionStorage = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('terms_scrolled_to_bottom');
+      sessionStorage.removeItem('privacy_scrolled_to_bottom');
+    }
+  };
+
   const onSubmit = async (data: AlumniRegisterInput) => {
     setServerError(null);
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, role: "ALUMNI" }),
-      });
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        setServerError(
-          json.message ?? "Something went wrong. Please try again.",
-        );
-        // If email conflict, send back to step 1
-        if (json.field === "email") setStep(1);
-        return;
-      }
-
-      router.push("/alumni/dashboard");
-    } catch {
-      setServerError("Network error. Please check your connection.");
+      await registerAlumni(data);
+      clearSessionStorage();
+    } catch (error) {
+      setServerError(error instanceof Error ? error.message : 'Registration failed');
+      // If email conflict, send back to step 1
+      if (error instanceof Error && error.message.includes('email')) setStep(1);
     }
   };
 
@@ -177,6 +195,22 @@ export default function AlumniRegisterPage() {
 
       {/* Step indicator */}
       <Steps current={step} />
+
+      {/* Switch Registration Type */}
+      <div className="text-center mt-4 mb-6">
+        <p
+          className="text-xs text-[#666] mb-2"
+          style={{ fontFamily: "'Quicksand', sans-serif" }}
+        >
+          Are you a current student?{' '}
+          <Link
+            href="/register/student"
+            className="font-bold text-[#923D41] hover:text-[#7B1427] cursor-pointer"
+          >
+            Register here instead
+          </Link>
+        </p>
+      </div>
 
       {/* Server error */}
       {serverError && (
@@ -351,6 +385,14 @@ export default function AlumniRegisterPage() {
         {/* ── STEP 3 — password ───────────────────────── */}
         {step === 3 && (
           <div className="flex flex-col gap-5">
+            {/* Instruction heading */}
+            <div className="mb-4">
+              <h2 className="font-display font-bold text-[22px] text-text tracking-tight leading-tight mb-2">
+                Review legal documents
+              </h2>
+              <p className="font-body text-[13px] text-text-muted">Open each document, scroll to the bottom to mark as read</p>
+            </div>
+
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
@@ -370,6 +412,14 @@ export default function AlumniRegisterPage() {
               }
               {...register("password")}
             />
+
+            {/* Password Strength Indicator */}
+            {password && (
+              <PasswordStrengthIndicator 
+                password={password}
+                requirements={passwordStrength.requirements}
+              />
+            )}
 
             <Input
               id="confirm"
@@ -391,32 +441,94 @@ export default function AlumniRegisterPage() {
               {...register("confirm")}
             />
 
-            <p className="font-body text-[12px] text-text-muted leading-relaxed">
-              By creating an account you agree to our{" "}
-              <Link
-                href="/terms"
-                className="text-brand hover:opacity-80 transition-opacity font-medium"
-              >
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link
-                href="/privacy"
-                className="text-brand hover:opacity-80 transition-opacity font-medium"
-              >
-                Privacy Policy
-              </Link>
-              .
-            </p>
+            {/* Legal Agreements */}
+            <div className="space-y-3 border border-border rounded-[10px] p-4 bg-surface">
+              {/* Terms of Service */}
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="acceptTerms"
+                  checked={acceptedTerms}
+                  onChange={() => {}}
+                  disabled={true}
+                  className="w-5 h-5 mt-0.5 rounded border-2 border-brand cursor-not-allowed accent-brand"
+                />
+                <div className="flex-1">
+                  <label
+                    htmlFor="acceptTerms"
+                    className="font-body text-[13px] font-semibold text-text block"
+                  >
+                    I have read and accept the Terms of Service *
+                  </label>
+                  {acceptedTerms && (
+                    <p className="font-body text-[11px] text-brand font-semibold mt-1">✓ Read and marked</p>
+                  )}
+                  {!acceptedTerms && (
+                    <Link
+                      href="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 font-body text-[12px] font-semibold text-brand hover:text-brand/80 mt-2 px-3 py-1.5 rounded border border-brand hover:bg-brand/5 transition-all"
+                    >
+                      Open & Read →
+                    </Link>
+                  )}
+                </div>
+              </div>
+
+              {/* Privacy Policy */}
+              <div className="flex items-start gap-3 pt-2 border-t border-border">
+                <input
+                  type="checkbox"
+                  id="acceptPrivacy"
+                  checked={acceptedPrivacy}
+                  onChange={() => {}}
+                  disabled={true}
+                  className="w-5 h-5 mt-0.5 rounded border-2 border-brand cursor-not-allowed accent-brand"
+                />
+                <div className="flex-1">
+                  <label
+                    htmlFor="acceptPrivacy"
+                    className="font-body text-[13px] font-semibold text-text block"
+                  >
+                    I have read and accept the Privacy Policy *
+                  </label>
+                  {acceptedPrivacy && (
+                    <p className="font-body text-[11px] text-brand font-semibold mt-1">✓ Read and marked</p>
+                  )}
+                  {!acceptedPrivacy && (
+                    <Link
+                      href="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 font-body text-[12px] font-semibold text-brand hover:text-brand/80 mt-2 px-3 py-1.5 rounded border border-brand hover:bg-brand/5 transition-all"
+                    >
+                      Open & Read →
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Status message */}
+            {!acceptedTerms || !acceptedPrivacy && (
+              <div className="font-body text-[12px] text-text-muted font-medium px-4 py-3 bg-surface border border-border rounded-[8px]">
+                ⚠️ {!acceptedTerms && !acceptedPrivacy
+                  ? 'Please read both documents to continue'
+                  : !acceptedTerms
+                  ? 'Please read the Terms of Service to continue'
+                  : 'Please read the Privacy Policy to continue'}
+              </div>
+            )}
 
             <div className="flex flex-col gap-2">
               <Button
                 type="submit"
                 variant="primary"
-
                 size="lg"
                 full
-                loading={isSubmitting}
+                loading={isLoading}
+                disabled={!acceptedTerms || !acceptedPrivacy || isLoading}
               >
                 Create mentor account
               </Button>

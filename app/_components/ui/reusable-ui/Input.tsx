@@ -1,6 +1,6 @@
 import { forwardRef } from 'react'
 import type { InputHTMLAttributes, ReactNode } from 'react'
-import { ErrorIcon } from './icons'
+import { ErrorIcon } from '../icons/'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?:    string

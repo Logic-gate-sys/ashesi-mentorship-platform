@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json(
       {
         success: true,
-        token: accessToken, 
+        accessToken: accessToken,
         user:user,
       },
       { status: 201 }
@@ -98,8 +98,12 @@ export async function POST(request: NextRequest) {
 
     return response
   } catch (error) {
+    console.error('Student registration error:', error)
     return NextResponse.json(
-      { error: 'Registration failed. Please try again.' },
+      { 
+        error: 'Registration failed. Please try again.',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }

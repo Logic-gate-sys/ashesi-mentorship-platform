@@ -1,4 +1,5 @@
 import {z} from  'zod';
+import { validateStrongPassword } from './auth.schema';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -19,9 +20,13 @@ export const alumniRegisterSchema = z.object({
     ),
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters")
-      .max(72),
-    confirm: z.string(),
+      .min(1, "Password is required")
+      .max(72, "Password must be less than 72 characters")
+      .refine(
+        (pwd) => validateStrongPassword(pwd).isValid,
+        "Password must contain: uppercase, lowercase, number, and special character (!@#$%^&*-_=+)"
+      ),
+    confirm: z.string().min(1, "Please confirm your password"),
  })
   .refine((d) => d.password === d.confirm, {
     message: "Passwords do not match",

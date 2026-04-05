@@ -16,9 +16,9 @@ export default function PrivacyPage() {
       // Check if user has scrolled to the bottom (within 100px threshold)
       if (scrollTop + clientHeight >= scrollHeight - 100) {
         setScrolledToBottom(true)
-        // Save to localStorage so registration form can detect it
+        // Save to sessionStorage so registration form can detect it (only this session)
         if (typeof window !== 'undefined') {
-          localStorage.setItem('privacy_scrolled_to_bottom', 'true')
+          sessionStorage.setItem('privacy_scrolled_to_bottom', 'true')
         }
       }
     }
@@ -31,10 +31,7 @@ export default function PrivacyPage() {
   }, [])
 
   return (
-    <div 
-      ref={contentRef}
-      className="w-full bg-page"
-    >
+    <div ref={contentRef} className="w-full max-h-screen overflow-y-auto bg-white">
       <div className="max-w-4xl mx-auto px-6 py-16">
         <div className="prose prose-lg max-w-none">
 
@@ -50,7 +47,7 @@ export default function PrivacyPage() {
           <section className="mb-12">
             <h2 className="font-display font-bold text-[28px] text-primary mb-4">1. Introduction</h2>
             <p className="font-body text-[16px] text-text-sub leading-relaxed mb-4">
-              AshesiConnect ("we," "us," "our," or "Company") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website and mobile applications (collectively, the "Platform").
+              AshesiConnect (&quot;we,&quot; &quot;us,&quot; &quot;our,&quot; or &quot;Company&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website and mobile applications (collectively, the &quot;Platform&quot;).
             </p>
             <p className="font-body text-[16px] text-text-sub leading-relaxed">
               Please read this Privacy Policy carefully. If you do not agree with our policies and practices, please do not use the Platform.
@@ -229,12 +226,12 @@ export default function PrivacyPage() {
           {/* Footer navigation */}
           <div className="mt-16 pt-8 border-t border-border flex gap-4">
             <button
-              onClick={() => window.close()}
+              onClick={() => window.history.back()}
               className="btn btn-primary"
             >
               ← Back to registration
             </button>
-            <Link href="/legal/terms" className="btn btn-ghost">
+            <Link href="/terms" className="btn btn-ghost">
               Read Terms of Service →
             </Link>
             {scrolledToBottom && (
