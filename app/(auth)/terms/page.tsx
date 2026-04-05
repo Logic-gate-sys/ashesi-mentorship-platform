@@ -195,7 +195,15 @@ export default function TermsPage() {
           {/* Footer navigation */}
           <div className="mt-16 pt-8 border-t border-border flex gap-4">
             <button
-              onClick={() => window.history.back()}
+              onClick={() => {
+                const returnUrl = typeof window !== 'undefined' ? sessionStorage.getItem('registration_return_url') : null
+                if (returnUrl) {
+                  window.location.href = returnUrl
+                } else {
+                  // Fallback if return URL not found
+                  window.location.href = '/register/student'
+                }
+              }}
               className="btn btn-primary"
             >
               ← Back to registration

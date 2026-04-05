@@ -76,7 +76,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       </div>
 
       {/* ── RIGHT FORM SECTION ────────────────────────────────── */}
-      <div className="w-full lg:w-[90%] flex flex-col items-center justify-center px-6 sm:px-16 py-12 
+      <div className="w-full lg:w-[85%] flex flex-col items-center justify-center px-6 sm:px-16 py-12 
       sm:py-20 overflow-y-auto bg-white">
         {children}
       </div>

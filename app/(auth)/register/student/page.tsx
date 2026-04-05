@@ -85,16 +85,39 @@ export default function StudentRegisterPage() {
       const termsScrolled = typeof window !== 'undefined' && sessionStorage.getItem('terms_scrolled_to_bottom')
       const privacyScrolled = typeof window !== 'undefined' && sessionStorage.getItem('privacy_scrolled_to_bottom')
       
-      if (termsScrolled) {
+      if (termsScrolled && !acceptedTerms) {
         setAcceptedTerms(true)
         setTermsAutoChecked(true)
       }
-      if (privacyScrolled) {
+      if (privacyScrolled && !acceptedPrivacy) {
         setAcceptedPrivacy(true)
         setPrivacyAutoChecked(true)
       }
     }
   }, [step])
+
+  // Re-check sessionStorage when page becomes visible (returning from legal pages)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Only check when document becomes visible
+      if (document.visibilityState === 'visible' && step === 6) {
+        const termsScrolled = typeof window !== 'undefined' && sessionStorage.getItem('terms_scrolled_to_bottom')
+        const privacyScrolled = typeof window !== 'undefined' && sessionStorage.getItem('privacy_scrolled_to_bottom')
+        
+        if (termsScrolled && !acceptedTerms) {
+          setAcceptedTerms(true)
+          setTermsAutoChecked(true)
+        }
+        if (privacyScrolled && !acceptedPrivacy) {
+          setAcceptedPrivacy(true)
+          setPrivacyAutoChecked(true)
+        }
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [step, acceptedTerms, acceptedPrivacy])
   // Clear session storage after successful registration
   const clearSessionStorage = () => {
     if (typeof window !== 'undefined') {
@@ -664,14 +687,18 @@ export default function StudentRegisterPage() {
                       <p className="text-[12px] text-[#923D41] font-semibold mt-1">✓ Read and marked</p>
                     )}
                     {!acceptedTerms && (
-                      <Link
-                        href="/terms"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (typeof window !== 'undefined') {
+                            sessionStorage.setItem('registration_return_url', '/register/student')
+                          }
+                          window.open('/terms', '_blank')
+                        }}
                         className="inline-flex items-center gap-1 text-[#923D41] hover:text-[#7B1427] text-[13px] font-semibold mt-2 px-3 py-1.5 rounded border border-[#923D41] hover:bg-[#923D41]/5 transition-all"
                       >
                         Open & Read →
-                      </Link>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -694,14 +721,18 @@ export default function StudentRegisterPage() {
                       <p className="text-[12px] text-[#923D41] font-semibold mt-1">✓ Read and marked</p>
                     )}
                     {!acceptedPrivacy && (
-                      <Link
-                        href="/privacy"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (typeof window !== 'undefined') {
+                            sessionStorage.setItem('registration_return_url', '/register/student')
+                          }
+                          window.open('/privacy', '_blank')
+                        }}
                         className="inline-flex items-center gap-1 text-[#923D41] hover:text-[#7B1427] text-[13px] font-semibold mt-2 px-3 py-1.5 rounded border border-[#923D41] hover:bg-[#923D41]/5 transition-all"
                       >
                         Open & Read →
-                      </Link>
+                      </button>
                     )}
                   </div>
                 </div>

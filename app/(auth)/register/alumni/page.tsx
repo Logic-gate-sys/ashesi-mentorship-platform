@@ -144,16 +144,39 @@ export default function AlumniRegisterPage() {
       const termsScrolled = typeof window !== 'undefined' && sessionStorage.getItem('terms_scrolled_to_bottom');
       const privacyScrolled = typeof window !== 'undefined' && sessionStorage.getItem('privacy_scrolled_to_bottom');
       
-      if (termsScrolled) {
+      if (termsScrolled && !acceptedTerms) {
         setAcceptedTerms(true);
         setTermsAutoChecked(true);
       }
-      if (privacyScrolled) {
+      if (privacyScrolled && !acceptedPrivacy) {
         setAcceptedPrivacy(true);
         setPrivacyAutoChecked(true);
       }
     }
   }, [step]);
+
+  // Re-check sessionStorage when page becomes visible (returning from legal pages)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Only check when document becomes visible
+      if (document.visibilityState === 'visible' && step === 3) {
+        const termsScrolled = typeof window !== 'undefined' && sessionStorage.getItem('terms_scrolled_to_bottom');
+        const privacyScrolled = typeof window !== 'undefined' && sessionStorage.getItem('privacy_scrolled_to_bottom');
+        
+        if (termsScrolled && !acceptedTerms) {
+          setAcceptedTerms(true);
+          setTermsAutoChecked(true);
+        }
+        if (privacyScrolled && !acceptedPrivacy) {
+          setAcceptedPrivacy(true);
+          setPrivacyAutoChecked(true);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [step, acceptedTerms, acceptedPrivacy]);
 
   const goNext = async (fields: (keyof AlumniRegisterInput)[]) => {
     const valid = await trigger(fields);
@@ -464,14 +487,18 @@ export default function AlumniRegisterPage() {
                     <p className="font-body text-[11px] text-brand font-semibold mt-1">✓ Read and marked</p>
                   )}
                   {!acceptedTerms && (
-                    <Link
-                      href="/terms"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof window !== 'undefined') {
+                          sessionStorage.setItem('registration_return_url', '/register/alumni')
+                        }
+                        window.open('/terms', '_blank')
+                      }}
                       className="inline-flex items-center gap-1 font-body text-[12px] font-semibold text-brand hover:text-brand/80 mt-2 px-3 py-1.5 rounded border border-brand hover:bg-brand/5 transition-all"
                     >
                       Open & Read →
-                    </Link>
+                    </button>
                   )}
                 </div>
               </div>
@@ -497,14 +524,18 @@ export default function AlumniRegisterPage() {
                     <p className="font-body text-[11px] text-brand font-semibold mt-1">✓ Read and marked</p>
                   )}
                   {!acceptedPrivacy && (
-                    <Link
-                      href="/privacy"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof window !== 'undefined') {
+                          sessionStorage.setItem('registration_return_url', '/register/alumni')
+                        }
+                        window.open('/privacy', '_blank')
+                      }}
                       className="inline-flex items-center gap-1 font-body text-[12px] font-semibold text-brand hover:text-brand/80 mt-2 px-3 py-1.5 rounded border border-brand hover:bg-brand/5 transition-all"
                     >
                       Open & Read →
-                    </Link>
+                    </button>
                   )}
                 </div>
               </div>
