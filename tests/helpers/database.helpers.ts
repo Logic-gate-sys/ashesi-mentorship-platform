@@ -1,4 +1,4 @@
-import { prisma } from '@/app/_utils/db';
+import { prisma } from '../../app/_utils/db';
 
 export async function cleanupAllData() {
   try {
