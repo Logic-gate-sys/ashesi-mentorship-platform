@@ -8,7 +8,7 @@ export default function LoginPage() {
 
     const handleLogin = (e) => {
         e.preventDefault();
-        navigate('/');
+        navigate('/dashboard');
     };
 
     return (
