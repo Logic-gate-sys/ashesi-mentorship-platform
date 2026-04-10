@@ -8,50 +8,55 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        /* Primary brand colors - Ashesi maroon */
+        /* Primary brand colors - Mentor app burgundy theme */
         primary: {
-          DEFAULT: '#7F1D1D',
-          dark: '#5F1515',
-          light: '#A02E2E',
-          50: '#F9F3F3',
+          DEFAULT: '#923D41',
+          dark: '#6A0A1D',
+          light: '#B85459',
+          50: '#FBF7F7',
         },
-        /* Accent color - using tag purple */
+        /* Accent color - pink accents */
         accent: {
-          DEFAULT: '#7C3AED',
-          dark: '#6D28D9',
-          light: '#A78BFA',
-          50: '#F5F3FF',
+          DEFAULT: '#FFB7B9',
+          dark: '#FF9094',
+          light: '#FFD3D5',
+          50: '#FFF8F8',
         },
-        /* Alumni designation color */
+        /* Status colors */
         'tag-purple': {
-          DEFAULT: '#7C3AED',
-          50: '#F5F3FF',
-          100: '#EDE9FE',
-          200: '#DDD6FE',
+          DEFAULT: '#FFB7B9',
+          50: '#FFF8F8',
+          100: '#FFECEE',
+          200: '#FFD9DD',
         },
         /* Secondary status colors */
         warning: '#F59E0B',
         danger: '#EF4444',
-        info: '#7F1D1D',  /* Using primary maroon for info */
+        success: '#10B981',
+        info: '#923D41',
         /* Neutrals */
         surface: '#FFFFFF',
-        page: '#F8F9FB',
-        sidebar: '#0F1419',
+        page: '#FFF8F7',
+        sidebar: '#923D41',
         overlay: '#0F1419',
+        /* Design specific backgrounds */
+        'chat-bg': '#FFF8F7',
+        'impact-bg': '#F8E3E3',
+        'light-pink': '#FFB7B9',
         /* Text colors */
         text: {
-          DEFAULT: '#0F1419',
-          primary: '#0F1419',
-          secondary: '#4B5563',
-          sub: '#4B5563',
+          DEFAULT: '#6A0A1D',
+          primary: '#6A0A1D',
+          secondary: '#78716C',
+          sub: '#A8A29E',
           tertiary: '#9CA3AF',
           muted: '#D1D5DB',
           inverse: '#FFFFFF',
         },
         /* Borders */
-        border: '#E5E7EB',
-        'border-light': '#F3F4F7',
-        'border-strong': '#D1D5DB',
+        border: '#DDC0C0',
+        'border-light': '#E8DFE0',
+        'border-strong': '#C7BEB8',
       },
       fontFamily: {
         display: ['Syne', 'sans-serif'],
@@ -65,8 +70,8 @@ const config: Config = {
         'btn': '0.75rem',
       },
       boxShadow: {
-        'accent': '0 4px 16px rgba(124, 58, 237, 0.16)',
-        'primary': '0 4px 16px rgba(127, 29, 29, 0.16)',
+        'accent': '0 4px 16px rgba(255, 183, 185, 0.16)',
+        'primary': '0 4px 16px rgba(146, 61, 65, 0.16)',
       },
       animation: {
         'spin': 'spin 1s linear infinite',

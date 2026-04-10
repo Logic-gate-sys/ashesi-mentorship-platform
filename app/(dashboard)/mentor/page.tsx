@@ -1,356 +1,165 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import {
   DashboardContainer,
-  DashboardSection,
   ImpactMetrics,
-  RelationshipCard,
-  SessionsList,
-  QuickActions,
+  MessagesTab,
 } from '@/app/_components/dashboard';
+import { useMentorDashboardEnhanced } from '@/app/_hooks/useMentorDashboardEnhanced';
 import { useMentorMetrics } from '@/app/_hooks/useMentorMetrics';
-import { usePendingRequests } from '@/app/_hooks/usePendingRequests';
-import { useMentorCapacity } from '@/app/_hooks/useMentorCapacity';
-import { useMentorshipCycle } from '@/app/_hooks/useMentorshipCycle';
-import { useMentorDashboardData } from '@/app/_hooks/useMentorDashboardData';
 
 export default function MentorDashboard() {
-  const { metrics, loading: metricsLoading, error: metricsError } = useMentorMetrics();
-  const { 
-    requests: pendingRequests, 
-    loading: requestsLoading,
-    error: requestsError,
-    acceptRequest,
-    declineRequest,
-  } = usePendingRequests();
-  const { capacity } = useMentorCapacity();
-  const { cycle } = useMentorshipCycle();
-  const { data: dashboardData, loading: dashboardLoading, error: dashboardError } = useMentorDashboardData();
-  const [acceptError, setAcceptError] = useState<string | null>(null);
+  const { data, loading, error } = useMentorDashboardEnhanced();
+  const { metrics } = useMentorMetrics();
+  const [activeView, setActiveView] = useState('messages');
+  const [isAvailable, setIsAvailable] = useState(true);
 
-  const handleAcceptRequest = async (requestId: string) => {
-    setAcceptError(null);
-    const result = await acceptRequest(requestId);
-    
-    if (!result.success) {
-      setAcceptError(result.error || 'Failed to accept request');
-      return;
-    }
-  };
+  if (loading) {
+    return (
+      <DashboardContainer>
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+            <p className="text-text-secondary">Loading your dashboard...</p>
+          </div>
+        </div>
+      </DashboardContainer>
+    );
+  }
 
-  const handleDeclineRequest = (requestId: string) => {
-    declineRequest(requestId);
-  };
-
-  const actions = [
-    {
-      id: 'availability',
-      label: 'Edit Availability',
-      variant: 'secondary' as const,
-      onClick: () => console.log('Edit availability'),
-    },
-    {
-      id: 'profile',
-      label: 'Manage Profile',
-      variant: 'secondary' as const,
-      onClick: () => console.log('Manage profile'),
-    },
-  ];
+  if (error || !data) {
+    return (
+      <DashboardContainer>
+        <div className="rounded-lg border border-border bg-surface p-8 text-center">
+          <p className="text-red-600 font-semibold">{error || 'Failed to load dashboard'}</p>
+        </div>
+      </DashboardContainer>
+    );
+  }
 
   return (
     <DashboardContainer>
-      {/* Mentorship Cycle Status */}
-      {cycle && (
-        <DashboardSection title="Current Mentorship Cycle" compact>
-          <div className={`rounded-lg border-2 p-6 ${
-            cycle.status === 'active'
-              ? 'border-accent bg-purple-50'
-              : cycle.status === 'ended'
-              ? 'border-gray-300 bg-gray-50'
-              : 'border-blue-300 bg-blue-50'
-          }`}>
-            <div className="space-y-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className={`text-lg font-bold ${
-                    cycle.status === 'active' ? 'text-accent' :
-                    cycle.status === 'ended' ? 'text-gray-600' :
-                    'text-blue-600'
-                  }`}>
-                    {cycle.name}
-                  </h3>
-                  <p className={`text-sm mt-1 ${
-                    cycle.status === 'active' ? 'text-accent opacity-75' :
-                    cycle.status === 'ended' ? 'text-gray-500' :
-                    'text-blue-600 opacity-75'
-                  }`}>
-                    {new Date(cycle.startDate).toLocaleDateString()} - {new Date(cycle.endDate).toLocaleDateString()}
-                  </p>
-                </div>
-                
-                <div className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide ${
-                  cycle.status === 'active'
-                    ? 'bg-accent text-white'
-                    : cycle.status === 'ended'
-                    ? 'bg-gray-300 text-gray-700'
-                    : 'bg-blue-300 text-blue-700'
-                }`}>
-                  {cycle.status === 'active' ? 'Active' : cycle.status === 'ended' ? 'Ended' : 'Starting Soon'}
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              {cycle.status === 'active' && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs text-gray-600">
-                    <span>Progress</span>
-                    <span>{cycle.daysRemaining} days remaining</span>
-                  </div>
-                  <div className="bg-white bg-opacity-50 rounded-full h-3 overflow-hidden border border-accent">
-                    <div
-                      className="h-full bg-accent transition-all duration-300"
-                      style={{ width: `${cycle.progressPercent}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-600 text-center">
-                    {cycle.progressPercent}% complete
-                  </p>
-                </div>
-              )}
-
-              {/* Cycle Stats */}
-              <div className="pt-2 grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold">Active Mentors</p>
-                  <p className={`text-xl font-bold ${
-                    cycle.status === 'active' ? 'text-accent' : 'text-gray-600'
-                  }`}>
-                    {cycle.totalMentors}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold">Mentorships</p>
-                  <p className={`text-xl font-bold ${
-                    cycle.status === 'active' ? 'text-accent' : 'text-gray-600'
-                  }`}>
-                    {cycle.activeMentorships}
-                  </p>
-                </div>
-              </div>
-
-              {cycle.status === 'ended' && (
-                <div className="pt-3 border-t border-gray-300 text-sm text-gray-600">
-                  <p className="font-semibold text-gray-700">This cycle has ended.</p>
-                  <p className="mt-1">You can sign up for the next mentorship cycle when it launches.</p>
-                </div>
-              )}
-            </div>
+      <div className="space-y-8">
+        {/* Welcome Header */}
+        <div className="space-y-4">
+          <div>
+            <h1 className="text-4xl font-bold text-text">
+              Welcome back, {data.mentor.name.split(' ')[0]}! 🎓
+            </h1>
+            <p className="mt-2 text-text-secondary text-lg">
+              You're an amazing mentor! You've impacted{' '}
+              <span className="font-semibold text-primary">{data.metrics.activeMentees}</span> students
+            </p>
           </div>
-        </DashboardSection>
-      )}
-      {/* Mentor Capacity Status */}
-      {capacity && (
-        <DashboardSection title="Your Mentoring Capacity" compact>
-          <div className={`rounded-lg border-2 p-6 ${
-            capacity.capacityStatus === 'ideal'
-              ? 'border-accent bg-purple-50'
-              : capacity.capacityStatus === 'good'
-              ? 'border-primary bg-primary-light opacity-10'
-              : 'border-red-300 bg-red-50'
-          }`}>
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className={`text-sm font-semibold ${
-                  capacity.capacityStatus === 'ideal' ? 'text-accent' :
-                  capacity.capacityStatus === 'good' ? 'text-primary' :
-                  'text-red-600'
-                }`}>
-                  Current Capacity: <span className="text-xl font-bold">{capacity.activeMentees}/{capacity.maxCapacity}</span>
-                </p>
-                <p className={`text-xs mt-2 ${
-                  capacity.capacityStatus === 'ideal' ? 'text-accent opacity-75' :
-                  capacity.capacityStatus === 'good' ? 'text-primary opacity-75' :
-                  'text-red-600 opacity-75'
-                }`}>
-                  Recommended: {capacity.recommendedCapacity.min}-{capacity.recommendedCapacity.max} mentees (3-6 months)
-                </p>
-                <p className={`text-sm mt-2 ${
-                  capacity.capacityStatus === 'ideal' ? 'text-accent' :
-                  capacity.capacityStatus === 'good' ? 'text-primary' :
-                  'text-red-600 font-semibold'
-                }`}>
-                  {capacity.message}
-                </p>
-              </div>
-              
-              {/* Capacity Progress Bar */}
-              <div className="ml-6 w-32">
-                <div className="bg-white bg-opacity-50 rounded-full h-3 overflow-hidden border border-gray-300">
-                  <div
-                    className={`h-full transition-all duration-300 ${
-                      capacity.capacityStatus === 'ideal'
-                        ? 'bg-accent'
-                        : capacity.capacityStatus === 'good'
-                        ? 'bg-primary'
-                        : 'bg-red-500'
-                    }`}
-                    style={{ width: `${(capacity.activeMentees / capacity.maxCapacity) * 100}%` }}
-                  />
-                </div>
-                <p className="text-xs text-gray-600 mt-2 text-center font-medium">
-                  {Math.round((capacity.activeMentees / capacity.maxCapacity) * 100)}% Full
+
+          {/* Availability Toggle */}
+          <div className={`rounded-lg border-2 p-4 flex items-center justify-between ${isAvailable ? 'border-accent bg-accent bg-opacity-10' : 'border-border-light bg-page'}`}>
+            <div className="flex items-center gap-3">
+              <span className={`text-2xl ${isAvailable ? '🟢' : '🔴'}`}></span>
+              <div>
+                <p className="text-sm font-bold text-text">Your Availability</p>
+                <p className={`text-xs ${isAvailable ? 'text-accent font-semibold' : 'text-text-secondary'}`}>
+                  {isAvailable ? 'AVAILABLE FOR MENTORING' : 'NOT AVAILABLE'}
                 </p>
               </div>
             </div>
+            <button
+              onClick={() => setIsAvailable(!isAvailable)}
+              className={`px-4 py-2 font-semibold rounded text-sm transition-colors ${
+                isAvailable
+                  ? 'bg-accent text-white hover:bg-accent-dark'
+                  : 'bg-border text-text hover:bg-border-light'
+              }`}
+            >
+              Toggle
+            </button>
           </div>
-        </DashboardSection>
-      )}
-
-      {/* Capacity Error Alert */}
-      {acceptError && (
-        <div className="rounded-lg border border-red-300 bg-red-50 p-4">
-          <p className="text-red-700 text-sm font-medium">
-            <span className="font-bold">Unable to Accept:</span> {acceptError}
-          </p>
         </div>
-      )}
-      {/* Impact Metrics Section */}
-      <DashboardSection title="Your Impact" subtitle="Track your mentorship metrics">
-        {metricsLoading ? (
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
-            <p className="text-gray-600 text-sm">Loading metrics...</p>
-          </div>
-        ) : metricsError ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-            <p className="text-red-600 text-sm">Failed to load metrics: {metricsError}</p>
-          </div>
-        ) : metrics ? (
-          <ImpactMetrics metrics={metrics} />
-        ) : (
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
-            <p className="text-gray-600 text-sm">No metrics available</p>
+
+        {/* Navigation Views */}
+        <div className="flex gap-3 border-b border-border">
+          <button
+            onClick={() => setActiveView('messages')}
+            className={`pb-3 px-4 font-semibold transition-colors ${
+              activeView === 'messages'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-text-secondary hover:text-text'
+            }`}
+          >
+            💬 Messages
+          </button>
+          <button
+            onClick={() => setActiveView('impact')}
+            className={`pb-3 px-4 font-semibold transition-colors ${
+              activeView === 'impact'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-text-secondary hover:text-text'
+            }`}
+          >
+            📊 Your Impact
+          </button>
+          <Link
+            href="/mentor/messages"
+            className="pb-3 px-4 font-semibold text-text-secondary hover:text-text transition-colors"
+          >
+            ➜ Full Messages
+          </Link>
+        </div>
+
+        {/* Main Content Area */}
+        {activeView === 'messages' && (
+          <div className="h-[600px]">
+            <MessagesTab
+              userName={data.mentor?.name || 'Mentor'}
+              userTitle="Your Dashboard"
+              onSendMessage={(msg) => console.log('Message:', msg)}
+            />
           </div>
         )}
-      </DashboardSection>
 
-      {/* Quick Actions Section */}
-      <DashboardSection title="Quick Actions" compact>
-        <QuickActions actions={actions} />
-      </DashboardSection>
-
-      {/* Pending Requests Section */}
-      <DashboardSection
-        title="Pending Requests"
-        subtitle={`${pendingRequests.length} student${pendingRequests.length !== 1 ? 's' : ''} waiting for your response`}
-      >
-        {requestsLoading ? (
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
-            <p className="text-gray-600 text-sm">Loading requests...</p>
-          </div>
-        ) : requestsError ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-            <p className="text-red-600 text-sm">Failed to load requests: {requestsError}</p>
-          </div>
-        ) : pendingRequests.length === 0 ? (
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
-            <p className="text-gray-600 text-sm">No pending requests. Great job keeping up!</p>
-          </div>
-        ) : (
-          <div className="grid gap-4 lg:gap-6">
-            {pendingRequests.map((request) => (
-              <div key={request.id} className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 lg:gap-4 lg:p-5">
-                <RelationshipCard
-                  {...request}
-                  onMessage={() => console.log(`Message mentee ${request.id}`)}
-                  onSchedule={() => handleAcceptRequest(request.id)}
-                />
-                <div className="flex gap-2 border-t border-gray-100 pt-3 lg:gap-3">
-                  <button
-                    onClick={() => handleDeclineRequest(request.id)}
-                    className="flex-1 rounded border border-gray-300 bg-white px-3 py-1.5 font-medium text-gray-700 text-sm hover:bg-gray-50 transition-colors lg:px-4 lg:py-2"
-                  >
-                    Decline
-                  </button>
-                  <button
-                    onClick={() => handleAcceptRequest(request.id)}
-                    disabled={!capacity?.canAcceptMore}
-                    className={`flex-1 rounded px-3 py-1.5 font-medium text-sm transition-colors lg:px-4 lg:py-2 ${
-                      capacity?.canAcceptMore
-                        ? 'bg-primary text-white hover:bg-primary-dark'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
-                    title={!capacity?.canAcceptMore ? 'You have reached maximum mentee capacity' : ''}
-                  >
-                    {capacity?.canAcceptMore ? 'Accept' : 'Capacity Full'}
-                  </button>
-                </div>
-              </div>
-            ))}
+        {activeView === 'impact' && (
+          <div>
+            <ImpactMetrics
+              metrics={[
+                { value: data.metrics.totalSessions || 12, label: 'Sessions Completed', trend: '+2 this month' },
+                { value: `${data.metrics.avgRating || 4.8}/5`, label: 'Average Rating', trend: '+0.1 this month' },
+                { value: data.metrics.activeMentees || 8, label: 'Mentees Helped', trend: '+1 new this month' },
+              ]}
+              showHeaderSection={true}
+            />
           </div>
         )}
-      </DashboardSection>
 
-      {/* Active Mentees Section */}
-      <DashboardSection
-        title="Active Mentees"
-        subtitle={`You are currently mentoring ${dashboardData?.activeMentees.length || 0} student${(dashboardData?.activeMentees.length || 0) !== 1 ? 's' : ''}`}
-      >
-        {dashboardLoading ? (
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
-            <p className="text-gray-600 text-sm">Loading mentees...</p>
-          </div>
-        ) : dashboardError ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-            <p className="text-red-600 text-sm">Failed to load mentees: {dashboardError}</p>
-          </div>
-        ) : dashboardData?.activeMentees.length === 0 ? (
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
-            <p className="text-gray-600 text-sm">No active mentees yet. Accept requests to get started!</p>
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:gap-6">
-            {dashboardData?.activeMentees.map((mentee) => (
-              <RelationshipCard
-                key={mentee.id}
-                id={mentee.id}
-                name={mentee.studentName}
-                role="Mentee"
-                program={mentee.goal}
-                initials={mentee.studentName
-                  .split(' ')
-                  .map((n) => n[0])
-                  .join('')
-                  .toUpperCase()}
-                status="active"
-                onMessage={() => console.log(`Message ${mentee.id}`)}
-                onSchedule={() => console.log(`Schedule with ${mentee.id}`)}
-              />
-            ))}
-          </div>
-        )}
-      </DashboardSection>
-
-      {/* Upcoming Sessions Section */}
-      <DashboardSection
-        title="Upcoming Sessions"
-        subtitle={`You have ${dashboardData?.upcomingSessions.length || 0} session${(dashboardData?.upcomingSessions.length || 0) !== 1 ? 's' : ''} scheduled`}
-      >
-        {dashboardLoading ? (
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
-            <p className="text-gray-600 text-sm">Loading sessions...</p>
-          </div>
-        ) : dashboardError ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-            <p className="text-red-600 text-sm">Failed to load sessions: {dashboardError}</p>
-          </div>
-        ) : (
-          <SessionsList
-            sessions={dashboardData?.upcomingSessions || []}
-            onJoinSession={(sessionId) => console.log(`Join session ${sessionId}`)}
-          />
-        )}
-      </DashboardSection>
+        {/* Quick Links Bottom */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Link
+            href="/mentor/availability"
+            className="bg-white border border-border rounded-lg p-4 hover:shadow-primary transition-shadow text-center"
+          >
+            <p className="text-2xl mb-2">⏰</p>
+            <p className="font-semibold text-text">Edit Availability</p>
+            <p className="text-xs text-text-secondary mt-1">Update your schedule</p>
+          </Link>
+          <Link
+            href="/mentor/profile"
+            className="bg-white border border-border rounded-lg p-4 hover:shadow-primary transition-shadow text-center"
+          >
+            <p className="text-2xl mb-2">👤</p>
+            <p className="font-semibold text-text">Manage Profile</p>
+            <p className="text-xs text-text-secondary mt-1">Update your information</p>
+          </Link>
+          <Link
+            href="/mentor/messages"
+            className="bg-primary border border-primary rounded-lg p-4 hover:bg-primary-dark transition-colors text-center text-white"
+          >
+            <p className="text-2xl mb-2">💬</p>
+            <p className="font-semibold">View All Messages</p>
+            <p className="text-xs text-white text-opacity-80 mt-1">Chat with mentees</p>
+          </Link>
+        </div>
+      </div>
     </DashboardContainer>
   );
 }
