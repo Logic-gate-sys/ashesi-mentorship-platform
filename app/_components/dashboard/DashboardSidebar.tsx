@@ -254,14 +254,14 @@ export default function DashboardSidebar({
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-screen bg-primary transition-all duration-300 z-40 ${
+      className={`fixed left-0 top-0 h-screen bg-sidebar text-white transition-all duration-300 z-40 ${
         isExpanded ? 'w-64' : 'w-20'
       }`}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
     >
       {/* Header with logo and toggle */}
-      <div className="flex items-center justify-between h-20 px-4 border-b border-primary-dark">
+      <div className="flex items-center justify-between h-20 px-4 border-b border-primary/20">
         <div className={`font-bold text-xl text-white transition-opacity duration-300 ${
           isExpanded ? 'opacity-100' : 'opacity-0'
         }`}>
@@ -269,7 +269,7 @@ export default function DashboardSidebar({
         </div>
         <button
           onClick={handleToggle}
-          className="p-2 hover:bg-primary-dark rounded-lg transition-colors"
+          className="p-2 hover:bg-primary/30 rounded-lg transition-colors"
           aria-label={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
         >
           <svg
@@ -299,8 +299,8 @@ export default function DashboardSidebar({
             onClick={handleNavClick}
             className={`flex items-center gap-4 px-3 py-3 rounded-lg transition-all duration-200 group ${
               isActive(item.href)
-                ? 'bg-primary-light text-white'
-                : 'text-primary-light hover:bg-primary-dark'
+                ? 'bg-primary/30 text-white'
+                : 'text-white/70 hover:bg-primary/20 hover:text-white'
             }`}
             title={!isExpanded ? item.label : undefined}
           >
@@ -314,7 +314,7 @@ export default function DashboardSidebar({
             </span>
             {item.badge && (
               <span
-                className={`ml-auto flex-shrink-0 px-2 py-1 text-xs font-bold bg-accent text-white rounded-full transition-opacity duration-300 ${
+                className={`ml-auto flex-shrink-0 px-2 py-1 text-xs font-bold bg-accent/90 text-sidebar rounded-full transition-opacity duration-300 ${
                   isExpanded ? 'opacity-100' : 'opacity-0 w-0'
                 }`}
               >
@@ -326,14 +326,14 @@ export default function DashboardSidebar({
       </nav>
 
       {/* User profile section */}
-      <div className="border-t border-primary-dark p-4">
+      <div className="border-t border-primary/20 p-4">
         <Link
           href="/profile"
           onClick={handleNavClick}
-          className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-dark transition-colors group"
+          className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/20 transition-colors group"
           title={!isExpanded ? name : undefined}
         >
-          <div className="w-10 h-10 rounded-full bg-primary-light text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">
+          <div className="w-10 h-10 rounded-full bg-accent/80 text-sidebar flex items-center justify-center flex-shrink-0 text-sm font-bold">
             {initials}
           </div>
           <div
@@ -344,7 +344,7 @@ export default function DashboardSidebar({
             <p className="text-sm font-semibold text-white truncate">
               {name}
             </p>
-            <p className="text-xs text-primary-light uppercase tracking-wide">
+            <p className="text-xs text-white/60 uppercase tracking-wide">
               {role === 'MENTOR' ? 'Mentor' : 'Student'}
             </p>
           </div>
@@ -357,7 +357,7 @@ export default function DashboardSidebar({
             // TODO: Implement logout
             console.log('Logout');
           }}
-          className={`w-full flex items-center gap-3 px-3 py-3 text-primary-light rounded-lg hover:bg-primary-dark transition-colors mt-2 ${
+          className={`w-full flex items-center gap-3 px-3 py-3 text-white/70 hover:text-white rounded-lg hover:bg-primary/20 transition-colors mt-2 ${
             !isExpanded ? 'justify-center' : ''
           }`}
           title={!isExpanded ? 'Logout' : undefined}

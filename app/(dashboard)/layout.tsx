@@ -14,20 +14,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       router.push('/login');
       return;
     }
-
-    if (!isLoading && user && user.role !== 'ALUMNI') {
-      const redirectUrl = user.role === 'STUDENT' ? '/student/dashboard' : '/';
-      router.push(redirectUrl);
-    }
   }, [user, isLoading, router]);
-  
 
-  if (isLoading || !user || user.role !== 'ALUMNI') {
+  if (isLoading || !user) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
+      <div className="flex h-screen items-center justify-center bg-page">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-accent mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+          <p className="text-text-secondary">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -35,10 +29,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const initials = `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
   const name = `${user.firstName} ${user.lastName}`;
+  const role = user.role === 'ALUMNI' ? 'MENTOR' : 'STUDENT';
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <DashboardSidebar role="MENTOR" name={name} initials={initials} />
+    <div className="flex h-screen bg-page overflow-hidden">
+      <DashboardSidebar role={role} name={name} initials={initials} />
 
       <main className="flex-1 ml-20 lg:ml-64 overflow-y-auto">
         {children}

@@ -5,15 +5,15 @@ export default function ProfilePage() {
     <DashboardContainer>
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-text">Profile</h1>
+          <p className="mt-2 text-text-secondary">
             View and manage your profile information.
           </p>
         </div>
 
         {/* Placeholder content */}
-        <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-          <p className="text-gray-500">Profile editor coming soon...</p>
+        <div className="bg-surface rounded-lg border border-border p-8 text-center">
+          <p className="text-text-tertiary">Profile editor coming soon...</p>
         </div>
       </div>
     </DashboardContainer>

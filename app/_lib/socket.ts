@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import type { Server as HttpServer } from 'http';
-import { verifyJWT } from './jwt';
-import { prisma } from './db';
+import { verifyJWT } from '@/app/_utils/jwt';
+import { prisma } from '@/app/_utils/db';
 
 let io: Server;
 

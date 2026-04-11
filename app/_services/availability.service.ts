@@ -4,6 +4,7 @@
  */
 
 import { prisma } from '@/app/_utils/db'
+import { DayOfWeek } from '@/prisma/generated/prisma/client'
 
 export class AvailabilityService {
   /**
@@ -12,7 +13,7 @@ export class AvailabilityService {
   static async createAvailability(
     alumniId: string,
     data: {
-      dayOfWeek: number
+      dayOfWeek: DayOfWeek
       startTime: string
       endTime: string
     }
@@ -97,7 +98,7 @@ export class AvailabilityService {
   static async updateAvailability(
     id: string,
     data: {
-      dayOfWeek?: number
+      dayOfWeek?: DayOfWeek
       startTime?: string
       endTime?: string
     }
@@ -120,7 +121,7 @@ export class AvailabilityService {
   /**
    * Get available alumni for a specific day and time
    */
-  static async getAvailableAlumni(dayOfWeek: number, startTime: string) {
+  static async getAvailableAlumni(dayOfWeek: DayOfWeek, startTime: string) {
     return prisma.availability.findMany({
       where: {
         dayOfWeek,

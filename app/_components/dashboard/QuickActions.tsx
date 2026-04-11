@@ -23,7 +23,7 @@ export default function QuickActions({ actions }: QuickActionsProps) {
           onClick={action.onClick}
           className={`flex flex-1 items-center justify-center gap-2 rounded px-4 py-3 font-medium transition-colors lg:px-6 ${
             action.variant === 'secondary'
-              ? 'border border-primary bg-white text-primary hover:bg-gray-50'
+              ? 'border border-primary bg-surface text-primary hover:bg-primary-50'
               : 'bg-primary text-white hover:bg-primary-dark'
           }`}
         >

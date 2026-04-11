@@ -15,7 +15,6 @@ export class MessageService {
   ) {
     return prisma.conversation.create({
       data: {
-        title: title || 'Conversation',
         participants: {
           create: participantIds.map(id => ({
             userId: id,
@@ -117,7 +116,7 @@ export class MessageService {
       data: {
         conversationId,
         senderId,
-        content,
+        body: content,
       },
       include: {
         sender: true,

@@ -122,8 +122,6 @@ export default function AlumniRegisterPage() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
-  const [termsAutoChecked, setTermsAutoChecked] = useState(false);
-  const [privacyAutoChecked, setPrivacyAutoChecked] = useState(false);
 
   const {register, handleSubmit, trigger, watch, formState: { errors },} = useForm<AlumniRegisterInput>({
     resolver: zodResolver(alumniRegisterSchema),
@@ -138,45 +136,7 @@ export default function AlumniRegisterPage() {
     return validateStrongPassword(password)
   }, [password])
 
-  // Auto-check legal docs on step 3 if user has scrolled to bottom in this session
-  useEffect(() => {
-    if (step === 3) {
-      const termsScrolled = typeof window !== 'undefined' && sessionStorage.getItem('terms_scrolled_to_bottom');
-      const privacyScrolled = typeof window !== 'undefined' && sessionStorage.getItem('privacy_scrolled_to_bottom');
-      
-      if (termsScrolled && !acceptedTerms) {
-        setAcceptedTerms(true);
-        setTermsAutoChecked(true);
-      }
-      if (privacyScrolled && !acceptedPrivacy) {
-        setAcceptedPrivacy(true);
-        setPrivacyAutoChecked(true);
-      }
-    }
-  }, [step]);
 
-  // Re-check sessionStorage when page becomes visible (returning from legal pages)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      // Only check when document becomes visible
-      if (document.visibilityState === 'visible' && step === 3) {
-        const termsScrolled = typeof window !== 'undefined' && sessionStorage.getItem('terms_scrolled_to_bottom');
-        const privacyScrolled = typeof window !== 'undefined' && sessionStorage.getItem('privacy_scrolled_to_bottom');
-        
-        if (termsScrolled && !acceptedTerms) {
-          setAcceptedTerms(true);
-          setTermsAutoChecked(true);
-        }
-        if (privacyScrolled && !acceptedPrivacy) {
-          setAcceptedPrivacy(true);
-          setPrivacyAutoChecked(true);
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [step, acceptedTerms, acceptedPrivacy]);
 
   const goNext = async (fields: (keyof AlumniRegisterInput)[]) => {
     const valid = await trigger(fields);
@@ -472,34 +432,25 @@ export default function AlumniRegisterPage() {
                   type="checkbox"
                   id="acceptTerms"
                   checked={acceptedTerms}
-                  onChange={() => {}}
-                  disabled={true}
-                  className="w-5 h-5 mt-0.5 rounded border-2 border-brand cursor-not-allowed accent-brand"
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  disabled={false}
+                  className="w-5 h-5 mt-0.5 rounded border-2 border-brand cursor-pointer accent-brand"
                 />
                 <div className="flex-1">
                   <label
                     htmlFor="acceptTerms"
-                    className="font-body text-[13px] font-semibold text-text block"
+                    className="font-body text-[13px] font-semibold text-text block cursor-pointer"
                   >
                     I have read and accept the Terms of Service *
                   </label>
-                  {acceptedTerms && (
-                    <p className="font-body text-[11px] text-brand font-semibold mt-1">✓ Read and marked</p>
-                  )}
-                  {!acceptedTerms && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (typeof window !== 'undefined') {
-                          sessionStorage.setItem('registration_return_url', '/register/alumni')
-                        }
-                        window.open('/terms', '_blank')
-                      }}
-                      className="inline-flex items-center gap-1 font-body text-[12px] font-semibold text-brand hover:text-brand/80 mt-2 px-3 py-1.5 rounded border border-brand hover:bg-brand/5 transition-all"
-                    >
-                      Open & Read →
-                    </button>
-                  )}
+                  <a
+                    href="/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-body text-[12px] font-semibold text-brand hover:text-brand/80 mt-2 px-3 py-1.5 rounded border border-brand hover:bg-brand/5 transition-all"
+                  >
+                    Review Terms →
+                  </a>
                 </div>
               </div>
 
@@ -509,34 +460,25 @@ export default function AlumniRegisterPage() {
                   type="checkbox"
                   id="acceptPrivacy"
                   checked={acceptedPrivacy}
-                  onChange={() => {}}
-                  disabled={true}
-                  className="w-5 h-5 mt-0.5 rounded border-2 border-brand cursor-not-allowed accent-brand"
+                  onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                  disabled={false}
+                  className="w-5 h-5 mt-0.5 rounded border-2 border-brand cursor-pointer accent-brand"
                 />
                 <div className="flex-1">
                   <label
                     htmlFor="acceptPrivacy"
-                    className="font-body text-[13px] font-semibold text-text block"
+                    className="font-body text-[13px] font-semibold text-text block cursor-pointer"
                   >
                     I have read and accept the Privacy Policy *
                   </label>
-                  {acceptedPrivacy && (
-                    <p className="font-body text-[11px] text-brand font-semibold mt-1">✓ Read and marked</p>
-                  )}
-                  {!acceptedPrivacy && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (typeof window !== 'undefined') {
-                          sessionStorage.setItem('registration_return_url', '/register/alumni')
-                        }
-                        window.open('/privacy', '_blank')
-                      }}
-                      className="inline-flex items-center gap-1 font-body text-[12px] font-semibold text-brand hover:text-brand/80 mt-2 px-3 py-1.5 rounded border border-brand hover:bg-brand/5 transition-all"
-                    >
-                      Open & Read →
-                    </button>
-                  )}
+                  <a
+                    href="/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-body text-[12px] font-semibold text-brand hover:text-brand/80 mt-2 px-3 py-1.5 rounded border border-brand hover:bg-brand/5 transition-all"
+                  >
+                    Review Privacy →
+                  </a>
                 </div>
               </div>
             </div>

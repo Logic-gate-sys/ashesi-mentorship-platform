@@ -4,7 +4,7 @@
  */
 
 import { prisma } from '@/app/_utils/db'
-import { MentorshipRequestStatus } from '@/prisma/generated/prisma/client'
+import { RequestStatus } from '@/prisma/generated/prisma/client'
 
 export class MentorshipRequestService {
   /**
@@ -67,6 +67,7 @@ export class MentorshipRequestService {
    */
   static async createRequest(
     studentId: string,
+    alumniId: string,
     data: {
       goal: string
       message: string
@@ -75,6 +76,7 @@ export class MentorshipRequestService {
     return prisma.mentorshipRequest.create({
       data: {
         studentId,
+        alumniId,
         goal: data.goal,
         message: data.message,
         status: 'PENDING',

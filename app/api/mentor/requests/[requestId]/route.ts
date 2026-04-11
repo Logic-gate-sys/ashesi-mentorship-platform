@@ -14,10 +14,10 @@ import {
  */
 export async function GET(
   request: NextRequest,
-  context: { params: { requestId: string } }
+  context: { params: Promise<{ requestId: string }> }
 ) {
   try {
-    const { requestId } = context.params
+    const { requestId } = await context.params
 
     // Get the request
     const mentorshipRequest = await prisma.mentorshipRequest.findUnique({
@@ -94,10 +94,10 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  context: { params: { requestId: string } }
+  context: { params: Promise<{ requestId: string }> }
 ) {
   try {
-    const { requestId } = context.params
+    const { requestId } = await context.params
 
     // Get the request first
     const mentorshipRequest = await prisma.mentorshipRequest.findUnique({

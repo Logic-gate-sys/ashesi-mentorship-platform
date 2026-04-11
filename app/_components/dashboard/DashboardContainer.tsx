@@ -13,8 +13,8 @@ export function DashboardSection({ title, subtitle, children, compact = false }:
   return (
     <section className={compact ? '' : 'space-y-4 lg:space-y-6'}>
       <div>
-        <h2 className="font-bold text-lg text-gray-900 lg:text-2xl">{title}</h2>
-        {subtitle && <p className="mt-1 text-gray-600 text-sm">{subtitle}</p>}
+        <h2 className="font-bold text-lg text-text lg:text-2xl">{title}</h2>
+        {subtitle && <p className="mt-1 text-text-secondary text-sm">{subtitle}</p>}
       </div>
       {children}
     </section>

@@ -15,8 +15,7 @@ export class NotificationService {
       type: string
       title: string
       message: string
-      relatedId?: string
-      relatedType?: string
+      link?: string
     }
   ) {
     return prisma.notification.create({
@@ -24,9 +23,8 @@ export class NotificationService {
         userId,
         type: data.type,
         title: data.title,
-        message: data.message,
-        relatedId: data.relatedId,
-        relatedType: data.relatedType,
+        body: data.message,
+        link: data.link,
         isRead: false,
       },
     })
@@ -117,8 +115,7 @@ export class NotificationService {
       type: string
       title: string
       message: string
-      relatedId?: string
-      relatedType?: string
+      link?: string
     }
   ) {
     return prisma.notification.createMany({
@@ -126,9 +123,8 @@ export class NotificationService {
         userId,
         type: data.type,
         title: data.title,
-        message: data.message,
-        relatedId: data.relatedId,
-        relatedType: data.relatedType,
+        body: data.message,
+        link: data.link,
         isRead: false,
       })),
     })

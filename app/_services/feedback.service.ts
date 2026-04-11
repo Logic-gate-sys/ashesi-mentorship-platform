@@ -23,8 +23,7 @@ export class SessionFeedbackService {
       data: {
         sessionId,
         rating: data.rating,
-        feedback: data.feedback,
-        topics: data.topics,
+        comment: data.feedback,
       },
       include: {
         session: {

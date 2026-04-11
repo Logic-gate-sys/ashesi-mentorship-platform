@@ -49,8 +49,6 @@ export default function StudentRegisterPage() {
   const [interestInput, setInterestInput] = useState('')
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false)
-  const [termsAutoChecked, setTermsAutoChecked] = useState(false)
-  const [privacyAutoChecked, setPrivacyAutoChecked] = useState(false)
 
   const { register, handleSubmit, trigger, watch, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(studentRegisterSchema),
@@ -79,46 +77,7 @@ export default function StudentRegisterPage() {
   const interests = watch('interests')
   const bio = watch('bio')
 
-  // Auto-check legal docs on step 6 if user has scrolled to bottom in this session
-  useEffect(() => {
-    if (step === 6) {
-      const termsScrolled = typeof window !== 'undefined' && sessionStorage.getItem('terms_scrolled_to_bottom')
-      const privacyScrolled = typeof window !== 'undefined' && sessionStorage.getItem('privacy_scrolled_to_bottom')
-      
-      if (termsScrolled && !acceptedTerms) {
-        setAcceptedTerms(true)
-        setTermsAutoChecked(true)
-      }
-      if (privacyScrolled && !acceptedPrivacy) {
-        setAcceptedPrivacy(true)
-        setPrivacyAutoChecked(true)
-      }
-    }
-  }, [step])
-
-  // Re-check sessionStorage when page becomes visible (returning from legal pages)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      // Only check when document becomes visible
-      if (document.visibilityState === 'visible' && step === 6) {
-        const termsScrolled = typeof window !== 'undefined' && sessionStorage.getItem('terms_scrolled_to_bottom')
-        const privacyScrolled = typeof window !== 'undefined' && sessionStorage.getItem('privacy_scrolled_to_bottom')
-        
-        if (termsScrolled && !acceptedTerms) {
-          setAcceptedTerms(true)
-          setTermsAutoChecked(true)
-        }
-        if (privacyScrolled && !acceptedPrivacy) {
-          setAcceptedPrivacy(true)
-          setPrivacyAutoChecked(true)
-        }
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [step, acceptedTerms, acceptedPrivacy])
-  // Clear session storage after successful registration
+// Clear session storage after successful registration
   const clearSessionStorage = () => {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('terms_scrolled_to_bottom')
@@ -662,8 +621,7 @@ export default function StudentRegisterPage() {
           <div className="space-y-6">
             {/* Instruction heading */}
             <div className="mb-6">
-              <h2 className="text-[24px] font-bold text-[#181821] mb-2" style={{ fontFamily: "'Bree Serif', serif" }}>Review legal documents</h2>
-              <p className="text-[14px] text-[#666]" style={{ fontFamily: "'Quicksand', sans-serif" }}>Open each document, scroll to the bottom to mark as read</p>
+            {/* Instructions removed - user manually checks after reading */}
             </div>
 
             {/* Terms & Privacy Agreement */}
@@ -675,31 +633,22 @@ export default function StudentRegisterPage() {
                     type="checkbox"
                     id="acceptTerms"
                     checked={acceptedTerms}
-                    onChange={() => {}}
-                    disabled={true}
-                    className="w-5 h-5 mt-0.5 rounded border-2 border-[#923D41] cursor-not-allowed accent-[#923D41]"
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    disabled={false}
+                    className="w-5 h-5 mt-0.5 rounded border-2 border-[#923D41] cursor-pointer accent-[#923D41]"
                   />
                   <div className="flex-1">
-                    <label htmlFor="acceptTerms" className="text-[14px] text-[#0A0909] font-[700] block" style={{ fontFamily: "'Quicksand', sans-serif" }}>
+                    <label htmlFor="acceptTerms" className="text-[14px] text-[#0A0909] font-[700] block cursor-pointer" style={{ fontFamily: "'Quicksand', sans-serif" }}>
                       I have read and accept the Terms of Service *
                     </label>
-                    {acceptedTerms && (
-                      <p className="text-[12px] text-[#923D41] font-semibold mt-1">✓ Read and marked</p>
-                    )}
-                    {!acceptedTerms && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (typeof window !== 'undefined') {
-                            sessionStorage.setItem('registration_return_url', '/register/student')
-                          }
-                          window.open('/terms', '_blank')
-                        }}
-                        className="inline-flex items-center gap-1 text-[#923D41] hover:text-[#7B1427] text-[13px] font-semibold mt-2 px-3 py-1.5 rounded border border-[#923D41] hover:bg-[#923D41]/5 transition-all"
-                      >
-                        Open & Read →
-                      </button>
-                    )}
+                    <a
+                      href="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[#923D41] hover:text-[#7B1427] text-[13px] font-semibold mt-2 px-3 py-1.5 rounded border border-[#923D41] hover:bg-[#923D41]/5 transition-all"
+                    >
+                      Review Terms →
+                    </a>
                   </div>
                 </div>
 
@@ -709,38 +658,29 @@ export default function StudentRegisterPage() {
                     type="checkbox"
                     id="acceptPrivacy"
                     checked={acceptedPrivacy}
-                    onChange={() => {}}
-                    disabled={true}
-                    className="w-5 h-5 mt-0.5 rounded border-2 border-[#923D41] cursor-not-allowed accent-[#923D41]"
+                    onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                    disabled={false}
+                    className="w-5 h-5 mt-0.5 rounded border-2 border-[#923D41] cursor-pointer accent-[#923D41]"
                   />
                   <div className="flex-1">
-                    <label htmlFor="acceptPrivacy" className="text-[14px] text-[#0A0909] font-[700] block" style={{ fontFamily: "'Quicksand', sans-serif" }}>
+                    <label htmlFor="acceptPrivacy" className="text-[14px] text-[#0A0909] font-[700] block cursor-pointer" style={{ fontFamily: "'Quicksand', sans-serif" }}>
                       I have read and accept the Privacy Policy *
                     </label>
-                    {acceptedPrivacy && (
-                      <p className="text-[12px] text-[#923D41] font-semibold mt-1">✓ Read and marked</p>
-                    )}
-                    {!acceptedPrivacy && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (typeof window !== 'undefined') {
-                            sessionStorage.setItem('registration_return_url', '/register/student')
-                          }
-                          window.open('/privacy', '_blank')
-                        }}
-                        className="inline-flex items-center gap-1 text-[#923D41] hover:text-[#7B1427] text-[13px] font-semibold mt-2 px-3 py-1.5 rounded border border-[#923D41] hover:bg-[#923D41]/5 transition-all"
-                      >
-                        Open & Read →
-                      </button>
-                    )}
+                    <a
+                      href="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[#923D41] hover:text-[#7B1427] text-[13px] font-semibold mt-2 px-3 py-1.5 rounded border border-[#923D41] hover:bg-[#923D41]/5 transition-all"
+                    >
+                      Review Privacy →
+                    </a>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Status message */}
-            {!acceptedTerms || !acceptedPrivacy && (
+            {(!acceptedTerms || !acceptedPrivacy) && (
               <div className="p-4 bg-[#FEF2F2] border border-[#923D41]/20 rounded-[10px]">
                 <p className="text-[13px] text-[#923D41] font-medium" style={{ fontFamily: "'Quicksand', sans-serif" }}>
                   ⚠️ {!acceptedTerms && !acceptedPrivacy
@@ -751,8 +691,6 @@ export default function StudentRegisterPage() {
                 </p>
               </div>
             )}
-
-            {/* Action buttons */}
 
             {/* Action buttons */}
             <div className="flex gap-3 pt-4">

@@ -8,11 +8,11 @@ interface StatusBadgeProps {
 }
 
 const statusConfig: Record<StatusType, { bg: string; text: string; label: string }> = {
-  active: { bg: 'bg-primary-light', text: 'text-white', label: 'Active' },
-  pending: { bg: 'bg-purple', text: 'text-white', label: 'Pending' },
+  active: { bg: 'bg-primary/10', text: 'text-primary', label: 'Active' },
+  pending: { bg: 'bg-accent/20', text: 'text-accent-dark', label: 'Pending' },
   matched: { bg: 'bg-primary', text: 'text-white', label: 'Matched' },
-  completed: { bg: 'bg-gray-200', text: 'text-gray-700', label: 'Completed' },
-  paused: { bg: 'bg-gray-300', text: 'text-gray-600', label: 'Paused' },
+  completed: { bg: 'bg-page', text: 'text-text-secondary', label: 'Completed' },
+  paused: { bg: 'bg-border', text: 'text-text-secondary', label: 'Paused' },
 };
 
 const sizeConfig = {
