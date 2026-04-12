@@ -6,9 +6,9 @@ import { POST as login } from '@/app/api/auth/login/route';
 import { GET as authMe } from '@/app/api/auth/me/route';
 import { PATCH as updateProfile } from '@/app/api/auth/profile/route';
 import { clearDatabase, createTestAlumni, createTestStudent } from '../helpers/test-db-utils';
-import { studentRegisterSchema } from '@/app/_schemas/auth.schema';
+import { studentRegisterSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema';
 import z from 'zod';
-import { createJWT } from '@/app/_utils/jwt';
+import { createJWT } from '@/app/_utils_and_types/jwt';
 
 describe('Auth API - Registration & Authentication', () => {
   beforeAll(async () => {

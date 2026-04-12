@@ -3,16 +3,11 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import bgImage from '@/app/_components/_assets/images/login-bg.png'
+import bgImage from '@/comp&hooks/images/login-bg.png';
 
-interface AuthLayoutProps {
-  children: ReactNode
-}
-
-export default function AuthLayout({ children }: AuthLayoutProps) {
+export default function AuthLayout({ children }: {children: ReactNode}) {
   return (
     <div className="flex min-h-screen w-full bg-white overflow-hidden">
-      {/* ── LEFT SIDEBAR WITH BACKGROUND IMAGE ────────────────── */}
       <div className="hidden rounded-r-[120px] lg:flex lg:w-[50%] relative overflow-hidden flex-col items-center justify-center px-12 py-20">
         {/* Background Image */}
         <Image
@@ -75,7 +70,6 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </div>
       </div>
 
-      {/* ── RIGHT FORM SECTION ────────────────────────────────── */}
       <div className="w-full lg:w-[70%] flex flex-col items-center justify-center px-6 sm:px-16 py-12 
       sm:py-20 overflow-y-auto bg-white">
         {children}

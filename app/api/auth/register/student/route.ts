@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/app/_utils/db'
-import { createJWT } from '@/app/_utils/jwt'
-import { hashPassword } from '@/app/_utils/password'
-import { studentRegisterSchema } from '@/app/_schemas/auth.schema'
+import { prisma } from '@/utils&types/utils/db'
+import { createJWT } from '@/utils&types/utils/jwt'
+import { hashPassword } from '@/app/_utils_and_types/utils/password'
+import { studentRegisterSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema'
 import { Role } from '@/prisma/generated/prisma/enums'
-import { success } from 'zod/v4-mini'
+
 
 
 export async function POST(request: NextRequest) {
@@ -39,10 +39,10 @@ export async function POST(request: NextRequest) {
       data: {
         email: validatedData.email,
         passwordHash,
-        role: Role.STUDENT,
+        role: Role.MENTEE,
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
-        studentProfile: {
+        menteeProfile: {
           create: {
             yearGroup: validatedData.year,
             major: validatedData.major,
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
        role:true,
        firstName:true,
        lastName:true,
-       studentProfile: true
+       menteeProfile: true
       }
     })
 

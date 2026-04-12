@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import crypto from 'crypto';
-import { prisma } from '../app/_utils/db';
+import { prisma } from '../app/_utils_and_types/db';
 
 // Use the same password hashing as the app
 const ITERATIONS = 10000;

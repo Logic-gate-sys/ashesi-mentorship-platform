@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/app/_utils/db'
-import { requireAuth } from '@/app/_lib/abac/middleware'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/utils&types/utils/db';
+import { requireAuth } from '@/app/ _libs_and_schemas/abac';
 
+//get user profile : details 
 export async function GET(request: NextRequest) {
   try {
     const authResult = await requireAuth(request)
@@ -16,8 +17,8 @@ export async function GET(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userData.id },
       include: {
-        studentProfile: true,
-        alumniProfile: true,
+        menteeProfile: true,
+        mentorProfile: true,
       },
     })
 
@@ -39,8 +40,8 @@ export async function GET(request: NextRequest) {
           avatarUrl: user.avatarUrl,
           isVerified: user.isVerified,
           isActive: user.isActive,
-          studentProfile: user.studentProfile,
-          alumniProfile: user.alumniProfile,
+          studentProfile: user.menteeProfile,
+          alumniProfile: user.menteeProfile,
         },
       },
       { status: 200 }

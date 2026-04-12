@@ -1,5 +1,5 @@
-import {prisma} from '@/app/_utils/db'; 
-import { hashPassword } from '@/app/_utils/password';
+import {prisma} from '@/app/_utils_and_types/db'; 
+import { hashPassword } from '@/app/_utils_and_types/utils/password';
 
 
 

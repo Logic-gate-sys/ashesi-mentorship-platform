@@ -4,23 +4,20 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useAuth } from '@/app/_lib/context/auth-context'
-import { loginSchema } from '@/app/_schemas/auth.schema'
-import { EyeIcon } from '@/app/_components/ui/icons'
+import { useAuth } from '@/app/ _libs_and_schemas/context/auth-context'
+import { loginSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema'
+import { EyeIcon } from '@/comp&hooks/ui/icons'
+type LoginInput = z.infer<typeof loginSchema> ; 
 
-type LoginInput = z.infer<typeof loginSchema>
+
 
 export default function LoginPage() {
   const { login, isLoading } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+  const {register,handleSubmit,formState: { errors }} = useForm<LoginInput>({
+ resolver: zodResolver(loginSchema),
     mode: 'onTouched',
   })
 

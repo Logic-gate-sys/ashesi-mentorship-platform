@@ -230,11 +230,12 @@ export type UserWhereInput = {
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  studentProfile?: Prisma.XOR<Prisma.StudentProfileNullableScalarRelationFilter, Prisma.StudentProfileWhereInput> | null
-  alumniProfile?: Prisma.XOR<Prisma.AlumniProfileNullableScalarRelationFilter, Prisma.AlumniProfileWhereInput> | null
+  mentorProfile?: Prisma.XOR<Prisma.MentorProfileNullableScalarRelationFilter, Prisma.MentorProfileWhereInput> | null
+  menteeProfile?: Prisma.XOR<Prisma.MenteeProfileNullableScalarRelationFilter, Prisma.MenteeProfileWhereInput> | null
   sentMessages?: Prisma.MessageListRelationFilter
-  conversations?: Prisma.ConversationParticipantListRelationFilter
+  receivedMessages?: Prisma.MessageListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  messages?: Prisma.MessageListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -249,11 +250,12 @@ export type UserOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  studentProfile?: Prisma.StudentProfileOrderByWithRelationInput
-  alumniProfile?: Prisma.AlumniProfileOrderByWithRelationInput
+  mentorProfile?: Prisma.MentorProfileOrderByWithRelationInput
+  menteeProfile?: Prisma.MenteeProfileOrderByWithRelationInput
   sentMessages?: Prisma.MessageOrderByRelationAggregateInput
-  conversations?: Prisma.ConversationParticipantOrderByRelationAggregateInput
+  receivedMessages?: Prisma.MessageOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
+  messages?: Prisma.MessageOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -271,11 +273,12 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  studentProfile?: Prisma.XOR<Prisma.StudentProfileNullableScalarRelationFilter, Prisma.StudentProfileWhereInput> | null
-  alumniProfile?: Prisma.XOR<Prisma.AlumniProfileNullableScalarRelationFilter, Prisma.AlumniProfileWhereInput> | null
+  mentorProfile?: Prisma.XOR<Prisma.MentorProfileNullableScalarRelationFilter, Prisma.MentorProfileWhereInput> | null
+  menteeProfile?: Prisma.XOR<Prisma.MenteeProfileNullableScalarRelationFilter, Prisma.MenteeProfileWhereInput> | null
   sentMessages?: Prisma.MessageListRelationFilter
-  conversations?: Prisma.ConversationParticipantListRelationFilter
+  receivedMessages?: Prisma.MessageListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  messages?: Prisma.MessageListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -324,11 +327,12 @@ export type UserCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  studentProfile?: Prisma.StudentProfileCreateNestedOneWithoutUserInput
-  alumniProfile?: Prisma.AlumniProfileCreateNestedOneWithoutUserInput
+  mentorProfile?: Prisma.MentorProfileCreateNestedOneWithoutUserInput
+  menteeProfile?: Prisma.MenteeProfileCreateNestedOneWithoutUserInput
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
-  conversations?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -343,11 +347,12 @@ export type UserUncheckedCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  studentProfile?: Prisma.StudentProfileUncheckedCreateNestedOneWithoutUserInput
-  alumniProfile?: Prisma.AlumniProfileUncheckedCreateNestedOneWithoutUserInput
+  mentorProfile?: Prisma.MentorProfileUncheckedCreateNestedOneWithoutUserInput
+  menteeProfile?: Prisma.MenteeProfileUncheckedCreateNestedOneWithoutUserInput
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
-  conversations?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -362,11 +367,12 @@ export type UserUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentProfile?: Prisma.StudentProfileUpdateOneWithoutUserNestedInput
-  alumniProfile?: Prisma.AlumniProfileUpdateOneWithoutUserNestedInput
+  mentorProfile?: Prisma.MentorProfileUpdateOneWithoutUserNestedInput
+  menteeProfile?: Prisma.MenteeProfileUpdateOneWithoutUserNestedInput
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
-  conversations?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -381,11 +387,12 @@ export type UserUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentProfile?: Prisma.StudentProfileUncheckedUpdateOneWithoutUserNestedInput
-  alumniProfile?: Prisma.AlumniProfileUncheckedUpdateOneWithoutUserNestedInput
+  mentorProfile?: Prisma.MentorProfileUncheckedUpdateOneWithoutUserNestedInput
+  menteeProfile?: Prisma.MenteeProfileUncheckedUpdateOneWithoutUserNestedInput
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
-  conversations?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -477,6 +484,11 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -497,51 +509,49 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
-export type UserCreateNestedOneWithoutStudentProfileInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutStudentProfileInput, Prisma.UserUncheckedCreateWithoutStudentProfileInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStudentProfileInput
+export type UserCreateNestedOneWithoutMenteeProfileInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMenteeProfileInput, Prisma.UserUncheckedCreateWithoutMenteeProfileInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMenteeProfileInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutStudentProfileNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutStudentProfileInput, Prisma.UserUncheckedCreateWithoutStudentProfileInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStudentProfileInput
-  upsert?: Prisma.UserUpsertWithoutStudentProfileInput
+export type UserUpdateOneRequiredWithoutMenteeProfileNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMenteeProfileInput, Prisma.UserUncheckedCreateWithoutMenteeProfileInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMenteeProfileInput
+  upsert?: Prisma.UserUpsertWithoutMenteeProfileInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutStudentProfileInput, Prisma.UserUpdateWithoutStudentProfileInput>, Prisma.UserUncheckedUpdateWithoutStudentProfileInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMenteeProfileInput, Prisma.UserUpdateWithoutMenteeProfileInput>, Prisma.UserUncheckedUpdateWithoutMenteeProfileInput>
 }
 
-export type UserCreateNestedOneWithoutAlumniProfileInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAlumniProfileInput, Prisma.UserUncheckedCreateWithoutAlumniProfileInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAlumniProfileInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutAlumniProfileNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAlumniProfileInput, Prisma.UserUncheckedCreateWithoutAlumniProfileInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAlumniProfileInput
-  upsert?: Prisma.UserUpsertWithoutAlumniProfileInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAlumniProfileInput, Prisma.UserUpdateWithoutAlumniProfileInput>, Prisma.UserUncheckedUpdateWithoutAlumniProfileInput>
-}
-
-export type UserCreateNestedOneWithoutConversationsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutConversationsInput, Prisma.UserUncheckedCreateWithoutConversationsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutConversationsInput
+export type UserCreateNestedOneWithoutMentorProfileInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMentorProfileInput, Prisma.UserUncheckedCreateWithoutMentorProfileInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMentorProfileInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutConversationsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutConversationsInput, Prisma.UserUncheckedCreateWithoutConversationsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutConversationsInput
-  upsert?: Prisma.UserUpsertWithoutConversationsInput
+export type UserUpdateOneRequiredWithoutMentorProfileNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMentorProfileInput, Prisma.UserUncheckedCreateWithoutMentorProfileInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMentorProfileInput
+  upsert?: Prisma.UserUpsertWithoutMentorProfileInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutConversationsInput, Prisma.UserUpdateWithoutConversationsInput>, Prisma.UserUncheckedUpdateWithoutConversationsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMentorProfileInput, Prisma.UserUpdateWithoutMentorProfileInput>, Prisma.UserUncheckedUpdateWithoutMentorProfileInput>
 }
 
 export type UserCreateNestedOneWithoutSentMessagesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutReceivedMessagesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReceivedMessagesInput, Prisma.UserUncheckedCreateWithoutReceivedMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReceivedMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutMessagesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMessagesInput, Prisma.UserUncheckedCreateWithoutMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMessagesInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
@@ -551,6 +561,24 @@ export type UserUpdateOneRequiredWithoutSentMessagesNestedInput = {
   upsert?: Prisma.UserUpsertWithoutSentMessagesInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSentMessagesInput, Prisma.UserUpdateWithoutSentMessagesInput>, Prisma.UserUncheckedUpdateWithoutSentMessagesInput>
+}
+
+export type UserUpdateOneRequiredWithoutReceivedMessagesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReceivedMessagesInput, Prisma.UserUncheckedCreateWithoutReceivedMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReceivedMessagesInput
+  upsert?: Prisma.UserUpsertWithoutReceivedMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReceivedMessagesInput, Prisma.UserUpdateWithoutReceivedMessagesInput>, Prisma.UserUncheckedUpdateWithoutReceivedMessagesInput>
+}
+
+export type UserUpdateOneWithoutMessagesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMessagesInput, Prisma.UserUncheckedCreateWithoutMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMessagesInput
+  upsert?: Prisma.UserUpsertWithoutMessagesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMessagesInput, Prisma.UserUpdateWithoutMessagesInput>, Prisma.UserUncheckedUpdateWithoutMessagesInput>
 }
 
 export type UserCreateNestedOneWithoutNotificationsInput = {
@@ -567,7 +595,7 @@ export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationsInput, Prisma.UserUpdateWithoutNotificationsInput>, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
 }
 
-export type UserCreateWithoutStudentProfileInput = {
+export type UserCreateWithoutMenteeProfileInput = {
   id?: string
   email: string
   passwordHash: string
@@ -579,13 +607,14 @@ export type UserCreateWithoutStudentProfileInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  alumniProfile?: Prisma.AlumniProfileCreateNestedOneWithoutUserInput
+  mentorProfile?: Prisma.MentorProfileCreateNestedOneWithoutUserInput
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
-  conversations?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageCreateNestedManyWithoutUserInput
 }
 
-export type UserUncheckedCreateWithoutStudentProfileInput = {
+export type UserUncheckedCreateWithoutMenteeProfileInput = {
   id?: string
   email: string
   passwordHash: string
@@ -597,29 +626,30 @@ export type UserUncheckedCreateWithoutStudentProfileInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  alumniProfile?: Prisma.AlumniProfileUncheckedCreateNestedOneWithoutUserInput
+  mentorProfile?: Prisma.MentorProfileUncheckedCreateNestedOneWithoutUserInput
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
-  conversations?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
 }
 
-export type UserCreateOrConnectWithoutStudentProfileInput = {
+export type UserCreateOrConnectWithoutMenteeProfileInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutStudentProfileInput, Prisma.UserUncheckedCreateWithoutStudentProfileInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMenteeProfileInput, Prisma.UserUncheckedCreateWithoutMenteeProfileInput>
 }
 
-export type UserUpsertWithoutStudentProfileInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutStudentProfileInput, Prisma.UserUncheckedUpdateWithoutStudentProfileInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutStudentProfileInput, Prisma.UserUncheckedCreateWithoutStudentProfileInput>
+export type UserUpsertWithoutMenteeProfileInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMenteeProfileInput, Prisma.UserUncheckedUpdateWithoutMenteeProfileInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMenteeProfileInput, Prisma.UserUncheckedCreateWithoutMenteeProfileInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutStudentProfileInput = {
+export type UserUpdateToOneWithWhereWithoutMenteeProfileInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutStudentProfileInput, Prisma.UserUncheckedUpdateWithoutStudentProfileInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMenteeProfileInput, Prisma.UserUncheckedUpdateWithoutMenteeProfileInput>
 }
 
-export type UserUpdateWithoutStudentProfileInput = {
+export type UserUpdateWithoutMenteeProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -631,13 +661,14 @@ export type UserUpdateWithoutStudentProfileInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  alumniProfile?: Prisma.AlumniProfileUpdateOneWithoutUserNestedInput
+  mentorProfile?: Prisma.MentorProfileUpdateOneWithoutUserNestedInput
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
-  conversations?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutStudentProfileInput = {
+export type UserUncheckedUpdateWithoutMenteeProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -649,13 +680,14 @@ export type UserUncheckedUpdateWithoutStudentProfileInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  alumniProfile?: Prisma.AlumniProfileUncheckedUpdateOneWithoutUserNestedInput
+  mentorProfile?: Prisma.MentorProfileUncheckedUpdateOneWithoutUserNestedInput
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
-  conversations?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
 }
 
-export type UserCreateWithoutAlumniProfileInput = {
+export type UserCreateWithoutMentorProfileInput = {
   id?: string
   email: string
   passwordHash: string
@@ -667,13 +699,14 @@ export type UserCreateWithoutAlumniProfileInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  studentProfile?: Prisma.StudentProfileCreateNestedOneWithoutUserInput
+  menteeProfile?: Prisma.MenteeProfileCreateNestedOneWithoutUserInput
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
-  conversations?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageCreateNestedManyWithoutUserInput
 }
 
-export type UserUncheckedCreateWithoutAlumniProfileInput = {
+export type UserUncheckedCreateWithoutMentorProfileInput = {
   id?: string
   email: string
   passwordHash: string
@@ -685,29 +718,30 @@ export type UserUncheckedCreateWithoutAlumniProfileInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  studentProfile?: Prisma.StudentProfileUncheckedCreateNestedOneWithoutUserInput
+  menteeProfile?: Prisma.MenteeProfileUncheckedCreateNestedOneWithoutUserInput
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
-  conversations?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
 }
 
-export type UserCreateOrConnectWithoutAlumniProfileInput = {
+export type UserCreateOrConnectWithoutMentorProfileInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutAlumniProfileInput, Prisma.UserUncheckedCreateWithoutAlumniProfileInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMentorProfileInput, Prisma.UserUncheckedCreateWithoutMentorProfileInput>
 }
 
-export type UserUpsertWithoutAlumniProfileInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutAlumniProfileInput, Prisma.UserUncheckedUpdateWithoutAlumniProfileInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutAlumniProfileInput, Prisma.UserUncheckedCreateWithoutAlumniProfileInput>
+export type UserUpsertWithoutMentorProfileInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMentorProfileInput, Prisma.UserUncheckedUpdateWithoutMentorProfileInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMentorProfileInput, Prisma.UserUncheckedCreateWithoutMentorProfileInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutAlumniProfileInput = {
+export type UserUpdateToOneWithWhereWithoutMentorProfileInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutAlumniProfileInput, Prisma.UserUncheckedUpdateWithoutAlumniProfileInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMentorProfileInput, Prisma.UserUncheckedUpdateWithoutMentorProfileInput>
 }
 
-export type UserUpdateWithoutAlumniProfileInput = {
+export type UserUpdateWithoutMentorProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -719,13 +753,14 @@ export type UserUpdateWithoutAlumniProfileInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentProfile?: Prisma.StudentProfileUpdateOneWithoutUserNestedInput
+  menteeProfile?: Prisma.MenteeProfileUpdateOneWithoutUserNestedInput
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
-  conversations?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutAlumniProfileInput = {
+export type UserUncheckedUpdateWithoutMentorProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -737,98 +772,11 @@ export type UserUncheckedUpdateWithoutAlumniProfileInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentProfile?: Prisma.StudentProfileUncheckedUpdateOneWithoutUserNestedInput
+  menteeProfile?: Prisma.MenteeProfileUncheckedUpdateOneWithoutUserNestedInput
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
-  conversations?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutConversationsInput = {
-  id?: string
-  email: string
-  passwordHash: string
-  role: $Enums.Role
-  firstName: string
-  lastName: string
-  avatarUrl?: string | null
-  isVerified?: boolean
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  studentProfile?: Prisma.StudentProfileCreateNestedOneWithoutUserInput
-  alumniProfile?: Prisma.AlumniProfileCreateNestedOneWithoutUserInput
-  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
-  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutConversationsInput = {
-  id?: string
-  email: string
-  passwordHash: string
-  role: $Enums.Role
-  firstName: string
-  lastName: string
-  avatarUrl?: string | null
-  isVerified?: boolean
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  studentProfile?: Prisma.StudentProfileUncheckedCreateNestedOneWithoutUserInput
-  alumniProfile?: Prisma.AlumniProfileUncheckedCreateNestedOneWithoutUserInput
-  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
-  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutConversationsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutConversationsInput, Prisma.UserUncheckedCreateWithoutConversationsInput>
-}
-
-export type UserUpsertWithoutConversationsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutConversationsInput, Prisma.UserUncheckedUpdateWithoutConversationsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutConversationsInput, Prisma.UserUncheckedCreateWithoutConversationsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutConversationsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutConversationsInput, Prisma.UserUncheckedUpdateWithoutConversationsInput>
-}
-
-export type UserUpdateWithoutConversationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentProfile?: Prisma.StudentProfileUpdateOneWithoutUserNestedInput
-  alumniProfile?: Prisma.AlumniProfileUpdateOneWithoutUserNestedInput
-  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
-  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutConversationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  firstName?: Prisma.StringFieldUpdateOperationsInput | string
-  lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentProfile?: Prisma.StudentProfileUncheckedUpdateOneWithoutUserNestedInput
-  alumniProfile?: Prisma.AlumniProfileUncheckedUpdateOneWithoutUserNestedInput
-  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
-  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSentMessagesInput = {
@@ -843,10 +791,11 @@ export type UserCreateWithoutSentMessagesInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  studentProfile?: Prisma.StudentProfileCreateNestedOneWithoutUserInput
-  alumniProfile?: Prisma.AlumniProfileCreateNestedOneWithoutUserInput
-  conversations?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  mentorProfile?: Prisma.MentorProfileCreateNestedOneWithoutUserInput
+  menteeProfile?: Prisma.MenteeProfileCreateNestedOneWithoutUserInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSentMessagesInput = {
@@ -861,15 +810,102 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  studentProfile?: Prisma.StudentProfileUncheckedCreateNestedOneWithoutUserInput
-  alumniProfile?: Prisma.AlumniProfileUncheckedCreateNestedOneWithoutUserInput
-  conversations?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  mentorProfile?: Prisma.MentorProfileUncheckedCreateNestedOneWithoutUserInput
+  menteeProfile?: Prisma.MenteeProfileUncheckedCreateNestedOneWithoutUserInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSentMessagesInput = {
   where: Prisma.UserWhereUniqueInput
   create: Prisma.XOR<Prisma.UserCreateWithoutSentMessagesInput, Prisma.UserUncheckedCreateWithoutSentMessagesInput>
+}
+
+export type UserCreateWithoutReceivedMessagesInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  role: $Enums.Role
+  firstName: string
+  lastName: string
+  avatarUrl?: string | null
+  isVerified?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  mentorProfile?: Prisma.MentorProfileCreateNestedOneWithoutUserInput
+  menteeProfile?: Prisma.MenteeProfileCreateNestedOneWithoutUserInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutReceivedMessagesInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  role: $Enums.Role
+  firstName: string
+  lastName: string
+  avatarUrl?: string | null
+  isVerified?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  mentorProfile?: Prisma.MentorProfileUncheckedCreateNestedOneWithoutUserInput
+  menteeProfile?: Prisma.MenteeProfileUncheckedCreateNestedOneWithoutUserInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutReceivedMessagesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutReceivedMessagesInput, Prisma.UserUncheckedCreateWithoutReceivedMessagesInput>
+}
+
+export type UserCreateWithoutMessagesInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  role: $Enums.Role
+  firstName: string
+  lastName: string
+  avatarUrl?: string | null
+  isVerified?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  mentorProfile?: Prisma.MentorProfileCreateNestedOneWithoutUserInput
+  menteeProfile?: Prisma.MenteeProfileCreateNestedOneWithoutUserInput
+  sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutMessagesInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  role: $Enums.Role
+  firstName: string
+  lastName: string
+  avatarUrl?: string | null
+  isVerified?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  mentorProfile?: Prisma.MentorProfileUncheckedCreateNestedOneWithoutUserInput
+  menteeProfile?: Prisma.MenteeProfileUncheckedCreateNestedOneWithoutUserInput
+  sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutMessagesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMessagesInput, Prisma.UserUncheckedCreateWithoutMessagesInput>
 }
 
 export type UserUpsertWithoutSentMessagesInput = {
@@ -895,10 +931,11 @@ export type UserUpdateWithoutSentMessagesInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentProfile?: Prisma.StudentProfileUpdateOneWithoutUserNestedInput
-  alumniProfile?: Prisma.AlumniProfileUpdateOneWithoutUserNestedInput
-  conversations?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  mentorProfile?: Prisma.MentorProfileUpdateOneWithoutUserNestedInput
+  menteeProfile?: Prisma.MenteeProfileUpdateOneWithoutUserNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentMessagesInput = {
@@ -913,9 +950,108 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentProfile?: Prisma.StudentProfileUncheckedUpdateOneWithoutUserNestedInput
-  alumniProfile?: Prisma.AlumniProfileUncheckedUpdateOneWithoutUserNestedInput
-  conversations?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  mentorProfile?: Prisma.MentorProfileUncheckedUpdateOneWithoutUserNestedInput
+  menteeProfile?: Prisma.MenteeProfileUncheckedUpdateOneWithoutUserNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserUpsertWithoutReceivedMessagesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutReceivedMessagesInput, Prisma.UserUncheckedUpdateWithoutReceivedMessagesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutReceivedMessagesInput, Prisma.UserUncheckedCreateWithoutReceivedMessagesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutReceivedMessagesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutReceivedMessagesInput, Prisma.UserUncheckedUpdateWithoutReceivedMessagesInput>
+}
+
+export type UserUpdateWithoutReceivedMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  mentorProfile?: Prisma.MentorProfileUpdateOneWithoutUserNestedInput
+  menteeProfile?: Prisma.MenteeProfileUpdateOneWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutReceivedMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  mentorProfile?: Prisma.MentorProfileUncheckedUpdateOneWithoutUserNestedInput
+  menteeProfile?: Prisma.MenteeProfileUncheckedUpdateOneWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserUpsertWithoutMessagesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMessagesInput, Prisma.UserUncheckedUpdateWithoutMessagesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMessagesInput, Prisma.UserUncheckedCreateWithoutMessagesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMessagesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMessagesInput, Prisma.UserUncheckedUpdateWithoutMessagesInput>
+}
+
+export type UserUpdateWithoutMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  mentorProfile?: Prisma.MentorProfileUpdateOneWithoutUserNestedInput
+  menteeProfile?: Prisma.MenteeProfileUpdateOneWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  mentorProfile?: Prisma.MentorProfileUncheckedUpdateOneWithoutUserNestedInput
+  menteeProfile?: Prisma.MenteeProfileUncheckedUpdateOneWithoutUserNestedInput
+  sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -931,10 +1067,11 @@ export type UserCreateWithoutNotificationsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  studentProfile?: Prisma.StudentProfileCreateNestedOneWithoutUserInput
-  alumniProfile?: Prisma.AlumniProfileCreateNestedOneWithoutUserInput
+  mentorProfile?: Prisma.MentorProfileCreateNestedOneWithoutUserInput
+  menteeProfile?: Prisma.MenteeProfileCreateNestedOneWithoutUserInput
   sentMessages?: Prisma.MessageCreateNestedManyWithoutSenderInput
-  conversations?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  receivedMessages?: Prisma.MessageCreateNestedManyWithoutReceiverInput
+  messages?: Prisma.MessageCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -949,10 +1086,11 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  studentProfile?: Prisma.StudentProfileUncheckedCreateNestedOneWithoutUserInput
-  alumniProfile?: Prisma.AlumniProfileUncheckedCreateNestedOneWithoutUserInput
+  mentorProfile?: Prisma.MentorProfileUncheckedCreateNestedOneWithoutUserInput
+  menteeProfile?: Prisma.MenteeProfileUncheckedCreateNestedOneWithoutUserInput
   sentMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutSenderInput
-  conversations?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  receivedMessages?: Prisma.MessageUncheckedCreateNestedManyWithoutReceiverInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -983,10 +1121,11 @@ export type UserUpdateWithoutNotificationsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentProfile?: Prisma.StudentProfileUpdateOneWithoutUserNestedInput
-  alumniProfile?: Prisma.AlumniProfileUpdateOneWithoutUserNestedInput
+  mentorProfile?: Prisma.MentorProfileUpdateOneWithoutUserNestedInput
+  menteeProfile?: Prisma.MenteeProfileUpdateOneWithoutUserNestedInput
   sentMessages?: Prisma.MessageUpdateManyWithoutSenderNestedInput
-  conversations?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  receivedMessages?: Prisma.MessageUpdateManyWithoutReceiverNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -1001,10 +1140,11 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  studentProfile?: Prisma.StudentProfileUncheckedUpdateOneWithoutUserNestedInput
-  alumniProfile?: Prisma.AlumniProfileUncheckedUpdateOneWithoutUserNestedInput
+  mentorProfile?: Prisma.MentorProfileUncheckedUpdateOneWithoutUserNestedInput
+  menteeProfile?: Prisma.MenteeProfileUncheckedUpdateOneWithoutUserNestedInput
   sentMessages?: Prisma.MessageUncheckedUpdateManyWithoutSenderNestedInput
-  conversations?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  receivedMessages?: Prisma.MessageUncheckedUpdateManyWithoutReceiverNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1014,14 +1154,16 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
 
 export type UserCountOutputType = {
   sentMessages: number
-  conversations: number
+  receivedMessages: number
   notifications: number
+  messages: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sentMessages?: boolean | UserCountOutputTypeCountSentMessagesArgs
-  conversations?: boolean | UserCountOutputTypeCountConversationsArgs
+  receivedMessages?: boolean | UserCountOutputTypeCountReceivedMessagesArgs
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
+  messages?: boolean | UserCountOutputTypeCountMessagesArgs
 }
 
 /**
@@ -1044,8 +1186,8 @@ export type UserCountOutputTypeCountSentMessagesArgs<ExtArgs extends runtime.Typ
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountConversationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ConversationParticipantWhereInput
+export type UserCountOutputTypeCountReceivedMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MessageWhereInput
 }
 
 /**
@@ -1053,6 +1195,13 @@ export type UserCountOutputTypeCountConversationsArgs<ExtArgs extends runtime.Ty
  */
 export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.NotificationWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MessageWhereInput
 }
 
 
@@ -1068,11 +1217,12 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  studentProfile?: boolean | Prisma.User$studentProfileArgs<ExtArgs>
-  alumniProfile?: boolean | Prisma.User$alumniProfileArgs<ExtArgs>
+  mentorProfile?: boolean | Prisma.User$mentorProfileArgs<ExtArgs>
+  menteeProfile?: boolean | Prisma.User$menteeProfileArgs<ExtArgs>
   sentMessages?: boolean | Prisma.User$sentMessagesArgs<ExtArgs>
-  conversations?: boolean | Prisma.User$conversationsArgs<ExtArgs>
+  receivedMessages?: boolean | Prisma.User$receivedMessagesArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
+  messages?: boolean | Prisma.User$messagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1120,11 +1270,12 @@ export type UserSelectScalar = {
 
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "firstName" | "lastName" | "avatarUrl" | "isVerified" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  studentProfile?: boolean | Prisma.User$studentProfileArgs<ExtArgs>
-  alumniProfile?: boolean | Prisma.User$alumniProfileArgs<ExtArgs>
+  mentorProfile?: boolean | Prisma.User$mentorProfileArgs<ExtArgs>
+  menteeProfile?: boolean | Prisma.User$menteeProfileArgs<ExtArgs>
   sentMessages?: boolean | Prisma.User$sentMessagesArgs<ExtArgs>
-  conversations?: boolean | Prisma.User$conversationsArgs<ExtArgs>
+  receivedMessages?: boolean | Prisma.User$receivedMessagesArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
+  messages?: boolean | Prisma.User$messagesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1133,11 +1284,12 @@ export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
-    studentProfile: Prisma.$StudentProfilePayload<ExtArgs> | null
-    alumniProfile: Prisma.$AlumniProfilePayload<ExtArgs> | null
+    mentorProfile: Prisma.$MentorProfilePayload<ExtArgs> | null
+    menteeProfile: Prisma.$MenteeProfilePayload<ExtArgs> | null
     sentMessages: Prisma.$MessagePayload<ExtArgs>[]
-    conversations: Prisma.$ConversationParticipantPayload<ExtArgs>[]
+    receivedMessages: Prisma.$MessagePayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
+    messages: Prisma.$MessagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1545,11 +1697,12 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  studentProfile<T extends Prisma.User$studentProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$studentProfileArgs<ExtArgs>>): Prisma.Prisma__StudentProfileClient<runtime.Types.Result.GetResult<Prisma.$StudentProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  alumniProfile<T extends Prisma.User$alumniProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$alumniProfileArgs<ExtArgs>>): Prisma.Prisma__AlumniProfileClient<runtime.Types.Result.GetResult<Prisma.$AlumniProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  mentorProfile<T extends Prisma.User$mentorProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mentorProfileArgs<ExtArgs>>): Prisma.Prisma__MentorProfileClient<runtime.Types.Result.GetResult<Prisma.$MentorProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  menteeProfile<T extends Prisma.User$menteeProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$menteeProfileArgs<ExtArgs>>): Prisma.Prisma__MenteeProfileClient<runtime.Types.Result.GetResult<Prisma.$MenteeProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   sentMessages<T extends Prisma.User$sentMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sentMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  conversations<T extends Prisma.User$conversationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$conversationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConversationParticipantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  receivedMessages<T extends Prisma.User$receivedMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$receivedMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  messages<T extends Prisma.User$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1983,41 +2136,41 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * User.studentProfile
+ * User.mentorProfile
  */
-export type User$studentProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$mentorProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the StudentProfile
+   * Select specific fields to fetch from the MentorProfile
    */
-  select?: Prisma.StudentProfileSelect<ExtArgs> | null
+  select?: Prisma.MentorProfileSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the StudentProfile
+   * Omit specific fields from the MentorProfile
    */
-  omit?: Prisma.StudentProfileOmit<ExtArgs> | null
+  omit?: Prisma.MentorProfileOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.StudentProfileInclude<ExtArgs> | null
-  where?: Prisma.StudentProfileWhereInput
+  include?: Prisma.MentorProfileInclude<ExtArgs> | null
+  where?: Prisma.MentorProfileWhereInput
 }
 
 /**
- * User.alumniProfile
+ * User.menteeProfile
  */
-export type User$alumniProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$menteeProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the AlumniProfile
+   * Select specific fields to fetch from the MenteeProfile
    */
-  select?: Prisma.AlumniProfileSelect<ExtArgs> | null
+  select?: Prisma.MenteeProfileSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the AlumniProfile
+   * Omit specific fields from the MenteeProfile
    */
-  omit?: Prisma.AlumniProfileOmit<ExtArgs> | null
+  omit?: Prisma.MenteeProfileOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.AlumniProfileInclude<ExtArgs> | null
-  where?: Prisma.AlumniProfileWhereInput
+  include?: Prisma.MenteeProfileInclude<ExtArgs> | null
+  where?: Prisma.MenteeProfileWhereInput
 }
 
 /**
@@ -2045,27 +2198,27 @@ export type User$sentMessagesArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
- * User.conversations
+ * User.receivedMessages
  */
-export type User$conversationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$receivedMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ConversationParticipant
+   * Select specific fields to fetch from the Message
    */
-  select?: Prisma.ConversationParticipantSelect<ExtArgs> | null
+  select?: Prisma.MessageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ConversationParticipant
+   * Omit specific fields from the Message
    */
-  omit?: Prisma.ConversationParticipantOmit<ExtArgs> | null
+  omit?: Prisma.MessageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ConversationParticipantInclude<ExtArgs> | null
-  where?: Prisma.ConversationParticipantWhereInput
-  orderBy?: Prisma.ConversationParticipantOrderByWithRelationInput | Prisma.ConversationParticipantOrderByWithRelationInput[]
-  cursor?: Prisma.ConversationParticipantWhereUniqueInput
+  include?: Prisma.MessageInclude<ExtArgs> | null
+  where?: Prisma.MessageWhereInput
+  orderBy?: Prisma.MessageOrderByWithRelationInput | Prisma.MessageOrderByWithRelationInput[]
+  cursor?: Prisma.MessageWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ConversationParticipantScalarFieldEnum | Prisma.ConversationParticipantScalarFieldEnum[]
+  distinct?: Prisma.MessageScalarFieldEnum | Prisma.MessageScalarFieldEnum[]
 }
 
 /**
@@ -2090,6 +2243,30 @@ export type User$notificationsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
+}
+
+/**
+ * User.messages
+ */
+export type User$messagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Message
+   */
+  select?: Prisma.MessageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Message
+   */
+  omit?: Prisma.MessageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MessageInclude<ExtArgs> | null
+  where?: Prisma.MessageWhereInput
+  orderBy?: Prisma.MessageOrderByWithRelationInput | Prisma.MessageOrderByWithRelationInput[]
+  cursor?: Prisma.MessageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MessageScalarFieldEnum | Prisma.MessageScalarFieldEnum[]
 }
 
 /**

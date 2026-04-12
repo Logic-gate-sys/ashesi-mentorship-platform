@@ -27,8 +27,9 @@ export type AggregateMentorshipRequest = {
 export type MentorshipRequestMinAggregateOutputType = {
   id: string | null
   status: $Enums.RequestStatus | null
-  studentId: string | null
-  alumniId: string | null
+  menteeId: string | null
+  mentorId: string | null
+  cycleId: string | null
   goal: string | null
   message: string | null
   createdAt: Date | null
@@ -39,8 +40,9 @@ export type MentorshipRequestMinAggregateOutputType = {
 export type MentorshipRequestMaxAggregateOutputType = {
   id: string | null
   status: $Enums.RequestStatus | null
-  studentId: string | null
-  alumniId: string | null
+  menteeId: string | null
+  mentorId: string | null
+  cycleId: string | null
   goal: string | null
   message: string | null
   createdAt: Date | null
@@ -51,8 +53,9 @@ export type MentorshipRequestMaxAggregateOutputType = {
 export type MentorshipRequestCountAggregateOutputType = {
   id: number
   status: number
-  studentId: number
-  alumniId: number
+  menteeId: number
+  mentorId: number
+  cycleId: number
   goal: number
   message: number
   createdAt: number
@@ -65,8 +68,9 @@ export type MentorshipRequestCountAggregateOutputType = {
 export type MentorshipRequestMinAggregateInputType = {
   id?: true
   status?: true
-  studentId?: true
-  alumniId?: true
+  menteeId?: true
+  mentorId?: true
+  cycleId?: true
   goal?: true
   message?: true
   createdAt?: true
@@ -77,8 +81,9 @@ export type MentorshipRequestMinAggregateInputType = {
 export type MentorshipRequestMaxAggregateInputType = {
   id?: true
   status?: true
-  studentId?: true
-  alumniId?: true
+  menteeId?: true
+  mentorId?: true
+  cycleId?: true
   goal?: true
   message?: true
   createdAt?: true
@@ -89,8 +94,9 @@ export type MentorshipRequestMaxAggregateInputType = {
 export type MentorshipRequestCountAggregateInputType = {
   id?: true
   status?: true
-  studentId?: true
-  alumniId?: true
+  menteeId?: true
+  mentorId?: true
+  cycleId?: true
   goal?: true
   message?: true
   createdAt?: true
@@ -174,8 +180,9 @@ export type MentorshipRequestGroupByArgs<ExtArgs extends runtime.Types.Extension
 export type MentorshipRequestGroupByOutputType = {
   id: string
   status: $Enums.RequestStatus
-  studentId: string
-  alumniId: string
+  menteeId: string
+  mentorId: string
+  cycleId: string
   goal: string
   message: string | null
   createdAt: Date
@@ -207,57 +214,64 @@ export type MentorshipRequestWhereInput = {
   NOT?: Prisma.MentorshipRequestWhereInput | Prisma.MentorshipRequestWhereInput[]
   id?: Prisma.StringFilter<"MentorshipRequest"> | string
   status?: Prisma.EnumRequestStatusFilter<"MentorshipRequest"> | $Enums.RequestStatus
-  studentId?: Prisma.StringFilter<"MentorshipRequest"> | string
-  alumniId?: Prisma.StringFilter<"MentorshipRequest"> | string
+  menteeId?: Prisma.StringFilter<"MentorshipRequest"> | string
+  mentorId?: Prisma.StringFilter<"MentorshipRequest"> | string
+  cycleId?: Prisma.StringFilter<"MentorshipRequest"> | string
   goal?: Prisma.StringFilter<"MentorshipRequest"> | string
   message?: Prisma.StringNullableFilter<"MentorshipRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MentorshipRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MentorshipRequest"> | Date | string
   resolvedAt?: Prisma.DateTimeNullableFilter<"MentorshipRequest"> | Date | string | null
-  student?: Prisma.XOR<Prisma.StudentProfileScalarRelationFilter, Prisma.StudentProfileWhereInput>
-  alumni?: Prisma.XOR<Prisma.AlumniProfileScalarRelationFilter, Prisma.AlumniProfileWhereInput>
+  mentee?: Prisma.XOR<Prisma.MenteeProfileScalarRelationFilter, Prisma.MenteeProfileWhereInput>
+  mentor?: Prisma.XOR<Prisma.MentorProfileScalarRelationFilter, Prisma.MentorProfileWhereInput>
+  cycle?: Prisma.XOR<Prisma.MentorshipCycleScalarRelationFilter, Prisma.MentorshipCycleWhereInput>
   sessions?: Prisma.SessionListRelationFilter
 }
 
 export type MentorshipRequestOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  studentId?: Prisma.SortOrder
-  alumniId?: Prisma.SortOrder
+  menteeId?: Prisma.SortOrder
+  mentorId?: Prisma.SortOrder
+  cycleId?: Prisma.SortOrder
   goal?: Prisma.SortOrder
   message?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   resolvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  student?: Prisma.StudentProfileOrderByWithRelationInput
-  alumni?: Prisma.AlumniProfileOrderByWithRelationInput
+  mentee?: Prisma.MenteeProfileOrderByWithRelationInput
+  mentor?: Prisma.MentorProfileOrderByWithRelationInput
+  cycle?: Prisma.MentorshipCycleOrderByWithRelationInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
 }
 
 export type MentorshipRequestWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  studentId_alumniId_status?: Prisma.MentorshipRequestStudentIdAlumniIdStatusCompoundUniqueInput
+  menteeId_mentorId_cycleId?: Prisma.MentorshipRequestMenteeIdMentorIdCycleIdCompoundUniqueInput
   AND?: Prisma.MentorshipRequestWhereInput | Prisma.MentorshipRequestWhereInput[]
   OR?: Prisma.MentorshipRequestWhereInput[]
   NOT?: Prisma.MentorshipRequestWhereInput | Prisma.MentorshipRequestWhereInput[]
   status?: Prisma.EnumRequestStatusFilter<"MentorshipRequest"> | $Enums.RequestStatus
-  studentId?: Prisma.StringFilter<"MentorshipRequest"> | string
-  alumniId?: Prisma.StringFilter<"MentorshipRequest"> | string
+  menteeId?: Prisma.StringFilter<"MentorshipRequest"> | string
+  mentorId?: Prisma.StringFilter<"MentorshipRequest"> | string
+  cycleId?: Prisma.StringFilter<"MentorshipRequest"> | string
   goal?: Prisma.StringFilter<"MentorshipRequest"> | string
   message?: Prisma.StringNullableFilter<"MentorshipRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MentorshipRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MentorshipRequest"> | Date | string
   resolvedAt?: Prisma.DateTimeNullableFilter<"MentorshipRequest"> | Date | string | null
-  student?: Prisma.XOR<Prisma.StudentProfileScalarRelationFilter, Prisma.StudentProfileWhereInput>
-  alumni?: Prisma.XOR<Prisma.AlumniProfileScalarRelationFilter, Prisma.AlumniProfileWhereInput>
+  mentee?: Prisma.XOR<Prisma.MenteeProfileScalarRelationFilter, Prisma.MenteeProfileWhereInput>
+  mentor?: Prisma.XOR<Prisma.MentorProfileScalarRelationFilter, Prisma.MentorProfileWhereInput>
+  cycle?: Prisma.XOR<Prisma.MentorshipCycleScalarRelationFilter, Prisma.MentorshipCycleWhereInput>
   sessions?: Prisma.SessionListRelationFilter
-}, "id" | "studentId_alumniId_status">
+}, "id" | "menteeId_mentorId_cycleId">
 
 export type MentorshipRequestOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  studentId?: Prisma.SortOrder
-  alumniId?: Prisma.SortOrder
+  menteeId?: Prisma.SortOrder
+  mentorId?: Prisma.SortOrder
+  cycleId?: Prisma.SortOrder
   goal?: Prisma.SortOrder
   message?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -274,8 +288,9 @@ export type MentorshipRequestScalarWhereWithAggregatesInput = {
   NOT?: Prisma.MentorshipRequestScalarWhereWithAggregatesInput | Prisma.MentorshipRequestScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"MentorshipRequest"> | string
   status?: Prisma.EnumRequestStatusWithAggregatesFilter<"MentorshipRequest"> | $Enums.RequestStatus
-  studentId?: Prisma.StringWithAggregatesFilter<"MentorshipRequest"> | string
-  alumniId?: Prisma.StringWithAggregatesFilter<"MentorshipRequest"> | string
+  menteeId?: Prisma.StringWithAggregatesFilter<"MentorshipRequest"> | string
+  mentorId?: Prisma.StringWithAggregatesFilter<"MentorshipRequest"> | string
+  cycleId?: Prisma.StringWithAggregatesFilter<"MentorshipRequest"> | string
   goal?: Prisma.StringWithAggregatesFilter<"MentorshipRequest"> | string
   message?: Prisma.StringNullableWithAggregatesFilter<"MentorshipRequest"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MentorshipRequest"> | Date | string
@@ -291,16 +306,18 @@ export type MentorshipRequestCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   resolvedAt?: Date | string | null
-  student: Prisma.StudentProfileCreateNestedOneWithoutRequestsInput
-  alumni: Prisma.AlumniProfileCreateNestedOneWithoutRequestsInput
+  mentee: Prisma.MenteeProfileCreateNestedOneWithoutRequestsInput
+  mentor: Prisma.MentorProfileCreateNestedOneWithoutRequestsInput
+  cycle: Prisma.MentorshipCycleCreateNestedOneWithoutRequestsInput
   sessions?: Prisma.SessionCreateNestedManyWithoutRequestInput
 }
 
 export type MentorshipRequestUncheckedCreateInput = {
   id?: string
   status?: $Enums.RequestStatus
-  studentId: string
-  alumniId: string
+  menteeId: string
+  mentorId: string
+  cycleId: string
   goal: string
   message?: string | null
   createdAt?: Date | string
@@ -317,16 +334,18 @@ export type MentorshipRequestUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  student?: Prisma.StudentProfileUpdateOneRequiredWithoutRequestsNestedInput
-  alumni?: Prisma.AlumniProfileUpdateOneRequiredWithoutRequestsNestedInput
+  mentee?: Prisma.MenteeProfileUpdateOneRequiredWithoutRequestsNestedInput
+  mentor?: Prisma.MentorProfileUpdateOneRequiredWithoutRequestsNestedInput
+  cycle?: Prisma.MentorshipCycleUpdateOneRequiredWithoutRequestsNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutRequestNestedInput
 }
 
 export type MentorshipRequestUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
-  alumniId?: Prisma.StringFieldUpdateOperationsInput | string
+  menteeId?: Prisma.StringFieldUpdateOperationsInput | string
+  mentorId?: Prisma.StringFieldUpdateOperationsInput | string
+  cycleId?: Prisma.StringFieldUpdateOperationsInput | string
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -338,8 +357,9 @@ export type MentorshipRequestUncheckedUpdateInput = {
 export type MentorshipRequestCreateManyInput = {
   id?: string
   status?: $Enums.RequestStatus
-  studentId: string
-  alumniId: string
+  menteeId: string
+  mentorId: string
+  cycleId: string
   goal: string
   message?: string | null
   createdAt?: Date | string
@@ -360,8 +380,9 @@ export type MentorshipRequestUpdateManyMutationInput = {
 export type MentorshipRequestUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
-  alumniId?: Prisma.StringFieldUpdateOperationsInput | string
+  menteeId?: Prisma.StringFieldUpdateOperationsInput | string
+  mentorId?: Prisma.StringFieldUpdateOperationsInput | string
+  cycleId?: Prisma.StringFieldUpdateOperationsInput | string
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -379,17 +400,18 @@ export type MentorshipRequestOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type MentorshipRequestStudentIdAlumniIdStatusCompoundUniqueInput = {
-  studentId: string
-  alumniId: string
-  status: $Enums.RequestStatus
+export type MentorshipRequestMenteeIdMentorIdCycleIdCompoundUniqueInput = {
+  menteeId: string
+  mentorId: string
+  cycleId: string
 }
 
 export type MentorshipRequestCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  studentId?: Prisma.SortOrder
-  alumniId?: Prisma.SortOrder
+  menteeId?: Prisma.SortOrder
+  mentorId?: Prisma.SortOrder
+  cycleId?: Prisma.SortOrder
   goal?: Prisma.SortOrder
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -400,8 +422,9 @@ export type MentorshipRequestCountOrderByAggregateInput = {
 export type MentorshipRequestMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  studentId?: Prisma.SortOrder
-  alumniId?: Prisma.SortOrder
+  menteeId?: Prisma.SortOrder
+  mentorId?: Prisma.SortOrder
+  cycleId?: Prisma.SortOrder
   goal?: Prisma.SortOrder
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -412,8 +435,9 @@ export type MentorshipRequestMaxOrderByAggregateInput = {
 export type MentorshipRequestMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  studentId?: Prisma.SortOrder
-  alumniId?: Prisma.SortOrder
+  menteeId?: Prisma.SortOrder
+  mentorId?: Prisma.SortOrder
+  cycleId?: Prisma.SortOrder
   goal?: Prisma.SortOrder
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -426,96 +450,134 @@ export type MentorshipRequestScalarRelationFilter = {
   isNot?: Prisma.MentorshipRequestWhereInput
 }
 
-export type MentorshipRequestCreateNestedManyWithoutStudentInput = {
-  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutStudentInput, Prisma.MentorshipRequestUncheckedCreateWithoutStudentInput> | Prisma.MentorshipRequestCreateWithoutStudentInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutStudentInput[]
-  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutStudentInput | Prisma.MentorshipRequestCreateOrConnectWithoutStudentInput[]
-  createMany?: Prisma.MentorshipRequestCreateManyStudentInputEnvelope
+export type MentorshipRequestCreateNestedManyWithoutMenteeInput = {
+  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutMenteeInput, Prisma.MentorshipRequestUncheckedCreateWithoutMenteeInput> | Prisma.MentorshipRequestCreateWithoutMenteeInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutMenteeInput[]
+  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutMenteeInput | Prisma.MentorshipRequestCreateOrConnectWithoutMenteeInput[]
+  createMany?: Prisma.MentorshipRequestCreateManyMenteeInputEnvelope
   connect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
 }
 
-export type MentorshipRequestUncheckedCreateNestedManyWithoutStudentInput = {
-  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutStudentInput, Prisma.MentorshipRequestUncheckedCreateWithoutStudentInput> | Prisma.MentorshipRequestCreateWithoutStudentInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutStudentInput[]
-  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutStudentInput | Prisma.MentorshipRequestCreateOrConnectWithoutStudentInput[]
-  createMany?: Prisma.MentorshipRequestCreateManyStudentInputEnvelope
+export type MentorshipRequestUncheckedCreateNestedManyWithoutMenteeInput = {
+  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutMenteeInput, Prisma.MentorshipRequestUncheckedCreateWithoutMenteeInput> | Prisma.MentorshipRequestCreateWithoutMenteeInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutMenteeInput[]
+  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutMenteeInput | Prisma.MentorshipRequestCreateOrConnectWithoutMenteeInput[]
+  createMany?: Prisma.MentorshipRequestCreateManyMenteeInputEnvelope
   connect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
 }
 
-export type MentorshipRequestUpdateManyWithoutStudentNestedInput = {
-  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutStudentInput, Prisma.MentorshipRequestUncheckedCreateWithoutStudentInput> | Prisma.MentorshipRequestCreateWithoutStudentInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutStudentInput[]
-  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutStudentInput | Prisma.MentorshipRequestCreateOrConnectWithoutStudentInput[]
-  upsert?: Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutStudentInput | Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutStudentInput[]
-  createMany?: Prisma.MentorshipRequestCreateManyStudentInputEnvelope
+export type MentorshipRequestUpdateManyWithoutMenteeNestedInput = {
+  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutMenteeInput, Prisma.MentorshipRequestUncheckedCreateWithoutMenteeInput> | Prisma.MentorshipRequestCreateWithoutMenteeInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutMenteeInput[]
+  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutMenteeInput | Prisma.MentorshipRequestCreateOrConnectWithoutMenteeInput[]
+  upsert?: Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutMenteeInput | Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutMenteeInput[]
+  createMany?: Prisma.MentorshipRequestCreateManyMenteeInputEnvelope
   set?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
   disconnect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
   delete?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
   connect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
-  update?: Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutStudentInput | Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutStudentInput[]
-  updateMany?: Prisma.MentorshipRequestUpdateManyWithWhereWithoutStudentInput | Prisma.MentorshipRequestUpdateManyWithWhereWithoutStudentInput[]
+  update?: Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutMenteeInput | Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutMenteeInput[]
+  updateMany?: Prisma.MentorshipRequestUpdateManyWithWhereWithoutMenteeInput | Prisma.MentorshipRequestUpdateManyWithWhereWithoutMenteeInput[]
   deleteMany?: Prisma.MentorshipRequestScalarWhereInput | Prisma.MentorshipRequestScalarWhereInput[]
 }
 
-export type MentorshipRequestUncheckedUpdateManyWithoutStudentNestedInput = {
-  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutStudentInput, Prisma.MentorshipRequestUncheckedCreateWithoutStudentInput> | Prisma.MentorshipRequestCreateWithoutStudentInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutStudentInput[]
-  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutStudentInput | Prisma.MentorshipRequestCreateOrConnectWithoutStudentInput[]
-  upsert?: Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutStudentInput | Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutStudentInput[]
-  createMany?: Prisma.MentorshipRequestCreateManyStudentInputEnvelope
+export type MentorshipRequestUncheckedUpdateManyWithoutMenteeNestedInput = {
+  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutMenteeInput, Prisma.MentorshipRequestUncheckedCreateWithoutMenteeInput> | Prisma.MentorshipRequestCreateWithoutMenteeInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutMenteeInput[]
+  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutMenteeInput | Prisma.MentorshipRequestCreateOrConnectWithoutMenteeInput[]
+  upsert?: Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutMenteeInput | Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutMenteeInput[]
+  createMany?: Prisma.MentorshipRequestCreateManyMenteeInputEnvelope
   set?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
   disconnect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
   delete?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
   connect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
-  update?: Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutStudentInput | Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutStudentInput[]
-  updateMany?: Prisma.MentorshipRequestUpdateManyWithWhereWithoutStudentInput | Prisma.MentorshipRequestUpdateManyWithWhereWithoutStudentInput[]
+  update?: Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutMenteeInput | Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutMenteeInput[]
+  updateMany?: Prisma.MentorshipRequestUpdateManyWithWhereWithoutMenteeInput | Prisma.MentorshipRequestUpdateManyWithWhereWithoutMenteeInput[]
   deleteMany?: Prisma.MentorshipRequestScalarWhereInput | Prisma.MentorshipRequestScalarWhereInput[]
 }
 
-export type MentorshipRequestCreateNestedManyWithoutAlumniInput = {
-  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutAlumniInput, Prisma.MentorshipRequestUncheckedCreateWithoutAlumniInput> | Prisma.MentorshipRequestCreateWithoutAlumniInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutAlumniInput[]
-  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutAlumniInput | Prisma.MentorshipRequestCreateOrConnectWithoutAlumniInput[]
-  createMany?: Prisma.MentorshipRequestCreateManyAlumniInputEnvelope
+export type MentorshipRequestCreateNestedManyWithoutMentorInput = {
+  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutMentorInput, Prisma.MentorshipRequestUncheckedCreateWithoutMentorInput> | Prisma.MentorshipRequestCreateWithoutMentorInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutMentorInput[]
+  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutMentorInput | Prisma.MentorshipRequestCreateOrConnectWithoutMentorInput[]
+  createMany?: Prisma.MentorshipRequestCreateManyMentorInputEnvelope
   connect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
 }
 
-export type MentorshipRequestUncheckedCreateNestedManyWithoutAlumniInput = {
-  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutAlumniInput, Prisma.MentorshipRequestUncheckedCreateWithoutAlumniInput> | Prisma.MentorshipRequestCreateWithoutAlumniInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutAlumniInput[]
-  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutAlumniInput | Prisma.MentorshipRequestCreateOrConnectWithoutAlumniInput[]
-  createMany?: Prisma.MentorshipRequestCreateManyAlumniInputEnvelope
+export type MentorshipRequestUncheckedCreateNestedManyWithoutMentorInput = {
+  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutMentorInput, Prisma.MentorshipRequestUncheckedCreateWithoutMentorInput> | Prisma.MentorshipRequestCreateWithoutMentorInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutMentorInput[]
+  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutMentorInput | Prisma.MentorshipRequestCreateOrConnectWithoutMentorInput[]
+  createMany?: Prisma.MentorshipRequestCreateManyMentorInputEnvelope
   connect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
 }
 
-export type MentorshipRequestUpdateManyWithoutAlumniNestedInput = {
-  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutAlumniInput, Prisma.MentorshipRequestUncheckedCreateWithoutAlumniInput> | Prisma.MentorshipRequestCreateWithoutAlumniInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutAlumniInput[]
-  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutAlumniInput | Prisma.MentorshipRequestCreateOrConnectWithoutAlumniInput[]
-  upsert?: Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutAlumniInput | Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutAlumniInput[]
-  createMany?: Prisma.MentorshipRequestCreateManyAlumniInputEnvelope
+export type MentorshipRequestUpdateManyWithoutMentorNestedInput = {
+  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutMentorInput, Prisma.MentorshipRequestUncheckedCreateWithoutMentorInput> | Prisma.MentorshipRequestCreateWithoutMentorInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutMentorInput[]
+  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutMentorInput | Prisma.MentorshipRequestCreateOrConnectWithoutMentorInput[]
+  upsert?: Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutMentorInput | Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutMentorInput[]
+  createMany?: Prisma.MentorshipRequestCreateManyMentorInputEnvelope
   set?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
   disconnect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
   delete?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
   connect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
-  update?: Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutAlumniInput | Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutAlumniInput[]
-  updateMany?: Prisma.MentorshipRequestUpdateManyWithWhereWithoutAlumniInput | Prisma.MentorshipRequestUpdateManyWithWhereWithoutAlumniInput[]
+  update?: Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutMentorInput | Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutMentorInput[]
+  updateMany?: Prisma.MentorshipRequestUpdateManyWithWhereWithoutMentorInput | Prisma.MentorshipRequestUpdateManyWithWhereWithoutMentorInput[]
   deleteMany?: Prisma.MentorshipRequestScalarWhereInput | Prisma.MentorshipRequestScalarWhereInput[]
 }
 
-export type MentorshipRequestUncheckedUpdateManyWithoutAlumniNestedInput = {
-  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutAlumniInput, Prisma.MentorshipRequestUncheckedCreateWithoutAlumniInput> | Prisma.MentorshipRequestCreateWithoutAlumniInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutAlumniInput[]
-  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutAlumniInput | Prisma.MentorshipRequestCreateOrConnectWithoutAlumniInput[]
-  upsert?: Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutAlumniInput | Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutAlumniInput[]
-  createMany?: Prisma.MentorshipRequestCreateManyAlumniInputEnvelope
+export type MentorshipRequestUncheckedUpdateManyWithoutMentorNestedInput = {
+  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutMentorInput, Prisma.MentorshipRequestUncheckedCreateWithoutMentorInput> | Prisma.MentorshipRequestCreateWithoutMentorInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutMentorInput[]
+  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutMentorInput | Prisma.MentorshipRequestCreateOrConnectWithoutMentorInput[]
+  upsert?: Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutMentorInput | Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutMentorInput[]
+  createMany?: Prisma.MentorshipRequestCreateManyMentorInputEnvelope
   set?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
   disconnect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
   delete?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
   connect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
-  update?: Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutAlumniInput | Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutAlumniInput[]
-  updateMany?: Prisma.MentorshipRequestUpdateManyWithWhereWithoutAlumniInput | Prisma.MentorshipRequestUpdateManyWithWhereWithoutAlumniInput[]
+  update?: Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutMentorInput | Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutMentorInput[]
+  updateMany?: Prisma.MentorshipRequestUpdateManyWithWhereWithoutMentorInput | Prisma.MentorshipRequestUpdateManyWithWhereWithoutMentorInput[]
+  deleteMany?: Prisma.MentorshipRequestScalarWhereInput | Prisma.MentorshipRequestScalarWhereInput[]
+}
+
+export type MentorshipRequestCreateNestedManyWithoutCycleInput = {
+  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutCycleInput, Prisma.MentorshipRequestUncheckedCreateWithoutCycleInput> | Prisma.MentorshipRequestCreateWithoutCycleInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutCycleInput[]
+  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutCycleInput | Prisma.MentorshipRequestCreateOrConnectWithoutCycleInput[]
+  createMany?: Prisma.MentorshipRequestCreateManyCycleInputEnvelope
+  connect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
+}
+
+export type MentorshipRequestUncheckedCreateNestedManyWithoutCycleInput = {
+  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutCycleInput, Prisma.MentorshipRequestUncheckedCreateWithoutCycleInput> | Prisma.MentorshipRequestCreateWithoutCycleInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutCycleInput[]
+  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutCycleInput | Prisma.MentorshipRequestCreateOrConnectWithoutCycleInput[]
+  createMany?: Prisma.MentorshipRequestCreateManyCycleInputEnvelope
+  connect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
+}
+
+export type MentorshipRequestUpdateManyWithoutCycleNestedInput = {
+  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutCycleInput, Prisma.MentorshipRequestUncheckedCreateWithoutCycleInput> | Prisma.MentorshipRequestCreateWithoutCycleInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutCycleInput[]
+  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutCycleInput | Prisma.MentorshipRequestCreateOrConnectWithoutCycleInput[]
+  upsert?: Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutCycleInput | Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutCycleInput[]
+  createMany?: Prisma.MentorshipRequestCreateManyCycleInputEnvelope
+  set?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
+  disconnect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
+  delete?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
+  connect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
+  update?: Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutCycleInput | Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutCycleInput[]
+  updateMany?: Prisma.MentorshipRequestUpdateManyWithWhereWithoutCycleInput | Prisma.MentorshipRequestUpdateManyWithWhereWithoutCycleInput[]
+  deleteMany?: Prisma.MentorshipRequestScalarWhereInput | Prisma.MentorshipRequestScalarWhereInput[]
+}
+
+export type MentorshipRequestUncheckedUpdateManyWithoutCycleNestedInput = {
+  create?: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutCycleInput, Prisma.MentorshipRequestUncheckedCreateWithoutCycleInput> | Prisma.MentorshipRequestCreateWithoutCycleInput[] | Prisma.MentorshipRequestUncheckedCreateWithoutCycleInput[]
+  connectOrCreate?: Prisma.MentorshipRequestCreateOrConnectWithoutCycleInput | Prisma.MentorshipRequestCreateOrConnectWithoutCycleInput[]
+  upsert?: Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutCycleInput | Prisma.MentorshipRequestUpsertWithWhereUniqueWithoutCycleInput[]
+  createMany?: Prisma.MentorshipRequestCreateManyCycleInputEnvelope
+  set?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
+  disconnect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
+  delete?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
+  connect?: Prisma.MentorshipRequestWhereUniqueInput | Prisma.MentorshipRequestWhereUniqueInput[]
+  update?: Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutCycleInput | Prisma.MentorshipRequestUpdateWithWhereUniqueWithoutCycleInput[]
+  updateMany?: Prisma.MentorshipRequestUpdateManyWithWhereWithoutCycleInput | Prisma.MentorshipRequestUpdateManyWithWhereWithoutCycleInput[]
   deleteMany?: Prisma.MentorshipRequestScalarWhereInput | Prisma.MentorshipRequestScalarWhereInput[]
 }
 
 export type EnumRequestStatusFieldUpdateOperationsInput = {
   set?: $Enums.RequestStatus
-}
-
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
 }
 
 export type MentorshipRequestCreateNestedOneWithoutSessionsInput = {
@@ -532,7 +594,7 @@ export type MentorshipRequestUpdateOneRequiredWithoutSessionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MentorshipRequestUpdateToOneWithWhereWithoutSessionsInput, Prisma.MentorshipRequestUpdateWithoutSessionsInput>, Prisma.MentorshipRequestUncheckedUpdateWithoutSessionsInput>
 }
 
-export type MentorshipRequestCreateWithoutStudentInput = {
+export type MentorshipRequestCreateWithoutMenteeInput = {
   id?: string
   status?: $Enums.RequestStatus
   goal: string
@@ -540,14 +602,16 @@ export type MentorshipRequestCreateWithoutStudentInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   resolvedAt?: Date | string | null
-  alumni: Prisma.AlumniProfileCreateNestedOneWithoutRequestsInput
+  mentor: Prisma.MentorProfileCreateNestedOneWithoutRequestsInput
+  cycle: Prisma.MentorshipCycleCreateNestedOneWithoutRequestsInput
   sessions?: Prisma.SessionCreateNestedManyWithoutRequestInput
 }
 
-export type MentorshipRequestUncheckedCreateWithoutStudentInput = {
+export type MentorshipRequestUncheckedCreateWithoutMenteeInput = {
   id?: string
   status?: $Enums.RequestStatus
-  alumniId: string
+  mentorId: string
+  cycleId: string
   goal: string
   message?: string | null
   createdAt?: Date | string
@@ -556,30 +620,30 @@ export type MentorshipRequestUncheckedCreateWithoutStudentInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutRequestInput
 }
 
-export type MentorshipRequestCreateOrConnectWithoutStudentInput = {
+export type MentorshipRequestCreateOrConnectWithoutMenteeInput = {
   where: Prisma.MentorshipRequestWhereUniqueInput
-  create: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutStudentInput, Prisma.MentorshipRequestUncheckedCreateWithoutStudentInput>
+  create: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutMenteeInput, Prisma.MentorshipRequestUncheckedCreateWithoutMenteeInput>
 }
 
-export type MentorshipRequestCreateManyStudentInputEnvelope = {
-  data: Prisma.MentorshipRequestCreateManyStudentInput | Prisma.MentorshipRequestCreateManyStudentInput[]
+export type MentorshipRequestCreateManyMenteeInputEnvelope = {
+  data: Prisma.MentorshipRequestCreateManyMenteeInput | Prisma.MentorshipRequestCreateManyMenteeInput[]
   skipDuplicates?: boolean
 }
 
-export type MentorshipRequestUpsertWithWhereUniqueWithoutStudentInput = {
+export type MentorshipRequestUpsertWithWhereUniqueWithoutMenteeInput = {
   where: Prisma.MentorshipRequestWhereUniqueInput
-  update: Prisma.XOR<Prisma.MentorshipRequestUpdateWithoutStudentInput, Prisma.MentorshipRequestUncheckedUpdateWithoutStudentInput>
-  create: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutStudentInput, Prisma.MentorshipRequestUncheckedCreateWithoutStudentInput>
+  update: Prisma.XOR<Prisma.MentorshipRequestUpdateWithoutMenteeInput, Prisma.MentorshipRequestUncheckedUpdateWithoutMenteeInput>
+  create: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutMenteeInput, Prisma.MentorshipRequestUncheckedCreateWithoutMenteeInput>
 }
 
-export type MentorshipRequestUpdateWithWhereUniqueWithoutStudentInput = {
+export type MentorshipRequestUpdateWithWhereUniqueWithoutMenteeInput = {
   where: Prisma.MentorshipRequestWhereUniqueInput
-  data: Prisma.XOR<Prisma.MentorshipRequestUpdateWithoutStudentInput, Prisma.MentorshipRequestUncheckedUpdateWithoutStudentInput>
+  data: Prisma.XOR<Prisma.MentorshipRequestUpdateWithoutMenteeInput, Prisma.MentorshipRequestUncheckedUpdateWithoutMenteeInput>
 }
 
-export type MentorshipRequestUpdateManyWithWhereWithoutStudentInput = {
+export type MentorshipRequestUpdateManyWithWhereWithoutMenteeInput = {
   where: Prisma.MentorshipRequestScalarWhereInput
-  data: Prisma.XOR<Prisma.MentorshipRequestUpdateManyMutationInput, Prisma.MentorshipRequestUncheckedUpdateManyWithoutStudentInput>
+  data: Prisma.XOR<Prisma.MentorshipRequestUpdateManyMutationInput, Prisma.MentorshipRequestUncheckedUpdateManyWithoutMenteeInput>
 }
 
 export type MentorshipRequestScalarWhereInput = {
@@ -588,8 +652,9 @@ export type MentorshipRequestScalarWhereInput = {
   NOT?: Prisma.MentorshipRequestScalarWhereInput | Prisma.MentorshipRequestScalarWhereInput[]
   id?: Prisma.StringFilter<"MentorshipRequest"> | string
   status?: Prisma.EnumRequestStatusFilter<"MentorshipRequest"> | $Enums.RequestStatus
-  studentId?: Prisma.StringFilter<"MentorshipRequest"> | string
-  alumniId?: Prisma.StringFilter<"MentorshipRequest"> | string
+  menteeId?: Prisma.StringFilter<"MentorshipRequest"> | string
+  mentorId?: Prisma.StringFilter<"MentorshipRequest"> | string
+  cycleId?: Prisma.StringFilter<"MentorshipRequest"> | string
   goal?: Prisma.StringFilter<"MentorshipRequest"> | string
   message?: Prisma.StringNullableFilter<"MentorshipRequest"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MentorshipRequest"> | Date | string
@@ -597,7 +662,7 @@ export type MentorshipRequestScalarWhereInput = {
   resolvedAt?: Prisma.DateTimeNullableFilter<"MentorshipRequest"> | Date | string | null
 }
 
-export type MentorshipRequestCreateWithoutAlumniInput = {
+export type MentorshipRequestCreateWithoutMentorInput = {
   id?: string
   status?: $Enums.RequestStatus
   goal: string
@@ -605,14 +670,16 @@ export type MentorshipRequestCreateWithoutAlumniInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   resolvedAt?: Date | string | null
-  student: Prisma.StudentProfileCreateNestedOneWithoutRequestsInput
+  mentee: Prisma.MenteeProfileCreateNestedOneWithoutRequestsInput
+  cycle: Prisma.MentorshipCycleCreateNestedOneWithoutRequestsInput
   sessions?: Prisma.SessionCreateNestedManyWithoutRequestInput
 }
 
-export type MentorshipRequestUncheckedCreateWithoutAlumniInput = {
+export type MentorshipRequestUncheckedCreateWithoutMentorInput = {
   id?: string
   status?: $Enums.RequestStatus
-  studentId: string
+  menteeId: string
+  cycleId: string
   goal: string
   message?: string | null
   createdAt?: Date | string
@@ -621,30 +688,82 @@ export type MentorshipRequestUncheckedCreateWithoutAlumniInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutRequestInput
 }
 
-export type MentorshipRequestCreateOrConnectWithoutAlumniInput = {
+export type MentorshipRequestCreateOrConnectWithoutMentorInput = {
   where: Prisma.MentorshipRequestWhereUniqueInput
-  create: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutAlumniInput, Prisma.MentorshipRequestUncheckedCreateWithoutAlumniInput>
+  create: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutMentorInput, Prisma.MentorshipRequestUncheckedCreateWithoutMentorInput>
 }
 
-export type MentorshipRequestCreateManyAlumniInputEnvelope = {
-  data: Prisma.MentorshipRequestCreateManyAlumniInput | Prisma.MentorshipRequestCreateManyAlumniInput[]
+export type MentorshipRequestCreateManyMentorInputEnvelope = {
+  data: Prisma.MentorshipRequestCreateManyMentorInput | Prisma.MentorshipRequestCreateManyMentorInput[]
   skipDuplicates?: boolean
 }
 
-export type MentorshipRequestUpsertWithWhereUniqueWithoutAlumniInput = {
+export type MentorshipRequestUpsertWithWhereUniqueWithoutMentorInput = {
   where: Prisma.MentorshipRequestWhereUniqueInput
-  update: Prisma.XOR<Prisma.MentorshipRequestUpdateWithoutAlumniInput, Prisma.MentorshipRequestUncheckedUpdateWithoutAlumniInput>
-  create: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutAlumniInput, Prisma.MentorshipRequestUncheckedCreateWithoutAlumniInput>
+  update: Prisma.XOR<Prisma.MentorshipRequestUpdateWithoutMentorInput, Prisma.MentorshipRequestUncheckedUpdateWithoutMentorInput>
+  create: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutMentorInput, Prisma.MentorshipRequestUncheckedCreateWithoutMentorInput>
 }
 
-export type MentorshipRequestUpdateWithWhereUniqueWithoutAlumniInput = {
+export type MentorshipRequestUpdateWithWhereUniqueWithoutMentorInput = {
   where: Prisma.MentorshipRequestWhereUniqueInput
-  data: Prisma.XOR<Prisma.MentorshipRequestUpdateWithoutAlumniInput, Prisma.MentorshipRequestUncheckedUpdateWithoutAlumniInput>
+  data: Prisma.XOR<Prisma.MentorshipRequestUpdateWithoutMentorInput, Prisma.MentorshipRequestUncheckedUpdateWithoutMentorInput>
 }
 
-export type MentorshipRequestUpdateManyWithWhereWithoutAlumniInput = {
+export type MentorshipRequestUpdateManyWithWhereWithoutMentorInput = {
   where: Prisma.MentorshipRequestScalarWhereInput
-  data: Prisma.XOR<Prisma.MentorshipRequestUpdateManyMutationInput, Prisma.MentorshipRequestUncheckedUpdateManyWithoutAlumniInput>
+  data: Prisma.XOR<Prisma.MentorshipRequestUpdateManyMutationInput, Prisma.MentorshipRequestUncheckedUpdateManyWithoutMentorInput>
+}
+
+export type MentorshipRequestCreateWithoutCycleInput = {
+  id?: string
+  status?: $Enums.RequestStatus
+  goal: string
+  message?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  resolvedAt?: Date | string | null
+  mentee: Prisma.MenteeProfileCreateNestedOneWithoutRequestsInput
+  mentor: Prisma.MentorProfileCreateNestedOneWithoutRequestsInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutRequestInput
+}
+
+export type MentorshipRequestUncheckedCreateWithoutCycleInput = {
+  id?: string
+  status?: $Enums.RequestStatus
+  menteeId: string
+  mentorId: string
+  goal: string
+  message?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  resolvedAt?: Date | string | null
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutRequestInput
+}
+
+export type MentorshipRequestCreateOrConnectWithoutCycleInput = {
+  where: Prisma.MentorshipRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutCycleInput, Prisma.MentorshipRequestUncheckedCreateWithoutCycleInput>
+}
+
+export type MentorshipRequestCreateManyCycleInputEnvelope = {
+  data: Prisma.MentorshipRequestCreateManyCycleInput | Prisma.MentorshipRequestCreateManyCycleInput[]
+  skipDuplicates?: boolean
+}
+
+export type MentorshipRequestUpsertWithWhereUniqueWithoutCycleInput = {
+  where: Prisma.MentorshipRequestWhereUniqueInput
+  update: Prisma.XOR<Prisma.MentorshipRequestUpdateWithoutCycleInput, Prisma.MentorshipRequestUncheckedUpdateWithoutCycleInput>
+  create: Prisma.XOR<Prisma.MentorshipRequestCreateWithoutCycleInput, Prisma.MentorshipRequestUncheckedCreateWithoutCycleInput>
+}
+
+export type MentorshipRequestUpdateWithWhereUniqueWithoutCycleInput = {
+  where: Prisma.MentorshipRequestWhereUniqueInput
+  data: Prisma.XOR<Prisma.MentorshipRequestUpdateWithoutCycleInput, Prisma.MentorshipRequestUncheckedUpdateWithoutCycleInput>
+}
+
+export type MentorshipRequestUpdateManyWithWhereWithoutCycleInput = {
+  where: Prisma.MentorshipRequestScalarWhereInput
+  data: Prisma.XOR<Prisma.MentorshipRequestUpdateManyMutationInput, Prisma.MentorshipRequestUncheckedUpdateManyWithoutCycleInput>
 }
 
 export type MentorshipRequestCreateWithoutSessionsInput = {
@@ -655,15 +774,17 @@ export type MentorshipRequestCreateWithoutSessionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   resolvedAt?: Date | string | null
-  student: Prisma.StudentProfileCreateNestedOneWithoutRequestsInput
-  alumni: Prisma.AlumniProfileCreateNestedOneWithoutRequestsInput
+  mentee: Prisma.MenteeProfileCreateNestedOneWithoutRequestsInput
+  mentor: Prisma.MentorProfileCreateNestedOneWithoutRequestsInput
+  cycle: Prisma.MentorshipCycleCreateNestedOneWithoutRequestsInput
 }
 
 export type MentorshipRequestUncheckedCreateWithoutSessionsInput = {
   id?: string
   status?: $Enums.RequestStatus
-  studentId: string
-  alumniId: string
+  menteeId: string
+  mentorId: string
+  cycleId: string
   goal: string
   message?: string | null
   createdAt?: Date | string
@@ -695,15 +816,17 @@ export type MentorshipRequestUpdateWithoutSessionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  student?: Prisma.StudentProfileUpdateOneRequiredWithoutRequestsNestedInput
-  alumni?: Prisma.AlumniProfileUpdateOneRequiredWithoutRequestsNestedInput
+  mentee?: Prisma.MenteeProfileUpdateOneRequiredWithoutRequestsNestedInput
+  mentor?: Prisma.MentorProfileUpdateOneRequiredWithoutRequestsNestedInput
+  cycle?: Prisma.MentorshipCycleUpdateOneRequiredWithoutRequestsNestedInput
 }
 
 export type MentorshipRequestUncheckedUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
-  alumniId?: Prisma.StringFieldUpdateOperationsInput | string
+  menteeId?: Prisma.StringFieldUpdateOperationsInput | string
+  mentorId?: Prisma.StringFieldUpdateOperationsInput | string
+  cycleId?: Prisma.StringFieldUpdateOperationsInput | string
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -711,10 +834,11 @@ export type MentorshipRequestUncheckedUpdateWithoutSessionsInput = {
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
-export type MentorshipRequestCreateManyStudentInput = {
+export type MentorshipRequestCreateManyMenteeInput = {
   id?: string
   status?: $Enums.RequestStatus
-  alumniId: string
+  mentorId: string
+  cycleId: string
   goal: string
   message?: string | null
   createdAt?: Date | string
@@ -722,7 +846,7 @@ export type MentorshipRequestCreateManyStudentInput = {
   resolvedAt?: Date | string | null
 }
 
-export type MentorshipRequestUpdateWithoutStudentInput = {
+export type MentorshipRequestUpdateWithoutMenteeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
   goal?: Prisma.StringFieldUpdateOperationsInput | string
@@ -730,14 +854,16 @@ export type MentorshipRequestUpdateWithoutStudentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  alumni?: Prisma.AlumniProfileUpdateOneRequiredWithoutRequestsNestedInput
+  mentor?: Prisma.MentorProfileUpdateOneRequiredWithoutRequestsNestedInput
+  cycle?: Prisma.MentorshipCycleUpdateOneRequiredWithoutRequestsNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutRequestNestedInput
 }
 
-export type MentorshipRequestUncheckedUpdateWithoutStudentInput = {
+export type MentorshipRequestUncheckedUpdateWithoutMenteeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
-  alumniId?: Prisma.StringFieldUpdateOperationsInput | string
+  mentorId?: Prisma.StringFieldUpdateOperationsInput | string
+  cycleId?: Prisma.StringFieldUpdateOperationsInput | string
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -746,10 +872,11 @@ export type MentorshipRequestUncheckedUpdateWithoutStudentInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutRequestNestedInput
 }
 
-export type MentorshipRequestUncheckedUpdateManyWithoutStudentInput = {
+export type MentorshipRequestUncheckedUpdateManyWithoutMenteeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
-  alumniId?: Prisma.StringFieldUpdateOperationsInput | string
+  mentorId?: Prisma.StringFieldUpdateOperationsInput | string
+  cycleId?: Prisma.StringFieldUpdateOperationsInput | string
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -757,10 +884,11 @@ export type MentorshipRequestUncheckedUpdateManyWithoutStudentInput = {
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
-export type MentorshipRequestCreateManyAlumniInput = {
+export type MentorshipRequestCreateManyMentorInput = {
   id?: string
   status?: $Enums.RequestStatus
-  studentId: string
+  menteeId: string
+  cycleId: string
   goal: string
   message?: string | null
   createdAt?: Date | string
@@ -768,7 +896,7 @@ export type MentorshipRequestCreateManyAlumniInput = {
   resolvedAt?: Date | string | null
 }
 
-export type MentorshipRequestUpdateWithoutAlumniInput = {
+export type MentorshipRequestUpdateWithoutMentorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
   goal?: Prisma.StringFieldUpdateOperationsInput | string
@@ -776,14 +904,16 @@ export type MentorshipRequestUpdateWithoutAlumniInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  student?: Prisma.StudentProfileUpdateOneRequiredWithoutRequestsNestedInput
+  mentee?: Prisma.MenteeProfileUpdateOneRequiredWithoutRequestsNestedInput
+  cycle?: Prisma.MentorshipCycleUpdateOneRequiredWithoutRequestsNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutRequestNestedInput
 }
 
-export type MentorshipRequestUncheckedUpdateWithoutAlumniInput = {
+export type MentorshipRequestUncheckedUpdateWithoutMentorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  menteeId?: Prisma.StringFieldUpdateOperationsInput | string
+  cycleId?: Prisma.StringFieldUpdateOperationsInput | string
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -792,10 +922,61 @@ export type MentorshipRequestUncheckedUpdateWithoutAlumniInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutRequestNestedInput
 }
 
-export type MentorshipRequestUncheckedUpdateManyWithoutAlumniInput = {
+export type MentorshipRequestUncheckedUpdateManyWithoutMentorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  menteeId?: Prisma.StringFieldUpdateOperationsInput | string
+  cycleId?: Prisma.StringFieldUpdateOperationsInput | string
+  goal?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type MentorshipRequestCreateManyCycleInput = {
+  id?: string
+  status?: $Enums.RequestStatus
+  menteeId: string
+  mentorId: string
+  goal: string
+  message?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  resolvedAt?: Date | string | null
+}
+
+export type MentorshipRequestUpdateWithoutCycleInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  goal?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mentee?: Prisma.MenteeProfileUpdateOneRequiredWithoutRequestsNestedInput
+  mentor?: Prisma.MentorProfileUpdateOneRequiredWithoutRequestsNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutRequestNestedInput
+}
+
+export type MentorshipRequestUncheckedUpdateWithoutCycleInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  menteeId?: Prisma.StringFieldUpdateOperationsInput | string
+  mentorId?: Prisma.StringFieldUpdateOperationsInput | string
+  goal?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutRequestNestedInput
+}
+
+export type MentorshipRequestUncheckedUpdateManyWithoutCycleInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
+  menteeId?: Prisma.StringFieldUpdateOperationsInput | string
+  mentorId?: Prisma.StringFieldUpdateOperationsInput | string
   goal?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -837,15 +1018,17 @@ export type MentorshipRequestCountOutputTypeCountSessionsArgs<ExtArgs extends ru
 export type MentorshipRequestSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   status?: boolean
-  studentId?: boolean
-  alumniId?: boolean
+  menteeId?: boolean
+  mentorId?: boolean
+  cycleId?: boolean
   goal?: boolean
   message?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   resolvedAt?: boolean
-  student?: boolean | Prisma.StudentProfileDefaultArgs<ExtArgs>
-  alumni?: boolean | Prisma.AlumniProfileDefaultArgs<ExtArgs>
+  mentee?: boolean | Prisma.MenteeProfileDefaultArgs<ExtArgs>
+  mentor?: boolean | Prisma.MentorProfileDefaultArgs<ExtArgs>
+  cycle?: boolean | Prisma.MentorshipCycleDefaultArgs<ExtArgs>
   sessions?: boolean | Prisma.MentorshipRequest$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.MentorshipRequestCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["mentorshipRequest"]>
@@ -853,36 +1036,41 @@ export type MentorshipRequestSelect<ExtArgs extends runtime.Types.Extensions.Int
 export type MentorshipRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   status?: boolean
-  studentId?: boolean
-  alumniId?: boolean
+  menteeId?: boolean
+  mentorId?: boolean
+  cycleId?: boolean
   goal?: boolean
   message?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   resolvedAt?: boolean
-  student?: boolean | Prisma.StudentProfileDefaultArgs<ExtArgs>
-  alumni?: boolean | Prisma.AlumniProfileDefaultArgs<ExtArgs>
+  mentee?: boolean | Prisma.MenteeProfileDefaultArgs<ExtArgs>
+  mentor?: boolean | Prisma.MentorProfileDefaultArgs<ExtArgs>
+  cycle?: boolean | Prisma.MentorshipCycleDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["mentorshipRequest"]>
 
 export type MentorshipRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   status?: boolean
-  studentId?: boolean
-  alumniId?: boolean
+  menteeId?: boolean
+  mentorId?: boolean
+  cycleId?: boolean
   goal?: boolean
   message?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   resolvedAt?: boolean
-  student?: boolean | Prisma.StudentProfileDefaultArgs<ExtArgs>
-  alumni?: boolean | Prisma.AlumniProfileDefaultArgs<ExtArgs>
+  mentee?: boolean | Prisma.MenteeProfileDefaultArgs<ExtArgs>
+  mentor?: boolean | Prisma.MentorProfileDefaultArgs<ExtArgs>
+  cycle?: boolean | Prisma.MentorshipCycleDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["mentorshipRequest"]>
 
 export type MentorshipRequestSelectScalar = {
   id?: boolean
   status?: boolean
-  studentId?: boolean
-  alumniId?: boolean
+  menteeId?: boolean
+  mentorId?: boolean
+  cycleId?: boolean
   goal?: boolean
   message?: boolean
   createdAt?: boolean
@@ -890,34 +1078,39 @@ export type MentorshipRequestSelectScalar = {
   resolvedAt?: boolean
 }
 
-export type MentorshipRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "studentId" | "alumniId" | "goal" | "message" | "createdAt" | "updatedAt" | "resolvedAt", ExtArgs["result"]["mentorshipRequest"]>
+export type MentorshipRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "menteeId" | "mentorId" | "cycleId" | "goal" | "message" | "createdAt" | "updatedAt" | "resolvedAt", ExtArgs["result"]["mentorshipRequest"]>
 export type MentorshipRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.StudentProfileDefaultArgs<ExtArgs>
-  alumni?: boolean | Prisma.AlumniProfileDefaultArgs<ExtArgs>
+  mentee?: boolean | Prisma.MenteeProfileDefaultArgs<ExtArgs>
+  mentor?: boolean | Prisma.MentorProfileDefaultArgs<ExtArgs>
+  cycle?: boolean | Prisma.MentorshipCycleDefaultArgs<ExtArgs>
   sessions?: boolean | Prisma.MentorshipRequest$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.MentorshipRequestCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type MentorshipRequestIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.StudentProfileDefaultArgs<ExtArgs>
-  alumni?: boolean | Prisma.AlumniProfileDefaultArgs<ExtArgs>
+  mentee?: boolean | Prisma.MenteeProfileDefaultArgs<ExtArgs>
+  mentor?: boolean | Prisma.MentorProfileDefaultArgs<ExtArgs>
+  cycle?: boolean | Prisma.MentorshipCycleDefaultArgs<ExtArgs>
 }
 export type MentorshipRequestIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.StudentProfileDefaultArgs<ExtArgs>
-  alumni?: boolean | Prisma.AlumniProfileDefaultArgs<ExtArgs>
+  mentee?: boolean | Prisma.MenteeProfileDefaultArgs<ExtArgs>
+  mentor?: boolean | Prisma.MentorProfileDefaultArgs<ExtArgs>
+  cycle?: boolean | Prisma.MentorshipCycleDefaultArgs<ExtArgs>
 }
 
 export type $MentorshipRequestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "MentorshipRequest"
   objects: {
-    student: Prisma.$StudentProfilePayload<ExtArgs>
-    alumni: Prisma.$AlumniProfilePayload<ExtArgs>
+    mentee: Prisma.$MenteeProfilePayload<ExtArgs>
+    mentor: Prisma.$MentorProfilePayload<ExtArgs>
+    cycle: Prisma.$MentorshipCyclePayload<ExtArgs>
     sessions: Prisma.$SessionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     status: $Enums.RequestStatus
-    studentId: string
-    alumniId: string
+    menteeId: string
+    mentorId: string
+    cycleId: string
     goal: string
     message: string | null
     createdAt: Date
@@ -1317,8 +1510,9 @@ readonly fields: MentorshipRequestFieldRefs;
  */
 export interface Prisma__MentorshipRequestClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  student<T extends Prisma.StudentProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StudentProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__StudentProfileClient<runtime.Types.Result.GetResult<Prisma.$StudentProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  alumni<T extends Prisma.AlumniProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AlumniProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__AlumniProfileClient<runtime.Types.Result.GetResult<Prisma.$AlumniProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  mentee<T extends Prisma.MenteeProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MenteeProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__MenteeProfileClient<runtime.Types.Result.GetResult<Prisma.$MenteeProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  mentor<T extends Prisma.MentorProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MentorProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__MentorProfileClient<runtime.Types.Result.GetResult<Prisma.$MentorProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  cycle<T extends Prisma.MentorshipCycleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MentorshipCycleDefaultArgs<ExtArgs>>): Prisma.Prisma__MentorshipCycleClient<runtime.Types.Result.GetResult<Prisma.$MentorshipCyclePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   sessions<T extends Prisma.MentorshipRequest$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MentorshipRequest$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1351,8 +1545,9 @@ export interface Prisma__MentorshipRequestClient<T, Null = never, ExtArgs extend
 export interface MentorshipRequestFieldRefs {
   readonly id: Prisma.FieldRef<"MentorshipRequest", 'String'>
   readonly status: Prisma.FieldRef<"MentorshipRequest", 'RequestStatus'>
-  readonly studentId: Prisma.FieldRef<"MentorshipRequest", 'String'>
-  readonly alumniId: Prisma.FieldRef<"MentorshipRequest", 'String'>
+  readonly menteeId: Prisma.FieldRef<"MentorshipRequest", 'String'>
+  readonly mentorId: Prisma.FieldRef<"MentorshipRequest", 'String'>
+  readonly cycleId: Prisma.FieldRef<"MentorshipRequest", 'String'>
   readonly goal: Prisma.FieldRef<"MentorshipRequest", 'String'>
   readonly message: Prisma.FieldRef<"MentorshipRequest", 'String'>
   readonly createdAt: Prisma.FieldRef<"MentorshipRequest", 'DateTime'>

@@ -1,20 +1,6 @@
 import { z } from 'zod'
 
-// ── Load Environment Variables ────────────────────────────────────────
-
-/**
- * Environment variables are loaded in the following order:
- * 1. vitest.config.ts loads .env.test via dotenv (for tests)
- * 2. next.config.ts/build process loads .env.{NODE_ENV} (for Next.js)
- * 3. Runtime loads .env (for local development)
- * 
- * File precedence (highest to lowest):
- * 1. .env.{APP_STAGE} (e.g., .env.production, .env.dev, .env.test)
- * 2. .env (default)
- */
 process.env.APP_STAGE = process.env.VITEST ? 'test' : (process.env.APP_STAGE || 'dev')
-
-// ── Environment Validation Schema ─────────────────────────────────────
 
 export const envSchema = z.object({
   NODE_ENV: z.enum(['production', 'development', 'test']).default('development'),
@@ -27,19 +13,15 @@ export const envSchema = z.object({
   BECRYPT_ROTATE: z.coerce.number().min(10).max(12).default(10),
 })
 
-// Export type for TypeScript support
 export type Env = z.infer<typeof envSchema>
-
-// ── Parse and Validate Environment Variables ──────────────────────────
 
 let env: Env
 
 try {
-  // Validate all environment variables against schema
   env = envSchema.parse(process.env)
 } catch (e) {
   if (e instanceof z.ZodError) {
-    console.error('❌ Invalid environment variables:')
+    console.error(' Invalid environment variables:')
     console.log(JSON.stringify(e.flatten().fieldErrors, null, 2))
 
     // Log all issues with their paths and messages
@@ -50,27 +32,11 @@ try {
 
     process.exit(1)
   }
-  // Re-throw if error is not from Zod validation
   throw e
 }
 
-// ── App Stage Helpers ─────────────────────────────────────────────────
-
-/**
- * Check if running in production
- */
 export const isProd = () => env.APP_STAGE === 'production'
-
-/**
- * Check if running in development
- */
 export const isDev = () => env.APP_STAGE === 'dev'
-
-/**
- * Check if running in test mode
- */
 export const isTest = () => env.APP_STAGE === 'test'
-
-// ── Export ────────────────────────────────────────────────────────────
 
 export { env }

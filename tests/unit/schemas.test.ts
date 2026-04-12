@@ -4,7 +4,7 @@ import {
   alumniRegisterSchema,
   loginSchema,
   updateProfileSchema,
-} from '@/app/_schemas/auth.schema';
+} from '@/app/ _libs_and_schemas/schemas/auth.schema';
 
 /**
  * Auth Schema Validation Tests

@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyMagicToken } from '@/app/_utils/tokens';
+import { verifyMagicToken } from '@/app/_utils_and_types/utils/tokens';
 
 interface ValidateTokenBody {
   token: string;

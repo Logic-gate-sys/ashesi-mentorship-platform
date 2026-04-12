@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyJWT } from '@/app/_utils/jwt';
-import { createJWT } from '@/app/_utils/jwt';
-import { prisma } from '@/app/_utils/db';
+import { verifyJWT , createJWT} from '@/utils&types/utils/jwt';
+import { prisma } from '@/utils&types/utils/db';
 
 export async function POST(request: NextRequest) {
   try {

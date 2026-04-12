@@ -1,15 +1,15 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Input, Button} from "@/app/_components/ui/_index";
-import { alumniRegisterSchema } from "@/app/_schemas/alumni.schema";
-import { validateStrongPassword } from "@/app/_schemas/auth.schema";
-import { useAuth } from "@/app/_lib/context/auth-context";
-import { EyeIcon, ErrorIcon } from "@/app/_components/ui/icons";
-import { PasswordStrengthIndicator } from "@/app/_components/ui/reusable-ui/PasswordStrenght";
+import { Input, Button } from "@/app/_components_and_hooks/ui/_index";
+import { alumniRegisterSchema } from "@/app/ _libs_and_schemas/schemas/alumni.schema";
+import { validateStrongPassword } from "@/app/ _libs_and_schemas/schemas/auth.schema";
+import { useAuth } from "@/app/ _libs_and_schemas/context/auth-context";
+import { EyeIcon, ErrorIcon } from "@/comp&hooks/ui/icons";
+import { PasswordStrengthIndicator } from "@/comp&hooks/ui/reusable-ui/PasswordStrenght";
 
 type AlumniRegisterInput = z.infer<typeof alumniRegisterSchema>;
 
@@ -485,8 +485,8 @@ export default function AlumniRegisterPage() {
 
             {/* Status message */}
             {!acceptedTerms || !acceptedPrivacy && (
-              <div className="font-body text-[12px] text-text-muted font-medium px-4 py-3 bg-surface border border-border rounded-[8px]">
-                ⚠️ {!acceptedTerms && !acceptedPrivacy
+              <div className="font-body text-[12px] text-text-muted font-medium px-4 py-3 bg-surface border border-border rounded-base">
+                 {!acceptedTerms && !acceptedPrivacy
                   ? 'Please read both documents to continue'
                   : !acceptedTerms
                   ? 'Please read the Terms of Service to continue'

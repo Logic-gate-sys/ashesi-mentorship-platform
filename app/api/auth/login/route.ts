@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/app/_utils/db';
-import { createJWT } from '@/app/_utils/jwt';
-import { verifyPassword } from '@/app/_utils/password';
-import { loginSchema } from '@/app/_schemas/auth.schema';
+import { prisma } from '@/utils&types/utils/db';
+import { createJWT } from '@/utils&types/utils/jwt';
+import { verifyPassword } from '@/utils&types/utils/password';
+import { loginSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema';
 
+
+
+// api layer 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -43,6 +46,7 @@ export async function POST(request: NextRequest) {
       );
     }
     const {id, email, role,firstName, lastName} = user ; 
+
     // Generate tokens
     const accessToken = await createJWT({id, email, role, firstName, lastName,}, '15m');
     const refreshToken = await createJWT({id, email,role, firstName,lastName}, '7d' )
@@ -67,9 +71,8 @@ export async function POST(request: NextRequest) {
       maxAge: 604800, // 7 days
       path: '/',
     });
- 
     // return response
-    return response;
+    return response  
   } catch (err) {
     return NextResponse.json(
       { errors: { message: 'Login failed', details:err.message } },

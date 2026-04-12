@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/app/_utils/db';
-import { createJWT } from '@/app/_utils/jwt';
-import { hashPassword } from '@/app/_utils/password';
-import { alumniRegisterSchema } from '@/app/_schemas/auth.schema';
+import { prisma } from '@/utils&types/utils/db';
+import { createJWT } from '@/utils&types/utils/jwt';
+import { hashPassword } from '@/app/_utils_and_types/utils/password';
+import { alumniRegisterSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema';
+import { Role } from '@/prisma/generated/prisma/enums';
 
 
 export async function POST(request: NextRequest) {
@@ -39,10 +40,10 @@ export async function POST(request: NextRequest) {
       data: {
         email: validatedData.email,
         passwordHash,
-        role: 'ALUMNI',
+        role:Role.MENTOR,
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
-        alumniProfile: {
+        mentorProfile: {
           create: {
             graduationYear: validatedData.graduationYear,
             major: validatedData.major,
@@ -53,12 +54,12 @@ export async function POST(request: NextRequest) {
         },
       },
       select: {
-        id: true,
+       id: true,
        email: true,
        firstName:true,
        lastName:true,
        role:true,
-       alumniProfile: true
+       menteeProfile: true
       }
 
     });

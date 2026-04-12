@@ -1,10 +1,8 @@
 import Link from 'next/link'
-import { Hero } from './_components/Hero'
-import { CheckmarkIcon } from '@/app/_components/ui/icons'
-import { FeatureCard, StepCard, MentorCard, StatCard, TestimonialCard } from './_components/cards'
-import type { StepCardProps } from './_components/cards/StepCard'
-
-
+import { Hero } from '@/comp&hooks/Hero'
+import { CheckmarkIcon } from '@/comp&hooks/ui/icons/'
+import { FeatureCard, StepCard, MentorCard, StatCard, TestimonialCard } from '@/comp&hooks/cards'
+import { StepCardProps } from '@/utils&types/types/types'
 
 const features = [
   {
@@ -33,25 +31,25 @@ const features = [
 const steps: StepCardProps[] = [
   {
     number: '01',
-    role: 'student',
+    role: 'mentee',
     title: 'Create your student profile',
     body: 'Tell us your major, career interests, and what kind of guidance you are looking for.',
   },
   {
     number: '02',
-    role: 'student',
+    role: 'mentee',
     title: 'Browse and request a mentor',
     body: 'Search alumni by industry or company. Send a personalised request with your goals.',
   },
   {
     number: '03',
-    role: 'alumni',
+    role: 'mentor',
     title: 'Alumni review and accept',
     body: 'Mentors review incoming requests and accept students that match their capacity and expertise.',
   },
   {
     number: '04',
-    role: 'both',
+    role: 'admin',
     title: 'Meet, learn, and grow',
     body: 'Schedule sessions, exchange messages, and build a relationship that outlasts campus.',
   },

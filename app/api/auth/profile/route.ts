@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/app/_utils/db'
-import { requireAuth, requirePermission } from '@/app/_lib/abac/middleware'
-import { updateProfileSchema } from '@/app/_schemas/auth.schema'
-import { getPermittedFields } from '@/app/_lib/abac/engine'
+import { prisma } from '@/utils&types/utils/db'
+import { requirePermission } from '@/app/ _libs_and_schemas/middlewares/auth.middleware'
+import { updateProfileSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema'
+import { getPermittedFields } from '@/app/ _libs_and_schemas/abac/engine'
 import { ZodError } from 'zod'
 
 /**
@@ -16,12 +16,22 @@ export async function PATCH(request: NextRequest) {
     if (authResult instanceof NextResponse) {
       return authResult
     }
-
     const { user, permissions } = authResult
-
     const body = await request.json()
-    const validatedData = updateProfileSchema.parse(body)
-
+    const result = updateProfileSchema.safeParse(body);
+    if(!result.success){
+       return NextResponse.json({
+        success: false,
+        details: result.error.issues.map((iss)=>({
+          path: iss.path.join('.'),
+          message: iss.message
+        }))
+       }, 
+       {status: 400}
+      );
+    }
+ 
+    const validatedData = result.data ; 
     // Get permitted fields for this user
     const permittedData = getPermittedFields(
       permissions,
@@ -40,8 +50,8 @@ export async function PATCH(request: NextRequest) {
         ...(permittedData.avatarUrl && { avatarUrl: permittedData.avatarUrl }),
       },
       include: {
-        studentProfile: true,
-        alumniProfile: true,
+        menteeProfile: true,
+        mentorProfile: true,
       },
     })
 
@@ -56,8 +66,8 @@ export async function PATCH(request: NextRequest) {
           avatarUrl: updatedUser.avatarUrl,
           isVerified: updatedUser.isVerified,
           isActive: updatedUser.isActive,
-          studentProfile: updatedUser.studentProfile,
-          alumniProfile: updatedUser.alumniProfile,
+          studentProfile: updatedUser.menteeProfile,
+          alumniProfile: updatedUser.mentorProfile,
         },
       },
       { status: 200 }
