@@ -28,8 +28,8 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { errors: { email: 'Invalid request body' } },
-        { status: 409 }
+        { error: 'An account with this email already exists' },
+        { status: 400 }
       );
     }
 
@@ -87,6 +87,7 @@ export async function POST(request: NextRequest) {
     // response json
     const response = NextResponse.json(
       {
+        success: true,
         accessToken: accessToken,
         user: user,
       },

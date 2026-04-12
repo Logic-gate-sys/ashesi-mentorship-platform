@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         accessToken: accessToken,
-        user:user,
+        user: user,
       },
       { status: 201 }
     )

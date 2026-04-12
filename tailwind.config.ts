@@ -8,6 +8,31 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        /* Dashboard design system colors (from SVG) */
+        burgundy: {
+          50: '#FBF7F7',
+          100: '#F5E8E8',
+          200: '#E8D0D1',
+          300: '#D4A8AB',
+          400: '#B85459',
+          500: '#A14548',
+          600: '#923D41', // Primary sidebar color
+          700: '#78313A',
+          800: '#5D2531',
+          900: '#6A0A1D', // Dark variant
+        },
+        /* Light pink - right sidebar & backgrounds */
+        'light-pink': {
+          50: '#FFF8F7',
+          100: '#EFE2E2', // Right sidebar background
+          200: '#F1D7D7', // Featured metric card
+          300: '#E8CCCC',
+          400: '#D4B0B0',
+          500: '#D1B0B0', // Secondary metric card (dusty rose)
+        },
+        /* Text colors from design */
+        'text-dark': '#241919', // Primary text
+        'text-secondary': '#564242', // Secondary text
         /* Primary brand colors - Mentor app burgundy theme */
         primary: {
           DEFAULT: '#923D41',
@@ -42,7 +67,6 @@ const config: Config = {
         /* Design specific backgrounds */
         'chat-bg': '#FFF8F7',
         'impact-bg': '#F8E3E3',
-        'light-pink': '#FFB7B9',
         /* Text colors */
         text: {
           DEFAULT: '#6A0A1D',

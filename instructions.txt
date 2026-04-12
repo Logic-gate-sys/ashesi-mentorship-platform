@@ -1,0 +1,20 @@
+Implementing the app dashboard screens.
+- I want you to implement the dashboard screens according to the svg images in the 
+DASHBOARD_DESIGN_GUIDES folder ( These svg files are figma design that are exported as svgs)
+
+
+Notes: 
+ - There is a (dashboard) folder in which , mentor/student dashboards are to be implemented which should
+ follow these formats:
+ - use layout to define the overall dashboard layout(for both admin/student).
+ - Event though some navigations (differ for mentor/student) and what they link to (navs link are on the side bars)
+ according to the svgs, most are same and I want you to configure the dashboard/layout.tsx file to 
+ handle this correctly.
+ - From the many sidebar-main bar dashboard design in the svgs I want you to use tha the one that has
+ a a border-radius style and allows the main content to curve into it ( this is shown in the svg images)
+
+ - Do not create an anti-pattern
+
+ #Implement the dashboard features ( from api level to the frontend level), following the prisma schema
+ 
+

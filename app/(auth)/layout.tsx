@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import bgImage from '@/app/_assets/images/login-bg.png'
+import bgImage from '@/app/_components/_assets/images/login-bg.png'
 
 interface AuthLayoutProps {
   children: ReactNode
