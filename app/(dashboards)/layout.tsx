@@ -7,7 +7,7 @@ import { HomeIcon, RequestIcon,MessagesIcon,MenteesIcon, MeetingsIcon,SettingsIc
 } from "../_components_and_hooks/ui/icons/DashboardNavIcons";
 import AshesiLog from '@/comp&hooks/images/ashesi_logo.svg'
 import Image from "next/image";
-// ─── Icon Components ────────────────────────────────────────────────────────
+
 
 
 type NavItem = {
@@ -18,25 +18,25 @@ type NavItem = {
 
 const navLinks: Record<string, NavItem[]> = {
   mentor: [
-    { label: "Home",                 icon: <HomeIcon />,     link: "/mentor/home" },
-    { label: "Mentorship Requests",  icon: <RequestIcon />,  link: "/mentor/requests" },
-    { label: "My Mentees",           icon: <MenteesIcon />,  link: "/mentor/mentees" },
-    { label: "Messages",             icon: <MessagesIcon />, link: "/mentor/messages" },
-    { label: "Meetings",             icon: <MeetingsIcon />, link: "/mentor/meetings" },
-    { label: "Profile Settings",     icon: <SettingsIcon />, link: "/mentor/settings" },
-    { label: "Feedbacks",            icon: <FeedbackIcon />, link: "/mentor/feedbacks" },
+    { label: "Home",                 icon: <HomeIcon />,     link: "/mentors" },
+    { label: "Mentorship Requests",  icon: <RequestIcon />,  link: "/mentors/requests" },
+    { label: "My Mentees",           icon: <MenteesIcon />,  link: "/mentors/mentees" },
+    { label: "Messages",             icon: <MessagesIcon />, link: "/mentors/messages" },
+    { label: "Meetings",             icon: <MeetingsIcon />, link: "/mentors/meetings" },
+    { label: "Profile Settings",     icon: <SettingsIcon />, link: "/mentors/settings" },
+    { label: "Feedbacks",            icon: <FeedbackIcon />, link: "/mentors/feedbacks" },
   ],
   mentee: [
-    { label: "Home",                 icon: <HomeIcon />,     link: "/mentee/home" },
-    { label: "Mentorship Requests",  icon: <RequestIcon />,  link: "/mentee/requests" },
-    { label: "My Mentor(s)",         icon: <MenteesIcon />,  link: "/mentee/mentors" },
-    { label: "Messages",             icon: <MessagesIcon />, link: "/mentee/messages" },
-    { label: "Meetings",             icon: <MeetingsIcon />, link: "/mentee/meetings" },
-    { label: "Profile Settings",     icon: <SettingsIcon />, link: "/mentee/settings" },
-    { label: "Feedbacks",            icon: <FeedbackIcon />, link: "/mentee/feedbacks" },
+    { label: "Home",                 icon: <HomeIcon />,     link: "/mentees" },
+    { label: "Mentorship Requests",  icon: <RequestIcon />,  link: "/mentees/requests" },
+    { label: "My Mentor(s)",         icon: <MenteesIcon />,  link: "/mentees/mentors" },
+    { label: "Messages",             icon: <MessagesIcon />, link: "/mentees/messages" },
+    { label: "Meetings",             icon: <MeetingsIcon />, link: "/mentees/meetings" },
+    { label: "Profile Settings",     icon: <SettingsIcon />, link: "/mentees/settings" },
+    { label: "Feedbacks",            icon: <FeedbackIcon />, link: "/mentees/feedbacks" },
   ],
   admin: [
-    { label: "Home",                  icon: <HomeIcon />,     link: "/admin/home" },
+    { label: "Home",                  icon: <HomeIcon />,     link: "/admin" },
     { label: "Mentorship Management", icon: <ManageIcon />,   link: "/admin/mentorships" },
     { label: "User Management",       icon: <UsersIcon />,    link: "/admin/users" },
     { label: "Reports",               icon: <ReportsIcon />,  link: "/admin/reports" },
@@ -72,7 +72,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Link
                   href={item.link}
                   className="flex items-center gap-3  text-[#F2DEDE] px-3 py-2.5 rounded-xl
-                             opacity-75 hover:opacity-100 hover:bg-[#4A0A0A]
+                             opacity-75 hover:opacity-100 hover:bg-[#4A0A0A] active:bg-[#4A0A0A] focus:bg-[#4A0A0A]
                              transition-all duration-150 cursor-pointer"
                 >
                   {item.icon}
@@ -97,8 +97,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
       </nav>
 
-      {/* ── Main Content Area ── */}
-      <main className="bg-[#FFF8F7] md:rounded-l-[70px] shadow-2xl overflow-hidden p-8">
+      <main className="bg-[#FFF8F7] md:rounded-l-[70px] shadow-2xl overflow-hidden p-2 ">
         <div className="max-w-5xl mx-auto">
           {children || (
             <div className="space-y-6">

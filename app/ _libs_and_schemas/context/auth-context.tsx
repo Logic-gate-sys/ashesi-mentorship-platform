@@ -8,6 +8,7 @@ import {z} from 'zod';
 
 export interface User {
   id: string;
+  profession: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -121,7 +122,7 @@ export function AuthProvider({ children, config = defaultAuthConfig }: AuthProvi
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
-          credentials: 'include', // Receive refreshToken cookie
+          credentials: 'include', // include cookie
         });
 
         if (!response.ok) {
@@ -132,10 +133,15 @@ export function AuthProvider({ children, config = defaultAuthConfig }: AuthProvi
         const data = await response.json();
         saveAuthData(data.user, data.accessToken);
         router.push(data.user.role === 'MENTEE'? '/mentees' : '/mentors');
+      }catch(err){
+        alert({message:'Something went wrong!', detail:err?.message?? "unknown error"});
+        // bring back to login
+        router.push('/login')
       } finally {
         setIsLoading(false);
       }
     },
+    //login dependencies 
     [saveAuthData, router]
   );
 

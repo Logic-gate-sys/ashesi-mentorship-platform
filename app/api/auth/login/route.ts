@@ -35,7 +35,14 @@ export async function POST(request: NextRequest) {
         passwordHash:true,
         role:true,
         firstName:true,
-        lastName:true
+        lastName:true,
+        mentorProfile: {
+          select: {
+            company: true,
+            jobTitle: true,
+            industry: true
+          }
+        }
       }
     });
 
@@ -60,6 +67,7 @@ export async function POST(request: NextRequest) {
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role,
+          profession: user.mentorProfile?.jobTitle??""
         },
       },
       { status: 200 }
