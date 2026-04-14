@@ -153,7 +153,7 @@ export default function HomePage() {
           <Link href="/login" className="btn btn-ghost h-[38px] px-5 text-[14px] font-semibold">
             Log in
           </Link>
-          <Link href="/register/student" className="btn btn-primary h-[38px] px-6 text-[14px] font-semibold">
+          <Link href="/register/mentee" className="btn btn-primary h-[38px] px-6 text-[14px] font-semibold">
             Get started
           </Link>
         </div>
@@ -235,10 +235,10 @@ export default function HomePage() {
               <p className="font-body text-[15px] text-white/70 mt-1">Create your account and start your journey in just 2 minutes</p>
             </div>
             <div className="flex gap-3 shrink-0">
-              <Link href="/register/student" className="btn bg-white text-primary hover:bg-white/90 h-[42px] px-6 text-[14px] font-semibold rounded-[10px]">
+              <Link href="/register/mentee" className="btn bg-white text-primary hover:bg-white/90 h-[42px] px-6 text-[14px] font-semibold rounded-[10px]">
                 Join as student
               </Link>
-              <Link href="/register/alumni" className="btn bg-white/15 border border-white/30 text-white hover:bg-white/25 h-[42px] px-6 text-[14px] font-semibold rounded-[10px]">
+              <Link href="/register/mentor" className="btn bg-white/15 border border-white/30 text-white hover:bg-white/25 h-[42px] px-6 text-[14px] font-semibold rounded-[10px]">
                 Join as alumni
               </Link>
             </div>
@@ -257,7 +257,7 @@ export default function HomePage() {
                 Learn from Ashesi alumni who've made it
               </h2>
             </div>
-            <Link href="/register/student" className="btn btn-ghost h-[42px] px-5 text-[14px] font-semibold whitespace-nowrap">
+            <Link href="/register/mentee" className="btn btn-ghost h-[42px] px-5 text-[14px] font-semibold whitespace-nowrap">
               View all mentors →
             </Link>
           </div>
@@ -300,7 +300,7 @@ export default function HomePage() {
               ))}
             </div>
 
-            <Link href="/register/alumni" className="btn bg-white text-primary hover:bg-white/95 h-[48px] px-8 text-[15px] font-bold rounded-[12px] shadow-xl inline-flex items-center gap-2">
+            <Link href="/register/mentor" className="btn bg-white text-primary hover:bg-white/95 h-[48px] px-8 text-[15px] font-bold rounded-[12px] shadow-xl inline-flex items-center gap-2">
               Start mentoring today →
             </Link>
           </div>
@@ -351,13 +351,13 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/register/student"
+              href="/register/mentee"
               className="btn bg-white text-primary hover:bg-white/95 h-[52px] px-10 text-[16px] font-bold rounded-[12px] shadow-xl"
             >
               Sign up as student
             </Link>
             <Link
-              href="/register/alumni"
+              href="/register/mentor"
               className="btn h-[52px] px-10 text-[16px] font-bold bg-white/12 border-2 border-white/30 text-white hover:bg-white/20 transition-colors rounded-[12px]"
             >
               Become a mentor

@@ -9,7 +9,6 @@ import AshesiLog from '@/comp&hooks/images/ashesi_logo.svg'
 import Image from "next/image";
 
 
-
 type NavItem = {
   label: string;
   icon: React.ReactNode;
@@ -45,11 +44,11 @@ const navLinks: Record<string, NavItem[]> = {
   ],
 };
 
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const role = user?.role as keyof typeof navLinks | "mentor";
   
-
   // Fall back to empty array if role is unrecognised or undefined
   const links: NavItem[] = (role && navLinks[role.toLowerCase()]) ? navLinks[role.toLowerCase()] : [];
 
