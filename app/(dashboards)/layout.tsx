@@ -55,9 +55,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-[1fr_6fr] bg-[#923D41] backdrop-blur-3xl
             shadow-[inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.15)]
-            filter-[url('#noise')] text-[#F2DEDE]">
+            filter-[url('#noise')] text-[#f7f0f0]">
 
-      {/* ── Sidebar Navigation ── */}
+      {/* Sidebar Navigation */}
       <nav className="p-6 flex flex-col gap-8 ">
         {/* Brand */}
         <div className="py-4">
@@ -96,8 +96,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
       </nav>
 
-      <main className="bg-[#FFF8F7] md:rounded-l-[70px] shadow-2xl overflow-hidden p-2 ">
-        <div className="max-w-5xl mx-auto">
+      <main className="bg-[#FFF8F7] md:rounded-l-[70px] shadow-2xl overflow-hidden ">
+        <div className="w-full h-[100vh] mx-auto md:px-12 py-6 overflow-y-auto">
           {children || (
             <div className="space-y-6">
               <header className="flex justify-between items-center">
