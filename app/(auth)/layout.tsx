@@ -7,77 +7,79 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen flex bg-page font-body">
+    <div className="min-h-screen flex bg-[var(--color-background)] font-body">
 
-      <div className="hidden lg:flex w-105 shrink-0 bg-red-900 flex-col justify-between px-12 py-12 relative overflow-hidden">
+      {/* ── SIDEBAR SECTION ──────────────────────────────────────── */}
+      <div className="hidden lg:flex w-105 shrink-0 bg-primary flex-col justify-between px-12 py-12 relative overflow-hidden">
 
-        {/* Decorative rings */}
-        <div className="absolute -top-28 -right-28 w-90 h-90 rounded-full border border-brand/10 pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-70 h-70 rounded-full bg-brand/8 blur-[60px] pointer-events-none" />
+        {/* Decorative background elements */}
+        <div className="absolute -top-28 -right-28 w-90 h-90 rounded-full border border-white/5 pointer-events-none opacity-30" />
+        <div className="absolute -bottom-20 -left-20 w-70 h-70 rounded-full bg-accent blur-[80px] pointer-events-none opacity-20" />
 
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 w-fit">
-          <div className="w-9 h-9 bg-orange-800 rounded-btn flex items-center justify-center shrink-0">
+        {/* LOGO SECTION */}
+        <Link href="/" className="flex items-center gap-3 w-fit hover:opacity-90 transition-opacity">
+          <div className="w-10 h-10 bg-accent rounded-[10px] flex items-center justify-center shrink-0 shadow-lg">
             <span className="font-display font-extrabold text-white text-base leading-none">A</span>
           </div>
           <div>
-            <p className="font-display font-bold text-white text-[16px] tracking-tight leading-none">
+            <p className="font-display font-bold text-white text-base tracking-tight leading-tight">
               AshesiConnect
             </p>
-            <p className="font-body text-[10px] text-white/35 tracking-[0.08em] uppercase mt-0.5">
-              Alumni Mentorship
+            <p className="font-body text-[11px] text-white/50 tracking-[0.06em] uppercase mt-1">
+              Alumni Network
             </p>
           </div>
         </Link>
 
-        {/* Copy */}
+        {/* MAIN COPY SECTION */}
         <div>
-    
-
-          <h2 className="font-display font-extrabold text-white text-[32px] leading-[1.15] tracking-tight mb-4">
+          <h2 className="font-display font-extrabold text-white text-[36px] leading-[1.1] tracking-tight mb-5">
             Your Ashesi network,<br />working for you
           </h2>
 
-          <p className="font-body text-[14px] text-white/45 leading-relaxed">
-            Connect with alumni who have taken the same courses,
-            faced the same challenges, and succeeded in the roles
-            you are aiming for.
+          <p className="font-body text-[15px] text-white/60 leading-relaxed mb-8">
+            Connect with alumni mentors who have taken the same courses, faced the same challenges, and succeeded in the roles you're aiming for.
           </p>
 
-          {/* Stats */}
-          <div className="flex gap-8 mt-10">
+          {/* Key Statistics */}
+          <div className="grid grid-cols-3 gap-6">
             {[
-              { value: '500+', label: 'Mentors'   },
-              { value: '94%',  label: 'Placement' },
-              { value: '4.9★', label: 'Rating'    },
-            ].map(s => (
-              <div key={s.label}>
-                <p className="font-display font-bold text-[24px] text-brand tracking-tight leading-none">
-                  {s.value}
+              { value: '500+', label: 'Mentors' },
+              { value: '94%', label: 'Placement' },
+              { value: '4.9★', label: 'Rating' },
+            ].map(stat => (
+              <div key={stat.label} className="border-l border-white/20 pl-4">
+                <p className="font-display font-bold text-primary-light text-2xl tracking-tight leading-none mb-1">
+                  {stat.value}
                 </p>
-                <p className="font-body text-[12px] text-white/38 mt-1">
-                  {s.label}
+                <p className="font-body text-xs text-white/50 font-medium">
+                  {stat.label}
                 </p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Footer */}
-        <p className="font-body text-[12px] text-white/25">
-          © {new Date().getFullYear()} Ashesi University
-        </p>
+        {/* FOOTER */}
+        <div className="border-t border-white/10 pt-6">
+          <p className="font-body text-[12px] text-white/40 mb-4">
+            © {new Date().getFullYear()} Ashesi University
+          </p>
+          <p className="font-body text-[12px] text-white/50 leading-relaxed">
+            Building ethical leaders for Africa, one mentor connection at a time.
+          </p>
+        </div>
       </div>
 
-      {/* ── RIGHT — form slot ──────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 overflow-y-auto">
+      {/* ── FORM SECTION ──────────────────────────────────────────── */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12 overflow-y-auto bg-gradient-to-b from-[var(--color-background)] to-white/50">
 
-        {/* Mobile logo */}
-        <div className="absolute top-5 left-5 flex items-center gap-2 lg:hidden">
-          <div className="w-8 h-8 bg-brand rounded-[8px] flex items-center justify-center">
+        {/* Mobile Header */}
+        <div className="absolute top-5 left-5 lg:hidden flex items-center gap-2.5">
+          <div className="w-9 h-9 bg-primary-light rounded-[8px] flex items-center justify-center shadow-md">
             <span className="font-display font-extrabold text-white text-sm leading-none">A</span>
           </div>
-          <span className="font-display font-bold text-text text-[15px] tracking-tight">
+          <span className="font-display font-bold text-text-primary text-[16px] tracking-tight">
             AshesiConnect
           </span>
         </div>

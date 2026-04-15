@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/app/_lib/db';
-import { createJWT } from '@/app/_lib/jwt';
-import { hashPassword } from '@/app/_lib/password';
+import { prisma } from '@/app/_utils/db';
+import { createJWT } from '@/app/_utils/jwt';
+import { hashPassword } from '@/app/_utils/password';
 import { alumniRegisterSchema } from '@/app/_schemas/auth.schema';
 import { ZodError } from 'zod';
 
@@ -13,10 +13,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // Validate request body
     const validatedData = alumniRegisterSchema.parse(body);
 
-    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email: validatedData.email },
     });
@@ -28,10 +26,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
     const passwordHash = hashPassword(validatedData.password);
 
-    // Create user and alumni profile
     const user = await prisma.user.create({
       data: {
         email: validatedData.email,
@@ -52,18 +48,31 @@ export async function POST(request: NextRequest) {
       include: { alumniProfile: true },
     });
 
-    // Generate JWT token
-    const token = createJWT({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    });
-
-    return NextResponse.json(
+    const accessToken = await createJWT(
       {
-        token,
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+      '15m'
+    );
+
+    const refreshToken = await createJWT(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+      '7d'
+    );
+
+    const response = NextResponse.json(
+      {
+        accessToken, // Client should store this in sessionStorage
         user: {
           id: user.id,
           email: user.email,
@@ -74,8 +83,17 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
+
+    response.cookies.set('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 604800, // 7 days
+      path: '/',
+    });
+
+    return response;
   } catch (error) {
-    // Handle validation errors
     if (error instanceof ZodError) {
       const fieldErrors = error.flatten().fieldErrors;
       return NextResponse.json(

@@ -1,0 +1,412 @@
+
+> ashesi-mentor-platform@0.1.0 test
+> vitest --coverage tests/integration --run
+
+[dotenv@17.3.1] injecting env (6) from .env.test -- tip: ⚙️  override existing env vars with { override: true }
+
+[1m[46m RUN [49m[22m [36mv4.1.2 [39m[90m/home/logic-gate/dev/mentor-app[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+--- Preparing Test Environment ---
+Syncing database schema...
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma/schema.prisma.
+Datasource "db": PostgreSQL database "g_testDB", schema "public" at "localhost:5432"
+
+The database is already in sync with the Prisma schema.
+
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma/schema.prisma.
+--- Test Environment Ready ---
+ [31m❯[39m tests/integration/auth.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/integration/mentorship.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/integration/messaging.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/integration/admin.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/integration/mentor-capacity.test.ts [2m([22m[2m7 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[32m 188[2mms[22m[39m
+[31m       [31m×[31m should return capacity status with all required fields[39m[32m 149[2mms[22m[39m
+[31m       [31m×[31m should have correct capacity limits[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m should return correct capacity status based on mentee count[39m[32m 7[2mms[22m[39m
+[31m       [31m×[31m should correctly calculate canAcceptMore flag[39m[32m 6[2mms[22m[39m
+[31m       [31m×[31m should accept request when under capacity[39m[32m 9[2mms[22m[39m
+[31m       [31m×[31m should reject request when at max capacity[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m should provide capacity info in error response[39m[32m 5[2mms[22m[39m
+ [31m❯[39m tests/integration/mentorship-cycle.test.ts [2m([22m[2m13 tests[22m[2m | [22m[31m13 failed[39m[2m)[22m[32m 192[2mms[22m[39m
+[31m       [31m×[31m should create a cycle with valid 3-month duration[39m[32m 121[2mms[22m[39m
+[31m       [31m×[31m should create a cycle with valid 6-month duration[39m[32m 11[2mms[22m[39m
+[31m       [31m×[31m should reject cycle shorter than 3 months[39m[32m 7[2mms[22m[39m
+[31m       [31m×[31m should reject cycle longer than 6 months[39m[32m 6[2mms[22m[39m
+[31m       [31m×[31m should return cycle with correct status[39m[32m 4[2mms[22m[39m
+[31m       [31m×[31m should return current cycle with all required fields[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m should have status active or planning[39m[32m 6[2mms[22m[39m
+[31m       [31m×[31m should show progress between 0-100%[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m should get alumni availability status[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m should update alumni availability[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m should reject invalid maxMentees values[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m should end a cycle and archive mentorships[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m should require cycleId[39m[32m 5[2mms[22m[39m
+ [31m❯[39m tests/integration/mentor-dashboard-api.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m9 failed[39m[2m)[22m[32m 135[2mms[22m[39m
+[31m       [31m×[31m should return metrics array with required fields[39m[32m 88[2mms[22m[39m
+[31m       [31m×[31m should contain expected metrics[39m[32m 6[2mms[22m[39m
+[31m       [31m×[31m should handle errors gracefully[39m[32m 6[2mms[22m[39m
+[31m       [31m×[31m should return requests array[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m should contain required request fields[39m[32m 4[2mms[22m[39m
+[31m       [31m×[31m should support limit parameter[39m[32m 4[2mms[22m[39m
+[31m       [31m×[31m should return requests with pending status[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m should accept a request without errors[39m[32m 8[2mms[22m[39m
+[31m       [31m×[31m should require requestId parameter[39m[32m 5[2mms[22m[39m
+[90mstderr[2m | tests/integration/email-notification.test.ts[2m > [22m[2mEmail Service[2m > [22m[2mMagic Token Generation[2m > [22m[2mshould generate and verify a valid token
+[22m[39mFailed to generate magic token: TypeError: payload must be an instance of Uint8Array
+    at new FlattenedSign [90m(file:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4mjose[24m/dist/webapi/jws/flattened/sign.js:16:19[90m)[39m
+    at new CompactSign [90m(file:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4mjose[24m/dist/webapi/jws/compact/sign.js:5:27[90m)[39m
+    at SignJWT.sign [90m(file:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4mjose[24m/dist/webapi/jwt/sign.js:43:21[90m)[39m
+    at generateMagicToken [90m(/home/logic-gate/dev/mentor-app/[39mapp/_utils/tokens.ts:62:8[90m)[39m
+    at [90m/home/logic-gate/dev/mentor-app/[39mtests/integration/email-notification.test.ts:80:27
+    at [90mfile:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at [90mfile:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1893:26
+    at [90mfile:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2316:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2313:10[90m)[39m
+
+[90mstderr[2m | tests/integration/email-notification.test.ts[2m > [22m[2mEmail Service[2m > [22m[2mMagic Token Generation[2m > [22m[2mshould generate a one-click availability link
+[22m[39mFailed to generate magic token: TypeError: payload must be an instance of Uint8Array
+    at new FlattenedSign [90m(file:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4mjose[24m/dist/webapi/jws/flattened/sign.js:16:19[90m)[39m
+    at new CompactSign [90m(file:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4mjose[24m/dist/webapi/jws/compact/sign.js:5:27[90m)[39m
+    at SignJWT.sign [90m(file:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4mjose[24m/dist/webapi/jwt/sign.js:43:21[90m)[39m
+    at generateMagicToken [90m(/home/logic-gate/dev/mentor-app/[39mapp/_utils/tokens.ts:62:8[90m)[39m
+    at generateAvailabilityLink [90m(/home/logic-gate/dev/mentor-app/[39mapp/_utils/tokens.ts:114:23[90m)[39m
+    at [90m/home/logic-gate/dev/mentor-app/[39mtests/integration/email-notification.test.ts:105:26
+    at [90mfile:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at [90mfile:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1893:26
+    at [90mfile:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2316:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | tests/integration/email-notification.test.ts[2m > [22m[2mEmail Service[2m > [22m[2mEmail Helpers[2m > [22m[2mshould send cycle invitation email (console output)
+[22m[39mFailed to generate magic token: TypeError: payload must be an instance of Uint8Array
+    at new FlattenedSign [90m(file:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4mjose[24m/dist/webapi/jws/flattened/sign.js:16:19[90m)[39m
+    at new CompactSign [90m(file:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4mjose[24m/dist/webapi/jws/compact/sign.js:5:27[90m)[39m
+    at SignJWT.sign [90m(file:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4mjose[24m/dist/webapi/jwt/sign.js:43:21[90m)[39m
+    at generateMagicToken [90m(/home/logic-gate/dev/mentor-app/[39mapp/_utils/tokens.ts:62:8[90m)[39m
+    at generateAvailabilityLink [90m(/home/logic-gate/dev/mentor-app/[39mapp/_utils/tokens.ts:114:23[90m)[39m
+    at sendCycleInvitationEmail [90m(/home/logic-gate/dev/mentor-app/[39mapp/_services/email/emailHelpers.ts:35:34[90m)[39m
+    at [90m/home/logic-gate/dev/mentor-app/[39mtests/integration/email-notification.test.ts:120:28
+    at [90mfile:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at [90mfile:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1893:26
+    at [90mfile:///home/logic-gate/dev/mentor-app/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2316:20
+
+[90mstdout[2m | tests/integration/email-notification.test.ts[2m > [22m[2mEmail Service[2m > [22m[2mEmail Helpers[2m > [22m[2mshould send cycle ended email (console output)
+[22m[39m
+━━━ EMAIL NOTIFICATION ━━━
+To: mentor@ashesi.edu.gh
+Subject: Your Spring 2026 Cohort mentorship cycle has ended
+From: noreply@asheimentor.dev
+---
+
+Your Spring 2026 Cohort Mentorship Cycle Has Ended
+===============================================
+
+Hi Dr. Kwame Asante,
+
+The Spring 2026 Cohort mentorship cycle has officially ended. Thank you for dedicating your time to mentoring!
+
+Your Impact This Cycle:
+- Mentees Supported: 3
+- Sessions Completed: 12
+- Average Rating: 4.8/5
+
+All active mentorships have been paused. You can view your mentorship history and student feedback anytime from your dashboard.
+
+Be on the lookout for our next mentorship cycle. We'll send you an invitation to participate again!
+
+View Your History: undefined/mentor/history?cycleId=Spring%202026%20Cohort
+
+---
+Thank you for being part of the AshesiConnect community!
+  
+━━━━━━━━━━━━━━━━━━━━━━
+
+
+[90mstdout[2m | tests/integration/email-notification.test.ts[2m > [22m[2mEmail Service[2m > [22m[2mEmail Helpers[2m > [22m[2mshould send student paired email (console output)
+[22m[39m
+━━━ EMAIL NOTIFICATION ━━━
+To: student@ashesi.edu.gh
+Subject: Meet your mentor, Dr. Kwame Asante! 🎉
+From: noreply@asheimentor.dev
+---
+
+You're Matched! 🎉
+====================
+
+Hi Ama Asante,
+
+Great news! Your mentorship request has been accepted. Dr. Kwame Asante is excited to mentor you!
+
+Mentor Profile:
+- Name: Dr. Kwame Asante
+- Title: Senior Software Engineer
+- Rating: 4.8/5
+- Bio: Expert mentor
+
+Next Steps:
+1. Go to your dashboard and schedule your first session
+2. Introduce yourself and discuss your mentorship goals
+3. Attend your first session (we recommend within the first week)
+
+Go to Dashboard: undefined/student/mentorship/request_123
+
+Tips for Success:
+- Be responsive and respectful of your mentor's time
+- Come prepared to sessions with questions
+- Provide feedback on how the mentorship is going
+
+---
+Questions? Contact our support team at support@asheimentor.dev
+  
+━━━━━━━━━━━━━━━━━━━━━━
+
+
+[90mstdout[2m | tests/integration/email-notification.test.ts[2m > [22m[2mEmail Service[2m > [22m[2mEmail Service Provider[2m > [22m[2mshould send email with console provider
+[22m[39m
+━━━ EMAIL NOTIFICATION ━━━
+To: test@ashesi.edu.gh
+Subject: Test Email
+From: noreply@asheimentor.dev
+---
+Test
+━━━━━━━━━━━━━━━━━━━━━━
+
+
+ [31m❯[39m tests/integration/mentor-dashboard.test.tsx [2m([22m[2m12 tests[22m[2m | [22m[31m12 failed[39m[2m)[22m[32m 166[2mms[22m[39m
+[31m     [31m×[31m renders all main sections[39m[32m 81[2mms[22m[39m
+[31m     [31m×[31m displays correct number of pending requests[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m displays correct number of active mentees[39m[32m 7[2mms[22m[39m
+[31m     [31m×[31m displays correct number of upcoming sessions[39m[32m 9[2mms[22m[39m
+[31m     [31m×[31m displays impact metrics values[39m[32m 17[2mms[22m[39m
+[31m     [31m×[31m renders quick action buttons[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m shows pending request mentee information[39m[32m 9[2mms[22m[39m
+[31m     [31m×[31m shows active mentee information[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m shows upcoming session details[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m accepts a pending request and moves mentee to active list[39m[32m 7[2mms[22m[39m
+[31m     [31m×[31m declines a pending request[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m shows empty state when all requests are processed[39m[32m 3[2mms[22m[39m
+ [31m❯[39m tests/integration/email-notification.test.ts [2m([22m[2m12 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 165[2mms[22m[39m
+       [32m✓[39m should render cycle invitation email with variables[32m 77[2mms[22m[39m
+       [32m✓[39m should render cycle ended email with stats[32m 4[2mms[22m[39m
+       [32m✓[39m should render student paired email with mentor info[32m 5[2mms[22m[39m
+[31m       [31m×[31m should generate and verify a valid token[39m[32m 11[2mms[22m[39m
+       [32m✓[39m should reject an invalid token[32m 6[2mms[22m[39m
+[31m       [31m×[31m should generate a one-click availability link[39m[32m 5[2mms[22m[39m
+[31m       [31m×[31m should send cycle invitation email (console output)[39m[32m 6[2mms[22m[39m
+       [32m✓[39m should send cycle ended email (console output)[32m 5[2mms[22m[39m
+       [32m✓[39m should send student paired email (console output)[32m 8[2mms[22m[39m
+       [32m✓[39m should use console provider by default[32m 12[2mms[22m[39m
+       [32m✓[39m should allow switching providers[32m 13[2mms[22m[39m
+       [32m✓[39m should send email with console provider[32m 10[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/integration/admin.test.ts[2m [ tests/integration/admin.test.ts ][22m
+[31m[1mError[22m: Failed to resolve import "supertest" from "tests/integration/admin.test.ts". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36m/home/logic-gate/dev/mentor-app/tests/integration/admin.test.ts[39m:2:20
+[33m  1  |  import { describe, it, expect, beforeAll, afterAll } from "vitest";
+  2  |  import request from "supertest";
+     |                       ^
+  3  |  import { prisma } from "@/app/_utils/db";
+  4  |  import { createJWT } from "@/app/_utils/jwt";[39m
+[90m [2m❯[22m TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/node.js:[2m30259:39[22m[39m
+[90m [2m❯[22m TransformPluginContext.error node_modules/vite/dist/node/chunks/node.js:[2m30256:14[22m[39m
+[90m [2m❯[22m normalizeUrl node_modules/vite/dist/node/chunks/node.js:[2m27544:18[22m[39m
+[90m [2m❯[22m node_modules/vite/dist/node/chunks/node.js:[2m27607:30[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:[2m27575:4[22m[39m
+[90m [2m❯[22m EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:[2m30048:14[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/node.js:[2m24177:26[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/48]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/auth.test.ts[2m [ tests/integration/auth.test.ts ][22m
+[31m[1mError[22m: Failed to resolve import "supertest" from "tests/integration/auth.test.ts". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36m/home/logic-gate/dev/mentor-app/tests/integration/auth.test.ts[39m:2:20
+[33m  1  |  import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
+  2  |  import request from "supertest";
+     |                       ^
+  3  |  import { clearDatabase } from "../helpers/test-db-utils";
+  4  |  import { prisma } from "@/app/_utils/db";[39m
+[90m [2m❯[22m TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/node.js:[2m30259:39[22m[39m
+[90m [2m❯[22m TransformPluginContext.error node_modules/vite/dist/node/chunks/node.js:[2m30256:14[22m[39m
+[90m [2m❯[22m normalizeUrl node_modules/vite/dist/node/chunks/node.js:[2m27544:18[22m[39m
+[90m [2m❯[22m node_modules/vite/dist/node/chunks/node.js:[2m27607:30[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:[2m27575:4[22m[39m
+[90m [2m❯[22m EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:[2m30048:14[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/node.js:[2m24177:26[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/48]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/mentorship.test.ts[2m [ tests/integration/mentorship.test.ts ][22m
+[31m[1mError[22m: Failed to resolve import "supertest" from "tests/integration/mentorship.test.ts". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36m/home/logic-gate/dev/mentor-app/tests/integration/mentorship.test.ts[39m:2:20
+[33m  1  |  import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
+  2  |  import request from "supertest";
+     |                       ^
+  3  |  import { prisma } from "@/app/_utils/db";
+  4  |  import { createJWT } from "@/app/_utils/jwt";[39m
+[90m [2m❯[22m TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/node.js:[2m30259:39[22m[39m
+[90m [2m❯[22m TransformPluginContext.error node_modules/vite/dist/node/chunks/node.js:[2m30256:14[22m[39m
+[90m [2m❯[22m normalizeUrl node_modules/vite/dist/node/chunks/node.js:[2m27544:18[22m[39m
+[90m [2m❯[22m node_modules/vite/dist/node/chunks/node.js:[2m27607:30[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:[2m27575:4[22m[39m
+[90m [2m❯[22m EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:[2m30048:14[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/node.js:[2m24177:26[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/48]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/messaging.test.ts[2m [ tests/integration/messaging.test.ts ][22m
+[31m[1mError[22m: Failed to resolve import "supertest" from "tests/integration/messaging.test.ts". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36m/home/logic-gate/dev/mentor-app/tests/integration/messaging.test.ts[39m:2:20
+[33m  1  |  import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
+  2  |  import request from "supertest";
+     |                       ^
+  3  |  import { prisma } from "@/app/_utils/db";
+  4  |  import { createJWT } from "@/app/_utils/jwt";[39m
+[90m [2m❯[22m TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/node.js:[2m30259:39[22m[39m
+[90m [2m❯[22m TransformPluginContext.error node_modules/vite/dist/node/chunks/node.js:[2m30256:14[22m[39m
+[90m [2m❯[22m normalizeUrl node_modules/vite/dist/node/chunks/node.js:[2m27544:18[22m[39m
+[90m [2m❯[22m node_modules/vite/dist/node/chunks/node.js:[2m27607:30[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:[2m27575:4[22m[39m
+[90m [2m❯[22m EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:[2m30048:14[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/node.js:[2m24177:26[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/48]⎯[22m[39m
+
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 44 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/integration/email-notification.test.ts[2m > [22mEmail Service[2m > [22mMagic Token Generation[2m > [22mshould generate and verify a valid token
+[31m[1mError[22m: Token generation failed[39m
+[36m [2m❯[22m generateMagicToken app/_utils/tokens.ts:[2m67:11[22m[39m
+    [90m 65|[39m   } [35mcatch[39m (error) {
+    [90m 66|[39m     console[33m.[39m[34merror[39m([32m'Failed to generate magic token:'[39m[33m,[39m error)[33m;[39m
+    [90m 67|[39m     [35mthrow[39m [35mnew[39m [33mError[39m([32m'Token generation failed'[39m)[33m;[39m
+    [90m   |[39m           [31m^[39m
+    [90m 68|[39m   }
+    [90m 69|[39m }
+[90m [2m❯[22m tests/integration/email-notification.test.ts:[2m80:21[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/48]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/email-notification.test.ts[2m > [22mEmail Service[2m > [22mMagic Token Generation[2m > [22mshould generate a one-click availability link
+[31m[1mError[22m: Token generation failed[39m
+[36m [2m❯[22m generateMagicToken app/_utils/tokens.ts:[2m67:11[22m[39m
+    [90m 65|[39m   } [35mcatch[39m (error) {
+    [90m 66|[39m     console[33m.[39m[34merror[39m([32m'Failed to generate magic token:'[39m[33m,[39m error)[33m;[39m
+    [90m 67|[39m     [35mthrow[39m [35mnew[39m [33mError[39m([32m'Token generation failed'[39m)[33m;[39m
+    [90m   |[39m           [31m^[39m
+    [90m 68|[39m   }
+    [90m 69|[39m }
+[90m [2m❯[22m generateAvailabilityLink app/_utils/tokens.ts:[2m114:17[22m[39m
+[90m [2m❯[22m tests/integration/email-notification.test.ts:[2m105:20[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/48]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/email-notification.test.ts[2m > [22mEmail Service[2m > [22mEmail Helpers[2m > [22mshould send cycle invitation email (console output)
+[31m[1mError[22m: Token generation failed[39m
+[36m [2m❯[22m generateMagicToken app/_utils/tokens.ts:[2m67:11[22m[39m
+    [90m 65|[39m   } [35mcatch[39m (error) {
+    [90m 66|[39m     console[33m.[39m[34merror[39m([32m'Failed to generate magic token:'[39m[33m,[39m error)[33m;[39m
+    [90m 67|[39m     [35mthrow[39m [35mnew[39m [33mError[39m([32m'Token generation failed'[39m)[33m;[39m
+    [90m   |[39m           [31m^[39m
+    [90m 68|[39m   }
+    [90m 69|[39m }
+[90m [2m❯[22m generateAvailabilityLink app/_utils/tokens.ts:[2m114:17[22m[39m
+[90m [2m❯[22m sendCycleInvitationEmail app/_services/email/emailHelpers.ts:[2m35:28[22m[39m
+[90m [2m❯[22m tests/integration/email-notification.test.ts:[2m120:22[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/48]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/mentor-capacity.test.ts[2m > [22mMentor Capacity API[2m > [22mGET /api/mentor/capacity[2m > [22mshould return capacity status with all required fields
+[41m[1m FAIL [22m[49m tests/integration/mentor-capacity.test.ts[2m > [22mMentor Capacity API[2m > [22mGET /api/mentor/capacity[2m > [22mshould have correct capacity limits
+[41m[1m FAIL [22m[49m tests/integration/mentor-capacity.test.ts[2m > [22mMentor Capacity API[2m > [22mGET /api/mentor/capacity[2m > [22mshould return correct capacity status based on mentee count
+[41m[1m FAIL [22m[49m tests/integration/mentor-capacity.test.ts[2m > [22mMentor Capacity API[2m > [22mGET /api/mentor/capacity[2m > [22mshould correctly calculate canAcceptMore flag
+[41m[1m FAIL [22m[49m tests/integration/mentor-capacity.test.ts[2m > [22mMentor Capacity API[2m > [22mPOST /api/mentor/requests with capacity check[2m > [22mshould accept request when under capacity
+[41m[1m FAIL [22m[49m tests/integration/mentor-capacity.test.ts[2m > [22mMentor Capacity API[2m > [22mPOST /api/mentor/requests with capacity check[2m > [22mshould reject request when at max capacity
+[41m[1m FAIL [22m[49m tests/integration/mentor-capacity.test.ts[2m > [22mMentor Capacity API[2m > [22mPOST /api/mentor/requests with capacity check[2m > [22mshould provide capacity info in error response
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard-api.test.ts[2m > [22mMentor Metrics API[2m > [22mGET /api/mentor/metrics[2m > [22mshould return metrics array with required fields
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard-api.test.ts[2m > [22mMentor Metrics API[2m > [22mGET /api/mentor/metrics[2m > [22mshould contain expected metrics
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard-api.test.ts[2m > [22mMentor Metrics API[2m > [22mGET /api/mentor/metrics[2m > [22mshould handle errors gracefully
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard-api.test.ts[2m > [22mMentor Metrics API[2m > [22mGET /api/mentor/requests[2m > [22mshould return requests array
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard-api.test.ts[2m > [22mMentor Metrics API[2m > [22mGET /api/mentor/requests[2m > [22mshould contain required request fields
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard-api.test.ts[2m > [22mMentor Metrics API[2m > [22mGET /api/mentor/requests[2m > [22mshould support limit parameter
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard-api.test.ts[2m > [22mMentor Metrics API[2m > [22mGET /api/mentor/requests[2m > [22mshould return requests with pending status
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard-api.test.ts[2m > [22mMentor Metrics API[2m > [22mPOST /api/mentor/requests[2m > [22mshould accept a request without errors
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard-api.test.ts[2m > [22mMentor Metrics API[2m > [22mPOST /api/mentor/requests[2m > [22mshould require requestId parameter
+[41m[1m FAIL [22m[49m tests/integration/mentorship-cycle.test.ts[2m > [22mMentorship Cycle System[2m > [22mAdmin Cycles API - POST /api/admin/cycles[2m > [22mshould create a cycle with valid 3-month duration
+[41m[1m FAIL [22m[49m tests/integration/mentorship-cycle.test.ts[2m > [22mMentorship Cycle System[2m > [22mAdmin Cycles API - POST /api/admin/cycles[2m > [22mshould create a cycle with valid 6-month duration
+[41m[1m FAIL [22m[49m tests/integration/mentorship-cycle.test.ts[2m > [22mMentorship Cycle System[2m > [22mAdmin Cycles API - POST /api/admin/cycles[2m > [22mshould reject cycle shorter than 3 months
+[41m[1m FAIL [22m[49m tests/integration/mentorship-cycle.test.ts[2m > [22mMentorship Cycle System[2m > [22mAdmin Cycles API - POST /api/admin/cycles[2m > [22mshould reject cycle longer than 6 months
+[41m[1m FAIL [22m[49m tests/integration/mentorship-cycle.test.ts[2m > [22mMentorship Cycle System[2m > [22mAdmin Cycles API - POST /api/admin/cycles[2m > [22mshould return cycle with correct status
+[41m[1m FAIL [22m[49m tests/integration/mentorship-cycle.test.ts[2m > [22mMentorship Cycle System[2m > [22mCurrent Cycle Status - GET /api/cycles/current[2m > [22mshould return current cycle with all required fields
+[41m[1m FAIL [22m[49m tests/integration/mentorship-cycle.test.ts[2m > [22mMentorship Cycle System[2m > [22mCurrent Cycle Status - GET /api/cycles/current[2m > [22mshould have status active or planning
+[41m[1m FAIL [22m[49m tests/integration/mentorship-cycle.test.ts[2m > [22mMentorship Cycle System[2m > [22mCurrent Cycle Status - GET /api/cycles/current[2m > [22mshould show progress between 0-100%
+[41m[1m FAIL [22m[49m tests/integration/mentorship-cycle.test.ts[2m > [22mMentorship Cycle System[2m > [22mAlumni Availability - GET/PUT /api/alumni/cycles/:cycleId/availability[2m > [22mshould get alumni availability status
+[41m[1m FAIL [22m[49m tests/integration/mentorship-cycle.test.ts[2m > [22mMentorship Cycle System[2m > [22mAlumni Availability - GET/PUT /api/alumni/cycles/:cycleId/availability[2m > [22mshould update alumni availability
+[41m[1m FAIL [22m[49m tests/integration/mentorship-cycle.test.ts[2m > [22mMentorship Cycle System[2m > [22mAlumni Availability - GET/PUT /api/alumni/cycles/:cycleId/availability[2m > [22mshould reject invalid maxMentees values
+[41m[1m FAIL [22m[49m tests/integration/mentorship-cycle.test.ts[2m > [22mMentorship Cycle System[2m > [22mCycle Dissolution - POST /api/cycles/end[2m > [22mshould end a cycle and archive mentorships
+[41m[1m FAIL [22m[49m tests/integration/mentorship-cycle.test.ts[2m > [22mMentorship Cycle System[2m > [22mCycle Dissolution - POST /api/cycles/end[2m > [22mshould require cycleId
+[31m[1mTypeError[22m: fetch failed[39m
+[31m[1mCaused by: Error[22m: connect ECONNREFUSED 127.0.0.1:3000[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ errno: -111, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 3000 }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/48]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard.test.tsx[2m > [22mMentorDashboard - State & Integration[2m > [22mrenders all main sections
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard.test.tsx[2m > [22mMentorDashboard - State & Integration[2m > [22mdisplays correct number of pending requests
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard.test.tsx[2m > [22mMentorDashboard - State & Integration[2m > [22mdisplays correct number of active mentees
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard.test.tsx[2m > [22mMentorDashboard - State & Integration[2m > [22mdisplays correct number of upcoming sessions
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard.test.tsx[2m > [22mMentorDashboard - State & Integration[2m > [22mdisplays impact metrics values
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard.test.tsx[2m > [22mMentorDashboard - State & Integration[2m > [22mrenders quick action buttons
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard.test.tsx[2m > [22mMentorDashboard - State & Integration[2m > [22mshows pending request mentee information
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard.test.tsx[2m > [22mMentorDashboard - State & Integration[2m > [22mshows active mentee information
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard.test.tsx[2m > [22mMentorDashboard - State & Integration[2m > [22mshows upcoming session details
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard.test.tsx[2m > [22mMentorDashboard - State & Integration[2m > [22maccepts a pending request and moves mentee to active list
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard.test.tsx[2m > [22mMentorDashboard - State & Integration[2m > [22mdeclines a pending request
+[41m[1m FAIL [22m[49m tests/integration/mentor-dashboard.test.tsx[2m > [22mMentorDashboard - State & Integration[2m > [22mshows empty state when all requests are processed
+[31m[1mError[22m: useAuth must be used within AuthProvider[39m
+[36m [2m❯[22m useAuth app/_lib/context/auth-context.tsx:[2m329:11[22m[39m
+    [90m327|[39m   [35mconst[39m context [33m=[39m [34museContext[39m([33mAuthContext[39m)[33m;[39m
+    [90m328|[39m   [35mif[39m ([33m![39mcontext) {
+    [90m329|[39m     [35mthrow[39m [35mnew[39m [33mError[39m([32m'useAuth must be used within AuthProvider'[39m)[33m;[39m
+    [90m   |[39m           [31m^[39m
+    [90m330|[39m   }
+    [90m331|[39m   [35mreturn[39m context[33m;[39m
+[90m [2m❯[22m useMentorDashboardData app/_hooks/useMentorDashboardData.ts:[2m62:56[22m[39m
+[90m [2m❯[22m MentorDashboard app/(dashboard)/mentor/page.tsx:[2m29:85[22m[39m
+[90m [2m❯[22m Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:[2m25904:20[22m[39m
+[90m [2m❯[22m renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:[2m7662:22[22m[39m
+[90m [2m❯[22m updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:[2m10166:19[22m[39m
+[90m [2m❯[22m beginWork node_modules/react-dom/cjs/react-dom-client.development.js:[2m11778:18[22m[39m
+[90m [2m❯[22m runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:[2m874:13[22m[39m
+[90m [2m❯[22m performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:[2m17641:22[22m[39m
+[90m [2m❯[22m workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:[2m17469:41[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/48]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m9 failed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[31m44 failed[39m[22m[2m | [22m[1m[32m9 passed[39m[22m[90m (53)[39m
+[2m   Start at [22m 08:52:09
+[2m   Duration [22m 3.64s[2m (transform 483ms, setup 2.15s, import 769ms, tests 846ms, environment 6.27s)[22m
+
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma/schema.prisma.
+Datasource "db": PostgreSQL database "g_testDB", schema "public" at "localhost:5432"
+
+The PostgreSQL database "g_testDB" schema "public" at "localhost:5432" was successfully reset.
+
+🚀  Your database is now in sync with your Prisma schema. Done in 312ms
+
+--- Teardown Complete ---

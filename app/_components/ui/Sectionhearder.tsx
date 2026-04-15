@@ -16,7 +16,7 @@ export default  function SectionHeader({
       </h2>
       <Link
         href={href}
-        className="font-body text-[13px] font-medium text-brand hover:opacity-80 transition-opacity"
+        className="font-body text-[13px] font-medium text-primary hover:opacity-80 transition-opacity"
       >
         {linkLabel}
       </Link>

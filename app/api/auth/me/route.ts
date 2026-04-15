@@ -1,68 +1,40 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyJWT } from '@/app/_lib/jwt';
-import { prisma } from '@/app/_lib/db';
+import { NextRequest, NextResponse } from 'next/server'
+import { requireAuth } from '@/app/_lib/abac/middleware'
+import { ProfileService } from '@/app/_services'
+import { withErrorHandling, NotFoundError } from '@/app/_middleware'
+import { successResponse } from '@/app/_utils/api-response'
+import { toUserProfileDTO } from '@/app/_dtos'
 
-/**
- * GET /api/auth/me
- * Get current authenticated user
- */
-export async function GET(request: NextRequest) {
-  try {
-    // Get token from Authorization header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { errors: { message: 'Missing or invalid authorization header' } },
-        { status: 401 }
-      );
-    }
+async function handler(request: NextRequest) {
+  const authResult = await requireAuth(request)
 
-    const token = authHeader.slice(7); // Remove "Bearer " prefix
-    const payload = verifyJWT(token);
-
-    if (!payload) {
-      return NextResponse.json(
-        { errors: { message: 'Invalid or expired token' } },
-        { status: 401 }
-      );
-    }
-
-    // Fetch user with profile data
-    const user = await prisma.user.findUnique({
-      where: { id: payload.id },
-      include: {
-        studentProfile: true,
-        alumniProfile: true,
-      },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { errors: { message: 'User not found' } },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(
-      {
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          avatarUrl: user.avatarUrl,
-          studentProfile: user.studentProfile,
-          alumniProfile: user.alumniProfile,
-        },
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error('[GET_ME_ERROR]', error);
-    return NextResponse.json(
-      { errors: { message: 'Failed to fetch user' } },
-      { status: 500 }
-    );
+  if (authResult instanceof NextResponse) {
+    return authResult
   }
+
+  const { user: userData } = authResult
+
+  const user = await ProfileService.getUserProfile(userData.id)
+
+  if (!user) {
+    throw new NotFoundError('User')
+  }
+
+  const dto = toUserProfileDTO(user)
+
+  return successResponse(
+    {
+      user: {
+        ...dto,
+        avatarUrl: user.avatarUrl,
+        isVerified: user.isVerified,
+        isActive: user.isActive,
+        studentProfile: user.studentProfile,
+        alumniProfile: user.alumniProfile,
+      },
+    },
+    'User profile retrieved'
+  )
 }
+
+export const GET = withErrorHandling(handler)

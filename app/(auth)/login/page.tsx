@@ -6,27 +6,11 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import {Input, Button } from '@/app/_components/ui/_index'
-import { useAuth } from '@/app/_lib/auth-context'
+import { useAuth } from '@/app/_lib/context/auth-context'
 import { loginSchema } from '@/app/_schemas/auth.schema'
+import { EyeIcon, ErrorIcon, StudentIcon, AlumniIcon } from '@/app/_components/ui/icons'
 
 type LoginInput = z.infer<typeof loginSchema>
-
-// ── Eye icon ──────────────────────────────────────────────────
-
-function EyeIcon({ open }: { open: boolean }) {
-  return open ? (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-      <line x1="1" y1="1" x2="23" y2="23"/>
-    </svg>
-  ) : (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
-  )
-}
 
 // ── Page ──────────────────────────────────────────────────────
 
@@ -54,25 +38,25 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full max-w-[400px]">
+    <div className="w-full max-w-125">
 
       {/* Heading */}
       <div className="mb-8">
-        <h1 className="font-display font-bold text-[28px] text-text tracking-tight leading-tight">
+        <h1 className="font-display font-bold text-[32px] text-text tracking-tight leading-tight">
           Welcome back
         </h1>
-        <p className="font-body text-[14px] text-text-muted mt-1.5">
+        <p className="font-body text-[15px] text-text-muted mt-2">
           Log in to your mentorship account
         </p>
       </div>
 
       {/* Server error banner */}
       {serverError && (
-        <div className="mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-[8px] flex items-start gap-2.5">
-          <svg className="shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <p className="font-body text-[13px] text-red-600">{serverError}</p>
+        <div className="mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-base flex items-start gap-2.5">
+          <div className="shrink-0 mt-0.5 text-red-800">
+            <ErrorIcon />
+          </div>
+          <p className="font-body text-[14px] text-red-800">{serverError}</p>
         </div>
       )}
 
@@ -114,13 +98,13 @@ export default function LoginPage() {
           <label className="flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
-              className="w-4 h-4 rounded accent-brand cursor-pointer"
+              className="w-4 h-4 rounded accent-primary cursor-pointer"
             />
-            <span className="font-body text-[13px] text-text-sub">Keep me logged in</span>
+            <span className="font-body text-[14px] text-text-sub">Keep me logged in</span>
           </label>
           <Link
             href="/forgot-password"
-            className="font-body text-[13px] font-medium text-brand hover:opacity-80 transition-opacity"
+            className="font-body text-[14px] font-medium text-primary hover:opacity-80 transition-opacity"
           >
             Forgot password?
           </Link>
@@ -132,6 +116,7 @@ export default function LoginPage() {
           size="lg"
           full
           loading={isLoading}
+          className="mt-6"
         >
           Log in
         </Button>
@@ -140,7 +125,7 @@ export default function LoginPage() {
       {/* Divider */}
       <div className="flex items-center gap-3 my-7">
         <div className="flex-1 h-px bg-border" />
-        <span className="font-body text-[12px] text-text-muted">new here?</span>
+        <span className="font-body text-[13px] text-text-muted">new here?</span>
         <div className="flex-1 h-px bg-border" />
       </div>
 
@@ -149,44 +134,37 @@ export default function LoginPage() {
 
         <Link
           href="/register/student"
-          className="card p-4 flex flex-col items-center gap-2.5 text-center hover:border-brand transition-colors group"
+          className="card p-6 flex flex-col items-center gap-3 text-center hover:border-primary transition-colors group min-h-[140px] justify-center"
         >
-          <div className="w-9 h-9 rounded-[10px] bg-brand/10 flex items-center justify-center group-hover:bg-brand/15 transition-colors">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B2B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-            </svg>
+          <div className="w-12 h-12 rounded-[10px] bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors text-primary">
+            <StudentIcon />
           </div>
           <div>
-            <p className="font-body text-[13px] font-semibold text-text">Student</p>
-            <p className="font-body text-[11px] text-text-muted mt-0.5">Find a mentor</p>
+            <p className="font-body text-[14px] font-semibold text-text">Student</p>
+            <p className="font-body text-[12px] text-text-muted mt-0.5">Find a mentor</p>
           </div>
         </Link>
 
         <Link
           href="/register/alumni"
-          className="card p-4 flex flex-col items-center gap-2.5 text-center hover:border-tag-purple transition-colors group"
+          className="card p-6 flex flex-col items-center gap-3 text-center hover:border-tag-purple transition-colors group min-h-[140px] justify-center"
         >
-          <div className="w-9 h-9 rounded-[10px] bg-tag-purple/10 flex items-center justify-center group-hover:bg-tag-purple/15 transition-colors">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9747FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
+          <div className="w-12 h-12 rounded-[10px] bg-tag-purple/10 flex items-center justify-center group-hover:bg-tag-purple/15 transition-colors text-tag-purple">
+            <AlumniIcon />
           </div>
           <div>
-            <p className="font-body text-[13px] font-semibold text-text">Alumni</p>
-            <p className="font-body text-[11px] text-text-muted mt-0.5">Become a mentor</p>
+            <p className="font-body text-[14px] font-semibold text-text">Alumni</p>
+            <p className="font-body text-[12px] text-text-muted mt-0.5">Become a mentor</p>
           </div>
         </Link>
       </div>
 
       {/* Sign up link */}
-      <p className="font-body text-center text-[13px] text-text-muted mt-8">
+      <p className="font-body text-center text-[14px] text-text-muted mt-8">
         Don&apos;t have an account?{' '}
         <Link
           href="/register/student"
-          className="font-semibold text-brand hover:opacity-80 transition-opacity"
+            className="font-semibold text-primary hover:opacity-80 transition-opacity"
         >
           Sign up
         </Link>

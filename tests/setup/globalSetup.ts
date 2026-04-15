@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process';
-import { prisma } from '@/app/_lib/db';
+import { prisma } from '@/app/_utils/db';
 
 
 

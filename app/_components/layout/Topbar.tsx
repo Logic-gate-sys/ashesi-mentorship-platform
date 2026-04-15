@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { SearchIcon, BellIcon } from '@/app/_components/ui/icons'
 
 const routeLabels: Record<string, string> = {
   student:   'Student',
@@ -27,19 +28,6 @@ function useBreadcrumbs() {
     last:  i === segments.length - 1,
   }))
 }
-
-const SearchIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-  </svg>
-)
-
-const BellIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-  </svg>
-)
 
 
 interface TopbarProps {
@@ -72,7 +60,7 @@ export default function Topbar({
         </span>
         <Link
           href="/"
-          className="font-display font-bold text-[14px] text-brand tracking-tight shrink-0 hover:opacity-80 transition-opacity"
+          className="font-display font-bold text-[14px] text-primary tracking-tight shrink-0 hover:opacity-80 transition-opacity"
         >
           AshesiConnect
         </Link>
@@ -113,11 +101,11 @@ export default function Topbar({
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder="Search"
-          className="h-[34px] w-[200px] bg-page border border-border rounded-[8px] pl-9 pr-4 font-body text-[13px] text-text placeholder:text-text-muted outline-none transition-all duration-150 focus:border-brand focus:shadow-[0_0_0_3px_rgba(255,107,43,0.15)] focus:w-[260px]"
+          className="h-[34px] w-[200px] bg-page border border-border rounded-[8px] pl-9 pr-4 font-body text-[13px] text-text placeholder:text-text-muted outline-none transition-all duration-150 focus:border-primary focus:shadow-[0_0_0_3px_rgba(127,29,29,0.15)] focus:w-[260px]"
         />
         {/* Orange search button — matches Learnify exactly */}
         {query.length > 0 && (
-          <button className="absolute right-1.5 w-6 h-6 bg-brand rounded-[6px] flex items-center justify-center hover:bg-brand-hover transition-colors">
+          <button className="absolute right-1.5 w-6 h-6 bg-primary rounded-[6px] flex items-center justify-center hover:bg-primary-light transition-colors">
             <SearchIcon />
           </button>
         )}
@@ -127,7 +115,7 @@ export default function Topbar({
       <button className="relative w-9 h-9 rounded-[10px] flex items-center justify-center text-text-muted hover:bg-page hover:text-text transition-colors shrink-0">
         <BellIcon />
         {notifications > 0 && (
-          <div className="absolute top-1.5 right-1.5 w-[7px] h-[7px] bg-brand rounded-full border-2 border-surface" />
+          <div className="absolute top-1.5 right-1.5 w-[7px] h-[7px] bg-primary rounded-full border-2 border-surface" />
         )}
       </button>
 
@@ -136,7 +124,7 @@ export default function Topbar({
         href="/profile"
         className="flex items-center gap-2 rounded-[10px] px-2 py-1 hover:bg-page transition-colors shrink-0"
       >
-        <div className="w-7 h-7 rounded-full bg-brand flex items-center justify-center shrink-0">
+        <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shrink-0">
           <span className="font-display font-bold text-white text-[11px] leading-none">
             {initials}
           </span>

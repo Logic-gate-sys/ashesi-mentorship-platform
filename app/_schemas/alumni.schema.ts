@@ -10,17 +10,12 @@ export const alumniRegisterSchema = z.object({
       .string()
       .email("Invalid email address")
       .regex(/@ashesi\.edu\.gh$/i, "Must be an @ashesi.edu.gh email"),
-    graduationYear: z.coerce
-      .number({ invalid_type_error: "Enter a valid year" })
-      .int()
-      .min(2002, "Ashesi was founded in 2002")
-      .max(CURRENT_YEAR, "Graduation year cannot be in the future"),
+    graduationYear: z.number().int("Enter a valid year").min(2002, "Ashesi was founded in 2002").max(CURRENT_YEAR, "Graduation year cannot be in the future"),
     major: z.string().min(2, "Select your major"),
     company: z.string().min(2, "Company name is required").max(100).trim(),
     jobTitle: z.string().min(2, "Job title is required").max(100).trim(),
-    industry: z.enum(["TECHNOLOGY","FINANCE","CONSULTING","HEALTHCARE","EDUCATION","ENGINEERING","OTHER",],{ errorMap: () => (
-        { message: "Select an industry" })
-     },
+    industry: z.enum(["TECHNOLOGY","FINANCE","CONSULTING","HEALTHCARE","EDUCATION","ENGINEERING","OTHER"],
+      { message: "Select an industry" }
     ),
     password: z
       .string()

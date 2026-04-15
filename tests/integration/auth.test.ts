@@ -1,18 +1,17 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import request from 'supertest';
-import { clearDatabase } from '../helpers/test-db-utils';
-import {prisma} from '@/app/_lib/db'; 
+import { findUserByEmail, cleanupAllData } from '../helpers/database.helpers'; 
 
 
 const BASE_URL = 'http://localhost:3000';
 
 describe('Auth API - Registration & Authentication', () => {
   beforeAll(async () => {
-    await clearDatabase();
+    await cleanupAllData();
   });
 
   afterAll(async () => {
-    await clearDatabase();
+    await cleanupAllData();
   });
 
 
@@ -39,7 +38,7 @@ describe('Auth API - Registration & Authentication', () => {
       expect(response.body.user.role).toBe('STUDENT');
 
       // Verify user in database
-      const user = await prisma.user.findUnique({ where: { email: payload.email } });
+      const user = await findUserByEmail(payload.email);
       expect(user).toBeDefined();
       expect(user?.passwordHash).not.toBe(payload.password); // Should be hashed
     });
@@ -171,7 +170,7 @@ describe('Auth API - Registration & Authentication', () => {
 
     beforeEach(async () => {
       // Create test user
-      await clearDatabase();
+      await cleanupAllData();
       const response = await request(BASE_URL)
         .post('/api/auth/register/student')
         .send({
@@ -238,7 +237,7 @@ describe('Auth API - Registration & Authentication', () => {
     let token: string;
 
     beforeEach(async () => {
-      await clearDatabase();
+      await cleanupAllData();
       const response = await request(BASE_URL)
         .post('/api/auth/register/student')
         .send({
@@ -296,7 +295,7 @@ describe('Auth API - Registration & Authentication', () => {
     let token: string;
 
     beforeEach(async () => {
-      await clearDatabase();
+      await cleanupAllData();
       const response = await request(BASE_URL)
         .post('/api/auth/register/student')
         .send({

@@ -1,150 +1,367 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+/**
+ * ASHESI UNIVERSITY BRAND DESIGN SYSTEM
+ * Professional, modern color palette & typography for educational platform
+ */
+
 @theme {
+  /* ── TYPOGRAPHY ──────────────────────────────────────────────– */
   --font-display: "Syne", sans-serif;
   --font-body:    "DM Sans", sans-serif;
 
-  --color-brand:        #FF6B2B;   
-  --color-brand-hover:  #F55A18;
-  --color-tag-orange:   #FF6B2B;   
-  --color-tag-yellow:   #F5C518;   
-  --color-tag-purple:   #9747FF;   
-  --color-ashesi-maroon:#7F1D1D;
-  --color-sidebar:      #1C1C2E;
-  --color-page:         #F4F5F9;
-  --color-surface:      #FFFFFF;
-  --color-dark-card:    #2D2D3F;   
+  /* ── PRIMARY BRAND COLORS ────────────────────────────────────– */
+  --color-primary:          #7F1D1D;  /* Deep Ashesi Maroon */
+  --color-primary-dark:     #5F1515;  /* Darker for hover */
+  --color-primary-light:    #A02E2E;  /* Lighter accent */
+  --color-primary-50:       #F9F3F3;  /* Background tint */
 
-  --color-border:       #ECEDF2;
+  /* ── SECONDARY ACCENT COLORS (Using maroon spectrum) ────── */
+  --color-accent:           #A02E2E;  /* Light maroon accent */
+  --color-accent-dark:      #7F1D1D;  /* Primary maroon */
+  --color-accent-light:     #C24242;  /* Lighter maroon */
+  --color-accent-50:        #F9F3F3;  /* Background tint */  
 
-  --color-text:         #111827;
-  --color-text-sub:     #4B5563;
-  --color-text-muted:   #9CA3AF;
-  --color-text-link:    #E8503A;  
+  /* ── SECONDARY COLORS ────────────────────────────────────– */
+  --color-warning:          #F59E0B;
+  --color-danger:           #EF4444;
+  --color-info:             #7F1D1D;  /* Using primary maroon instead of blue */
 
-  --radius-card:  14px;
-  --radius-btn:   10px;
-  --radius-tag:    6px;
-  --radius-input:  8px;
-  --radius-full: 9999px;
+  /* ── NEUTRAL PALETTE ────────────────────────────────────– */
+  --color-white:            #FFFFFF;
+  --color-background:       #F8F9FB;
+  --color-surface:          #FFFFFF;
+  --color-surface-alt:      #F3F4F7;
+  --color-overlay:          #0F1419;
 
-  --shadow-card:  0 2px 8px rgba(16, 20, 40, 0.06);
-  --shadow-btn:   0 2px 8px rgba(255, 107, 43, 0.32);
-  --shadow-focus: 0 0 0 3px rgba(255, 107, 43, 0.22);
+  /* ── TEXT COLORS ────────────────────────────────────────– */
+  --color-text-primary:     #0F1419;
+  --color-text-secondary:   #4B5563;
+  --color-text-tertiary:    #9CA3AF;
+  --color-text-muted:       #D1D5DB;
+  --color-text-inverse:     #FFFFFF;
+
+  /* ── BORDER & DIVIDERS ──────────────────────────────────– */
+  --color-border:           #E5E7EB;
+  --color-border-light:     #F3F4F7;
+  --color-border-strong:    #D1D5DB;
+
+  /* ── SHADOWS ────────────────────────────────────────────– */
+  --shadow-xs:      0 1px 2px rgba(15, 20, 40, 0.05);
+  --shadow-sm:      0 1px 3px rgba(15, 20, 40, 0.08);
+  --shadow-base:    0 2px 8px rgba(15, 20, 40, 0.10);
+  --shadow-md:      0 4px 12px rgba(15, 20, 40, 0.12);
+  --shadow-lg:      0 8px 24px rgba(15, 20, 40, 0.14);
+  --shadow-primary: 0 4px 16px rgba(127, 29, 29, 0.16);
+  --shadow-accent:  0 4px 16px rgba(160, 46, 46, 0.16);
+
+  /* ── BORDER RADIUS ──────────────────────────────────────– */
+  --radius-sm:      6px;
+  --radius-base:    8px;
+  --radius-md:      12px;
+  --radius-lg:      14px;
+  --radius-xl:      16px;
+  --radius-full:    9999px;
+
+  /* ── TRANSITIONS ────────────────────────────────────────– */
+  --duration-fast:  150ms;
+  --duration-base:  200ms;
+  --easing-ease:    cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @layer base {
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
 
   body {
     font-family: var(--font-body);
-    background-color: var(--color-page);
-    color: var(--color-text);
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
     line-height: 1.6;
+    letter-spacing: -0.01em;
   }
 
+  /* ── HEADING TYPOGRAPHY ────────────────────────────────– */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+    font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.2;
+    color: var(--color-text-primary);
   }
+
+  h1 { font-size: 2.5rem; margin-bottom: 1.25rem; }
+  h2 { font-size: 2rem; line-height: 1.15; margin-bottom: 1rem; }
+  h3 { font-size: 1.5rem; line-height: 1.25; margin-bottom: 0.875rem; }
+  h4 { font-size: 1.25rem; line-height: 1.3; margin-bottom: 0.75rem; }
+  h5 { font-size: 1.125rem; line-height: 1.4; margin-bottom: 0.625rem; }
+  h6 { font-size: 1rem; line-height: 1.5; margin-bottom: 0.5rem; }
+
+  /* ── PARAGRAPH ──────────────────────────────────────── */
+  p { margin-bottom: 1rem; color: var(--color-text-secondary); }
+  small { font-size: 0.875rem; color: var(--color-text-tertiary); }
+
+  /* ── LINKS ──────────────────────────────────────────– */
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--duration-base) var(--easing-ease);
+  }
+  a:hover { color: var(--color-accent); }
 }
 
 @layer components {
+  /* ── CARD COMPONENT ────────────────────────────────– */
   .card {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--duration-base), border-color var(--duration-base);
   }
+  .card:hover { box-shadow: var(--shadow-md); border-color: var(--color-border-strong); }
+  .card-elevated { box-shadow: var(--shadow-lg); }
 
+  /* ── BUTTON COMPONENTS ─────────────────────────── */
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    height: 40px;
-    padding: 0 20px;
-    border-radius: var(--radius-btn);
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    font-weight: 600;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
     border: none;
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
     cursor: pointer;
-    transition: opacity 150ms ease, transform 100ms ease;
+    transition: all var(--duration-base) var(--easing-ease);
     text-decoration: none;
     white-space: nowrap;
+    user-select: none;
   }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+  .btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 
-  .btn:active   { transform: scale(0.98); }
-  .btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
-
+  /* Primary - Brand Maroon */
   .btn-primary {
-    background-color: var(--color-brand);
-    color: #fff;
-    box-shadow: var(--shadow-btn);
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
+    box-shadow: var(--shadow-primary);
+    font-weight: 700;
   }
-  .btn-primary:hover { background-color: var(--color-ashesi-maroon); }
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--color-primary-dark);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+  }
 
+  /* Accent - Energy Orange */
+  .btn-accent {
+    background-color: var(--color-accent);
+    color: var(--color-text-inverse);
+    box-shadow: var(--shadow-accent);
+    font-weight: 700;
+  }
+  .btn-accent:hover:not(:disabled) {
+    background-color: var(--color-accent-dark);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+  }
+
+  /* Secondary - Outline */
+  .btn-secondary {
+    background-color: transparent;
+    color: var(--color-primary);
+    border: 1.5px solid var(--color-primary);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background-color: var(--color-primary-50);
+    border-color: var(--color-primary-dark);
+  }
+
+  /* Secondary on dark background */
+  .btn-secondary-inverse {
+    background-color: transparent;
+    color: var(--color-text-inverse);
+    border: 1.5px solid var(--color-text-inverse);
+  }
+  .btn-secondary-inverse:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-text-inverse);
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+  }
+
+  /* Ghost - Minimal */
   .btn-ghost {
     background-color: transparent;
-    color: var(--color-text-sub);
+    color: var(--color-text-secondary);
     border: 1px solid var(--color-border);
-    background-color: var(--color-surface);
   }
-  .btn-ghost:hover { background-color: var(--color-page); }
+  .btn-ghost:hover:not(:disabled) {
+    background-color: var(--color-surface-alt);
+    border-color: var(--color-text-secondary);
+    color: var(--color-text-primary);
+  }
 
+  /* Dark - For dark backgrounds */
+  .btn-dark {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--color-text-inverse);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+  }
+  .btn-dark:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-base);
+    transform: translateY(-1px);
+  }
+
+  /* Success */
+  .btn-success {
+    background-color: var(--color-success);
+    color: var(--color-text-inverse);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.20);
+  }
+  .btn-success:hover:not(:disabled) {
+    background-color: #059669;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.28);
+  }
+
+  /* Danger */
+  .btn-danger {
+    background-color: var(--color-danger);
+    color: var(--color-text-inverse);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.20);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background-color: #DC2626;
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.28);
+  }
+
+  /* ── INPUT COMPONENTS ──────────────────────────── */
   .input {
     display: block;
     width: 100%;
-    height: 44px;
-    padding: 0 14px;
+    padding: 0.75rem 1rem;
+    height: 2.75rem;
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-input);
+    border-radius: var(--radius-md);
     font-family: var(--font-body);
-    font-size: 0.875rem;
-    color: var(--color-text);
+    font-size: 0.9375rem;
+    color: var(--color-text-primary);
     outline: none;
-    transition: border-color 150ms ease, box-shadow 150ms ease;
+    transition: border-color var(--duration-base), box-shadow var(--duration-base), background-color var(--duration-base);
   }
-  .input::placeholder { color: var(--color-text-muted); }
-  .input:hover:not(:focus) { border-color: #c0bfbf; }
-  .input:focus { border-color: var(--color-brand); box-shadow: var(--shadow-focus); }
+  .input::placeholder { color: var(--color-text-tertiary); font-weight: 500; }
+  .input:hover:not(:focus):not(:disabled) { border-color: var(--color-border-strong); background-color: var(--color-surface-alt); }
+  .input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(127, 29, 29, 0.10);
+    background-color: var(--color-surface);
+  }
+  .input:disabled { background-color: var(--color-surface-alt); color: var(--color-text-tertiary); cursor: not-allowed; opacity: 0.6; }
+  /* Override browser autofill styling */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: var(--color-text-primary) !important;
+  }
+  input:-webkit-autofill {
+    -webkit-transition: background-color 5000s ease-in-out 0s;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+  .input-error { border-color: var(--color-danger); }
+  .input-error:focus { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10); }
+  .input-success { border-color: var(--color-success); }
+  .input-success:focus { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.10); }
 
+  /* ── LABEL COMPONENT ────────────────────────────– */
   .label {
     display: block;
     font-family: var(--font-body);
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    color: var(--color-text);
-    margin-bottom: 6px;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
   }
+  .label-required::after { content: ' *'; color: var(--color-danger); }
 
+  /* ── TAG / BADGE COMPONENT ───────────────────── */
   .tag {
     display: inline-flex;
     align-items: center;
-    height: 24px;
-    padding: 0 10px;
-    border-radius: var(--radius-tag);
+    justify-content: center;
+    gap: 0.375rem;
+    min-height: 1.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
     font-family: var(--font-body);
-    font-size: 11px;
+    font-size: 0.8125rem;
     font-weight: 600;
     letter-spacing: 0.02em;
-    color: #fff;
+    white-space: nowrap;
   }
-  .tag-orange { background-color: var(--color-tag-orange); }
-  .tag-yellow { background-color: var(--color-tag-yellow); color: #5A3E00; }
-  .tag-purple { background-color: var(--color-tag-purple); }
-}
+  .tag-primary { background-color: var(--color-primary-50); color: var(--color-primary); border: 1px solid var(--color-primary-light); }
+  .tag-accent { background-color: var(--color-accent-50); color: var(--color-accent-dark); border: 1px solid var(--color-accent-light); }
+  .tag-success { background-color: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+  .tag-warning { background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+  .tag-danger { background-color: #FEE2E2; color: #7F1D1D; border: 1px solid #FECACA; }
+  .tag-purple { background-color: #F5F3FF; color: #6D28D9; border: 1px solid #DDD6FE; }
 
-@utility scrollbar-hidden {
-  &::-webkit-scrollbar {
-     display: none; 
-    }
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  /* ── TEXT UTILITIES ────────────────────────────– */
+  .text-primary { color: var(--color-primary); }
+  .text-accent { color: var(--color-accent); }
+  .text-secondary { color: var(--color-text-secondary); }
+  .text-tertiary { color: var(--color-text-tertiary); }
+  .text-muted { color: var(--color-text-muted); }
+  .text-success { color: var(--color-success); }
+  .text-warning { color: var(--color-warning); }
+  .text-danger { color: var(--color-danger); }
+  .text-tag-purple { color: #7C3AED; }
+
+  /* ── BACKGROUND UTILITIES ───────────────────── */
+  .bg-primary { background-color: var(--color-primary); }
+  .bg-primary-50 { background-color: var(--color-primary-50); }
+  .bg-accent { background-color: var(--color-accent); }
+  .bg-accent-50 { background-color: var(--color-accent-50); }
+  .bg-tag-purple { background-color: #7C3AED; }
+
+  /* ── BORDER UTILITIES ───────────────────────── */
+  .border-primary { border-color: var(--color-primary); }
+  .border-accent { border-color: var(--color-accent); }
+  .border-tag-purple { border-color: #7C3AED; }
+
+  /* ── DIVIDER / SEPARATOR ────────────────────── */
+  .divider { height: 1px; background-color: var(--color-border); }
+  .divider-strong { height: 1px; background-color: var(--color-border-strong); }
+
+  /* ── STATUS INDICATORS ──────────────────────– */
+  .status-dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--radius-full);
+  }
+  .status-dot.active { background-color: var(--color-success); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
+  .status-dot.inactive { background-color: var(--color-text-muted); }
+  .status-dot.pending { background-color: var(--color-warning); }
 }

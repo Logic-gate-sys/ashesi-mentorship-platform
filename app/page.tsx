@@ -1,33 +1,36 @@
 import Link from 'next/link'
 import { Hero } from './_components/Hero'
+import { CheckmarkIcon } from '@/app/_components/ui/icons'
+import { FeatureCard, StepCard, MentorCard, StatCard, TestimonialCard } from './_components/cards'
+import type { StepCardProps } from './_components/cards/StepCard'
 
 
 
 const features = [
   {
     tag: 'Discovery',
-    tagClass: 'tag-orange',
+    tagClass: 'bg-accent/10 text-accent',
     title: 'Find mentors by major, industry or company',
     body: 'Search across hundreds of Ashesi alumni. Filter by graduation year, field of work, or the specific skills you want to develop.',
     stat: '500+ mentors',
   },
   {
     tag: 'Communication',
-    tagClass: 'tag-purple',
+    tagClass: 'tag-primary',
     title: 'Real-time messaging built in',
     body: 'No external tools needed. Message your mentor, share resources, and stay aligned — all inside the portal.',
     stat: 'Instant chat',
   },
   {
     tag: 'Sessions',
-    tagClass: 'tag-yellow',
+    tagClass: 'tag-warning',
     title: 'Schedule and track your sessions',
     body: 'Book time slots that work for both of you, set session goals, and log notes and action items after every meeting.',
     stat: '3,400+ sessions held',
   },
 ]
 
-const steps = [
+const steps: StepCardProps[] = [
   {
     number: '01',
     role: 'student',
@@ -61,9 +64,10 @@ const mentors = [
     company: 'Stanbic Bank',
     year: '2019',
     industry: 'Finance',
-    tagClass: 'bg-[#E8F5F0] text-[#0C5C3E]',
+    tagClass: 'tag-primary',
     initials: 'AO',
-    avatarBg: 'bg-[#0C5C3E]',
+    avatarBg: 'bg-primary',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AmaOwusu',
     sessions: 24,
     skills: ['Product Strategy', 'Fintech', 'Agile'],
   },
@@ -73,9 +77,10 @@ const mentors = [
     company: 'Google',
     year: '2021',
     industry: 'Technology',
-    tagClass: 'tag-yellow text-[#5A3E00]',
+    tagClass: 'bg-accent/10 text-accent',
     initials: 'KA',
-    avatarBg: 'bg-[#185FA5]',
+    avatarBg: 'bg-accent',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=KofiAsante',
     sessions: 18,
     skills: ['Backend', 'System Design', 'Go'],
   },
@@ -85,9 +90,10 @@ const mentors = [
     company: 'McKinsey & Co.',
     year: '2018',
     industry: 'Consulting',
-    tagClass: 'tag-purple text-white',
+    tagClass: 'tag-primary',
     initials: 'AB',
-    avatarBg: 'bg-tag-purple',
+    avatarBg: 'bg-primary-light',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AbenaBoateng',
     sessions: 31,
     skills: ['Strategy', 'Leadership', 'Analytics'],
   },
@@ -99,21 +105,21 @@ const testimonials = [
     name: 'Kwame Mensah',
     detail: 'CS 2024 · now at Zeepay',
     initials: 'KM',
-    color: 'bg-brand',
+    color: 'bg-primary',
   },
   {
     quote: 'Being a mentor has been one of the most fulfilling things I have done since graduating. Watching students grow is incredibly rewarding.',
     name: 'Efua Darko',
     detail: 'Business Admin 2017 · Senior PM at MTN',
     initials: 'ED',
-    color: 'bg-tag-purple',
+    color: 'bg-primary-light',
   },
   {
     quote: 'The structured request and session system means mentorship is actually consistent — not just occasional WhatsApp messages.',
     name: 'Nii Armah',
     detail: 'MIS 2022 · Data Analyst at Deloitte',
     initials: 'NA',
-    color: 'bg-[#0C5C3E]',
+    color: 'bg-accent',
   },
 ]
 
@@ -122,15 +128,15 @@ const industries = ['Technology', 'Finance', 'Consulting', 'Healthcare', 'Educat
 
 export default function HomePage() {
   return (
-    <div className="font-body bg-page min-h-screen">
+    <div className="font-body bg-background min-h-screen">
 
-      <nav className="bg-surface border-b border-border h-15 flex items-center justify-between px-10 sticky top-0 z-50">
+      <nav className="bg-white border-b border-border h-15 flex items-center justify-between px-10 sticky top-0 z-50">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 bg-brand rounded-btn flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 bg-primary rounded-[8px] flex items-center justify-center shrink-0">
             <span className="font-display font-extrabold text-white text-base leading-none">A</span>
           </div>
           <div>
-            <span className="font-display font-bold text-[16px] text-text tracking-tight leading-none">
+            <span className="font-display font-bold text-[16px] text-primary tracking-tight leading-none">
               AshesiConnect
             </span>
             <span className="block font-body text-[10px] text-text-muted tracking-widest uppercase leading-none mt-0.5">
@@ -139,17 +145,17 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="hidden md:flex items-center gap-6 text-[13px] font-medium text-text-sub">
-          <a href="#how-it-works" className="hover:text-text transition-colors">How it works</a>
-          <a href="#mentors" className="hover:text-text transition-colors">Mentors</a>
-          <a href="#for-alumni" className="hover:text-text transition-colors">For alumni</a>
+        <div className="hidden md:flex items-center gap-8 text-[14px] font-medium text-text">
+          <a href="#how-it-works" className="hover:text-primary transition-colors">How it works</a>
+          <a href="#mentors" className="hover:text-primary transition-colors">Our mentors</a>
+          <a href="#for-alumni" className="hover:text-primary transition-colors">For alumni</a>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Link href="/login" className="btn btn-ghost h-[36px] px-4 text-[13px]">
+        <div className="flex items-center gap-3">
+          <Link href="/login" className="btn btn-ghost h-[38px] px-5 text-[14px] font-semibold">
             Log in
           </Link>
-          <Link href="/register/student" className="btn btn-primary h-[36px] px-4 text-[13px]">
+          <Link href="/register/student" className="btn btn-primary h-[38px] px-6 text-[14px] font-semibold">
             Get started
           </Link>
         </div>
@@ -157,104 +163,84 @@ export default function HomePage() {
 
      <Hero/>
 
-      <section className="bg-surface px-10 py-4 border-b border-border">
-        <div className="max-w-[960px] mx-auto flex items-center gap-2.5 flex-wrap">
-          <span className="font-body text-[11px] font-bold text-text-muted uppercase tracking-[0.08em] mr-2">
-            Alumni working in
+      <section className="bg-white px-10 py-6 border-b border-border">
+        <div className="max-w-250 mx-auto flex items-center gap-3.5 flex-wrap">
+          <span className="font-body text-[12px] font-bold text-text-sub uppercase tracking-[0.1em] mr-3 whitespace-nowrap">
+            Industries we serve
           </span>
           {industries.map(ind => (
-            <span key={ind} className="tag bg-page border border-border text-text-sub text-[12px]">
+            <span key={ind} className="tag bg-accent/5 border border-accent/20 text-accent text-[13px] font-medium px-3.5 py-1.5">
               {ind}
             </span>
           ))}
         </div>
       </section>
 
-      <section className="px-10 py-24 bg-page">
-        <div className="max-w-[960px] mx-auto">
-          <div className="mb-14">
-            <span className="font-body text-[12px] font-bold text-brand uppercase tracking-[0.08em]">
-              Everything you need
+      <section className="px-10 py-28 bg-background">
+        <div className="max-w-250 mx-auto">
+          <div className="mb-16">
+            <span className="font-body text-[13px] font-bold text-primary uppercase tracking-[0.12em]">
+              Core features
             </span>
-            <h2 className="font-display font-bold text-[34px] text-text tracking-tight mt-2">
-              One platform. The full mentorship journey.
+            <h2 className="font-display font-bold text-[48px] text-text tracking-tight mt-3 leading-tight">
+              Everything to fuel meaningful mentorship
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-5">
+          <div className="grid md:grid-cols-3 gap-6">
             {features.map(f => (
-              <div key={f.title} className="card p-7 flex flex-col gap-5">
-                <div className="flex items-start justify-between">
-                  <span className={`tag ${f.tagClass}`}>{f.tag}</span>
-                  <span className="font-body text-[11px] font-semibold text-text-muted bg-page border border-border rounded-full px-3 py-1">
-                    {f.stat}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-display font-bold text-[17px] text-text tracking-tight mb-2">
-                    {f.title}
-                  </h3>
-                  <p className="font-body text-[13px] text-text-sub leading-relaxed">
-                    {f.body}
-                  </p>
-                </div>
-              </div>
+              <FeatureCard key={f.title} {...f} />
             ))}
           </div>
         </div>
       </section>
 
-      <section id="how-it-works" className="px-10 py-24 bg-surface">
-        <div className="max-w-[960px] mx-auto">
-          <div className="mb-14">
-            <span className="font-body text-[12px] font-bold text-brand uppercase tracking-[0.08em]">
-              How it works
+      <section id="how-it-works" className="px-10 py-28 bg-white">
+        <div className="max-w-250 mx-auto">
+          <div className="mb-16">
+            <span className="font-body text-[13px] font-bold text-primary uppercase tracking-[0.12em]">
+              Getting started
             </span>
-            <h2 className="font-display font-bold text-[34px] text-text tracking-tight mt-2">
-              From sign-up to your first session
+            <h2 className="font-display font-bold text-[48px] text-text tracking-tight mt-3 leading-tight">
+              Four simple steps to connect
             </h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {steps.map(step => (
-              <div key={step.number} className="card p-6 relative">
-                {/* Step number badge */}
-                <div className={`w-8 h-8 rounded-[8px] flex items-center justify-center font-display font-extrabold text-[12px] mb-5
-                  ${step.role === 'student' ? 'bg-brand/10 text-brand border border-brand/20' : ''}
-                  ${step.role === 'alumni'  ? 'bg-tag-purple/10 text-tag-purple border border-tag-purple/20' : ''}
-                  ${step.role === 'both'    ? 'bg-tag-yellow/20 text-[#7A5500] border border-tag-yellow/30' : ''}
-                `}>
-                  {step.number}
+          {/* Steps with connecting arrows */}
+          <div className="relative w-full">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+              {steps.map((step, idx) => (
+                <div key={step.number} className={`relative ${idx === 0 ? 'lg:pl-3' : ''}`}>
+                  <StepCard {...step} />
+                  {/* Arrow to next step - visible on desktop only */}
+                  {idx < steps.length - 1 && (
+                    <div className="hidden lg:flex absolute -right-8 top-1/3 items-center justify-center w-6 h-8">
+                      <svg width="32" height="8" viewBox="0 0 32 8" className="absolute">
+                        <defs>
+                          <marker id="triangleright" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#7F1D1D" />
+                          </marker>
+                        </defs>
+                        <line x1="0" y1="4" x2="28" y2="4" stroke="#7F1D1D" strokeWidth="2.5" markerEnd="url(#triangleright)" />
+                      </svg>
+                    </div>
+                  )}
                 </div>
-                <h3 className="font-display font-bold text-[15px] text-text tracking-tight mb-2">
-                  {step.title}
-                </h3>
-                <p className="font-body text-[12px] text-text-sub leading-relaxed">
-                  {step.body}
-                </p>
-                {/* Role pill */}
-                <div className={`absolute top-5 right-5 h-5 px-2 rounded-full text-[10px] font-semibold font-body flex items-center
-                  ${step.role === 'student' ? 'bg-brand/10 text-brand' : ''}
-                  ${step.role === 'alumni'  ? 'bg-tag-purple/10 text-tag-purple' : ''}
-                  ${step.role === 'both'    ? 'bg-tag-yellow/15 text-[#7A5500]' : ''}
-                `}>
-                  {step.role === 'both' ? 'both' : step.role}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Inline sign-up prompt */}
-          <div className="mt-10 p-6 bg-page rounded-[14px] border border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="mt-14 p-8 bg-primary rounded-[16px] border border-primary/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
             <div>
-              <p className="font-display font-bold text-[16px] text-text tracking-tight">Ready to start?</p>
-              <p className="font-body text-[13px] text-text-muted mt-0.5">Choose your path and create your account in under 2 minutes.</p>
+              <p className="font-display font-bold text-[20px] text-white tracking-tight">Ready to get started?</p>
+              <p className="font-body text-[15px] text-white/70 mt-1">Create your account and start your journey in just 2 minutes</p>
             </div>
             <div className="flex gap-3 shrink-0">
-              <Link href="/register/student" className="btn btn-primary h-[38px] px-5 text-[13px]">
+              <Link href="/register/student" className="btn bg-white text-primary hover:bg-white/90 h-[42px] px-6 text-[14px] font-semibold rounded-[10px]">
                 Join as student
               </Link>
-              <Link href="/register/alumni" className="btn btn-ghost h-[38px] px-5 text-[13px]">
+              <Link href="/register/alumni" className="btn bg-white/15 border border-white/30 text-white hover:bg-white/25 h-[42px] px-6 text-[14px] font-semibold rounded-[10px]">
                 Join as alumni
               </Link>
             </div>
@@ -262,214 +248,147 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="mentors" className="px-10 py-24 bg-page">
-        <div className="max-w-[960px] mx-auto">
-          <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
+      <section id="mentors" className="px-10 py-28 bg-background">
+        <div className="max-w-[1000px] mx-auto">
+          <div className="flex items-end justify-between mb-16 flex-wrap gap-6">
             <div>
-              <span className="font-body text-[12px] font-bold text-brand uppercase tracking-[0.08em]">
+              <span className="font-body text-[13px] font-bold text-primary uppercase tracking-[0.12em]">
                 Featured mentors
               </span>
-              <h2 className="font-display font-bold text-[34px] text-text tracking-tight mt-2">
-                Learn from people who know your path
+              <h2 className="font-display font-bold text-[48px] text-text tracking-tight mt-3 leading-tight">
+                Learn from Ashesi alumni who've made it
               </h2>
             </div>
-            <Link href="/register/student" className="btn btn-ghost h-[36px] px-4 text-[13px]">
-              Browse all mentors →
+            <Link href="/register/student" className="btn btn-ghost h-[42px] px-5 text-[14px] font-semibold whitespace-nowrap">
+              View all mentors →
             </Link>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {mentors.map(m => (
-              <div key={m.name} className="card overflow-hidden">
-                {/* Card header */}
-                <div className="h-[110px] bg-sidebar flex items-center justify-center relative">
-                  <span className={`tag absolute top-3 left-3 ${m.tagClass}`}>
-                    {m.industry}
-                  </span>
-                  <div className={`w-14 h-14 rounded-full ${m.avatarBg} flex items-center justify-center font-display font-bold text-xl text-white border-[3px] border-white/10`}>
-                    {m.initials}
-                  </div>
-                </div>
-
-                {/* Card body */}
-                <div className="p-5">
-                  <p className="font-display font-bold text-[16px] text-text tracking-tight">{m.name}</p>
-                  <p className="font-body text-[13px] text-text-sub mt-0.5">{m.role} · {m.company}</p>
-                  <p className="font-body text-[12px] text-text-muted mt-0.5">Class of {m.year}</p>
-
-                  {/* Skills */}
-                  <div className="flex flex-wrap gap-1.5 mt-3">
-                    {m.skills.map(s => (
-                      <span key={s} className="h-[22px] px-2.5 rounded-full bg-page border border-border font-body text-[11px] font-medium text-text-sub inline-flex items-center">
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Progress */}
-                  <div className="mt-4">
-                    <div className="flex justify-between mb-1.5">
-                      <span className="font-body text-[11px] text-text-muted">Sessions held</span>
-                      <span className="font-body text-[11px] font-semibold text-text-sub">{m.sessions}</span>
-                    </div>
-                    <div className="h-[5px] bg-page rounded-full overflow-hidden border border-border">
-                      <div
-                        className="h-full bg-brand rounded-full"
-                        style={{ width: `${Math.min((m.sessions / 40) * 100, 100)}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <Link href="/register/student" className="btn btn-primary w-full mt-4 h-[36px] text-[13px]">
-                    Connect
-                  </Link>
-                </div>
-              </div>
+              <MentorCard key={m.name} {...m} />
             ))}
           </div>
         </div>
       </section>
 
-      <section id="for-alumni" className="px-10 py-24 bg-sidebar relative overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-[400px] h-[400px] rounded-full border border-tag-purple/12 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-tag-purple/8 blur-[60px] pointer-events-none" />
+      <section id="for-alumni" className="px-10 py-24 bg-primary relative overflow-hidden">
+        <div className="absolute -top-24 -right-24 w-[400px] h-[400px] rounded-full border border-accent/12 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-accent/8 blur-[60px] pointer-events-none" />
 
         <div className="max-w-[960px] mx-auto relative grid lg:grid-cols-2 gap-16 items-center">
           <div>
 
-            <h2 className="font-display font-extrabold text-white text-[36px] leading-[1.15] tracking-tight mb-5">
-              Give back to the community that shaped you
+            <h2 className="font-display font-extrabold text-white text-[48px] leading-[1.15] tracking-tight mb-6">
+              Give back to the next generation
             </h2>
-            <p className="font-body text-[15px] text-white/45 leading-relaxed mb-8">
-              You don&apos;t need a tonne of time. Even two sessions a month can change
-              a student&apos;s trajectory. Share your journey, help someone avoid your
-              early mistakes, and stay connected to Ashesi.
+            <p className="font-body text-[18px] text-white/60 leading-relaxed mb-10">
+              Share your wins and your lessons. Even two meaningful conversations a month can reshape a student's future. Help someone find their path and stay connected to the Ashesi mission.
             </p>
 
-            <div className="flex flex-col gap-3 mb-10">
+            <div className="flex flex-col gap-4 mb-12">
               {[
-                'Set your own availability — no pressure',
-                'Accept only the students you can genuinely help',
-                'Built-in scheduling and messaging — zero admin',
-                'Track your impact with session and feedback summaries',
+                'Control your own schedule — mentor on your terms',
+                'Connect with students aligned to your expertise',
+                'All tools built in — scheduling, messaging, feedback',
+                'See the impact — track growth and learnings',
               ].map(item => (
                 <div key={item} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-tag-purple/40 border border-tag-purple/30 flex items-center justify-center shrink-0">
-                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6l3 3 5-5" stroke="#9747FF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+                  <div className="w-6 h-6 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center shrink-0 text-white">
+                    <CheckmarkIcon />
                   </div>
-                  <span className="font-body text-[13px] text-white/60">{item}</span>
+                  <span className="font-body text-[16px] text-white/75 leading-relaxed">{item}</span>
                 </div>
               ))}
             </div>
 
-            <Link href="auth/register/alumni" className="btn h-11.5 px-7 text-[14px] bg-blend-color-burn text-white hover:opacity-88 transition-opacity shadow-[0_4px_20px_rgba(151,71,255,0.35)]">
-              Become a mentor today →
+            <Link href="/register/alumni" className="btn bg-white text-primary hover:bg-white/95 h-[48px] px-8 text-[15px] font-bold rounded-[12px] shadow-xl inline-flex items-center gap-2">
+              Start mentoring today →
             </Link>
           </div>
 
           {/* Stats panel */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-5">
             {[
-              { value: '2hrs',   label: 'Average time commitment per month', color: 'bg-brand/10 border-brand/20' },
-              { value: '92%',    label: 'Of mentors say it is personally rewarding', color: 'bg-tag-purple/10 border-tag-purple/20' },
-              { value: '3 min',  label: 'To set up your mentor profile', color: 'bg-tag-yellow/10 border-tag-yellow/20' },
-              { value: '100%',   label: 'Free — no cost to mentors or students', color: 'bg-[#0C5C3E]/20 border-[#0C5C3E]/30' },
+              { value: '2 hrs',   label: 'Avg. time per month', color: 'from-accent to-accent/80' },
+              { value: '92%',    label: 'Find it deeply rewarding', color: 'from-info to-info/50' },
+              { value: '2 min',  label: 'Quick profile setup', color: 'from-primary-light to-primary-light/80' },
+              { value: '100%',   label: 'Completely free', color: 'from-info to-info/80' },
             ].map(s => (
-              <div key={s.label} className={`card p-5 bg-dark-card border ${s.color}`}>
-                <div className="font-display font-bold text-[28px] text-white tracking-tight">{s.value}</div>
-                <div className="font-body text-[12px] text-white/45 mt-1 leading-snug">{s.label}</div>
-              </div>
+              <StatCard key={s.label} {...s} />
             ))}
           </div>
         </div>
       </section>
 
-      <section className="px-10 py-24 bg-surface">
-        <div className="max-w-[960px] mx-auto">
-          <div className="mb-14 text-center">
-            <span className="font-body text-[12px] font-bold text-brand uppercase tracking-[0.08em]">
-              Stories
+      <section className="px-10 py-28 bg-white">
+        <div className="max-w-[1000px] mx-auto">
+          <div className="mb-16 text-center">
+            <span className="font-body text-[13px] font-bold text-primary uppercase tracking-[0.12em]">
+              Impact stories
             </span>
-            <h2 className="font-display font-bold text-[34px] text-text tracking-tight mt-2">
-              What the community says
+            <h2 className="font-display font-bold text-[48px] text-text tracking-tight mt-3 leading-tight">
+              The difference a mentor makes
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-5">
+          <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map(t => (
-              <div key={t.name} className="card p-6 flex flex-col gap-5">
-                {/* Quote mark */}
-                <div className="font-display text-[40px] text-brand leading-none -mb-2">"</div>
-                <p className="font-body text-[13px] text-text-sub leading-relaxed flex-1">
-                  {t.quote}
-                </p>
-                <div className="flex items-center gap-3 pt-4 border-t border-border">
-                  <div className={`w-9 h-9 rounded-full ${t.color} flex items-center justify-center font-display font-bold text-[13px] text-white shrink-0`}>
-                    {t.initials}
-                  </div>
-                  <div>
-                    <p className="font-body text-[13px] font-semibold text-text">{t.name}</p>
-                    <p className="font-body text-[11px] text-text-muted">{t.detail}</p>
-                  </div>
-                </div>
-              </div>
+              <TestimonialCard key={t.name} {...t} />
             ))}
           </div>
         </div>
       </section>
 
-      <section className="px-10 py-24 bg-sidebar relative overflow-hidden">
-        <div className="absolute -bottom-24 -left-24 w-[420px] h-[420px] rounded-full border border-brand/10 pointer-events-none" />
-        <div className="absolute top-0 right-20 w-[300px] h-[300px] rounded-full bg-brand/12 blur-[60px] pointer-events-none" />
+      <section className="px-10 py-32 bg-primary relative overflow-hidden">
+        <div className="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full border border-accent/15 pointer-events-none" />
+        <div className="absolute top-10 right-10 w-[350px] h-[350px] rounded-full bg-accent/15 blur-[80px] pointer-events-none" />
 
-        <div className="max-w-[640px] mx-auto text-center relative">
-          <h2 className="font-display font-extrabold text-white text-[clamp(28px,5vw,48px)] tracking-[-0.03em] leading-[1.15] mb-5">
-            Your future self will thank you for starting today
+        <div className="max-w-[700px] mx-auto text-center relative">
+          <h2 className="font-display font-extrabold text-white text-[clamp(36px,7vw,56px)] tracking-tight leading-[1.1] mb-6">
+            Your journey starts now
           </h2>
-          <p className="font-body text-[16px] text-white/45 leading-relaxed mb-10">
-            Whether you are a student looking for direction or an alumni ready to give back —
-            AshesiConnect is where it happens.
+          <p className="font-body text-[18px] text-white/60 leading-relaxed mb-12">
+            Whether you\'re seeking mentorship as a student or ready to give back as an alumnus, find your place in the Ashesi community today.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/register/student"
-              className="btn btn-primary h-[50px] px-9 text-[15px] shadow-[0_4px_24px_rgba(255,107,43,0.42)]"
+              className="btn bg-white text-primary hover:bg-white/95 h-[52px] px-10 text-[16px] font-bold rounded-[12px] shadow-xl"
             >
-              Sign up as a student
+              Sign up as student
             </Link>
             <Link
               href="/register/alumni"
-              className="btn h-[50px] px-9 text-[15px] bg-white/8 border border-white/16 text-white hover:bg-white/14 transition-colors"
+              className="btn h-[52px] px-10 text-[16px] font-bold bg-white/12 border-2 border-white/30 text-white hover:bg-white/20 transition-colors rounded-[12px]"
             >
-              Join as alumni
+              Become a mentor
             </Link>
           </div>
-          <p className="font-body text-[12px] text-white/25 mt-6">
-            Already have an account?{' '}
-            <Link href="/login" className="text-white/50 hover:text-white/80 transition-colors underline">
-              Log in
+          <p className="font-body text-[14px] text-white/40 mt-8">
+            Already a member?{' '}
+            <Link href="/login" className="text-white/70 hover:text-white transition-colors font-medium underline">
+              Log in here
             </Link>
           </p>
         </div>
       </section>
 
-      <footer className="bg-surface border-t border-border px-10 py-7 flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-brand rounded-[8px] flex items-center justify-center">
-            <span className="font-display font-extrabold text-white text-[12px]">A</span>
+      <footer className="bg-white border-t border-border px-10 py-10 flex items-center justify-between flex-wrap gap-6">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-primary rounded-[10px] flex items-center justify-center shadow-md">
+            <span className="font-display font-extrabold text-white text-[13px]">A</span>
           </div>
-          <span className="font-display font-bold text-[14px] text-text">AshesiConnect</span>
+          <span className="font-display font-bold text-[16px] text-primary">AshesiConnect</span>
         </div>
-        <div className="flex items-center gap-6 text-[12px] text-text-muted font-body">
-          <a href="#how-it-works" className="hover:text-text transition-colors">How it works</a>
-          <a href="#mentors" className="hover:text-text transition-colors">Mentors</a>
-          <a href="#for-alumni" className="hover:text-text transition-colors">For alumni</a>
-          <Link href="/login" className="hover:text-text transition-colors">Log in</Link>
+        <div className="flex items-center gap-8 text-[13px] text-text-sub font-body">
+          <a href="#how-it-works" className="hover:text-primary transition-colors font-medium">How it works</a>
+          <a href="#mentors" className="hover:text-primary transition-colors font-medium">Our mentors</a>
+          <a href="#for-alumni" className="hover:text-primary transition-colors font-medium">For alumni</a>
+          <Link href="/login" className="hover:text-primary transition-colors font-medium">Log in</Link>
         </div>
-        <p className="font-body text-[12px] text-text-muted">
-          © {new Date().getFullYear()} Ashesi University Alumni Mentorship Portal
+        <p className="font-body text-[13px] text-text-muted">
+          © {new Date().getFullYear()} Ashesi University Mentorship Network
         </p>
       </footer>
 

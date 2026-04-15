@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyJWT } from '@/app/_lib/jwt';
-import { prisma } from '@/app/_lib/db';
-import { updateProfileSchema } from '@/app/_schemas/auth.schema';
-import { ZodError } from 'zod';
+import { NextRequest, NextResponse } from 'next/server'
+import { requireAuth, requirePermission } from '@/app/_lib/abac/middleware'
+import { updateProfileSchema } from '@/app/_schemas/auth.schema'
+import { getPermittedFields } from '@/app/_lib/abac/engine'
+import { ProfileService } from '@/app/_services'
+import { ZodError } from 'zod'
 
 /**
  * PATCH /api/auth/profile
@@ -10,71 +11,57 @@ import { ZodError } from 'zod';
  */
 export async function PATCH(request: NextRequest) {
   try {
-    // Get token from Authorization header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { errors: { message: 'Missing or invalid authorization header' } },
-        { status: 401 }
-      );
+    const authResult = await requirePermission(request, 'user_profile', 'update')
+    if (authResult instanceof NextResponse) {
+      return authResult
     }
 
-    const token = authHeader.slice(7);
-    const payload = verifyJWT(token);
+    const { user, permissions } = authResult
 
-    if (!payload) {
-      return NextResponse.json(
-        { errors: { message: 'Invalid or expired token' } },
-        { status: 401 }
-      );
-    }
+    const body = await request.json()
+    const validatedData = updateProfileSchema.parse(body)
 
-    const body = await request.json();
-    const validatedData = updateProfileSchema.parse(body);
+    const permittedData = getPermittedFields(
+      permissions,
+      'user_profile',
+      'update',
+      validatedData,
+      { userId: user.id }
+    )
 
-    // Update user profile
-    const user = await prisma.user.update({
-      where: { id: payload.id },
-      data: {
-        ...(validatedData.firstName && { firstName: validatedData.firstName }),
-        ...(validatedData.lastName && { lastName: validatedData.lastName }),
-        ...(validatedData.avatarUrl && { avatarUrl: validatedData.avatarUrl }),
-      },
-      include: {
-        studentProfile: true,
-        alumniProfile: true,
-      },
-    });
+    const updatedUser = await ProfileService.updateUserProfile(user.id, {
+      ...(permittedData.firstName && { firstName: permittedData.firstName }),
+      ...(permittedData.lastName && { lastName: permittedData.lastName }),
+      ...(permittedData.avatarUrl && { avatarUrl: permittedData.avatarUrl }),
+    })
 
     return NextResponse.json(
       {
         user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          avatarUrl: user.avatarUrl,
-          studentProfile: user.studentProfile,
-          alumniProfile: user.alumniProfile,
+          id: updatedUser.id,
+          email: updatedUser.email,
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          role: updatedUser.role,
+          avatarUrl: updatedUser.avatarUrl,
+          isVerified: updatedUser.isVerified,
+          isActive: updatedUser.isActive,
+          studentProfile: updatedUser.studentProfile,
+          alumniProfile: updatedUser.alumniProfile,
         },
       },
       { status: 200 }
-    );
+    )
   } catch (error) {
-    // Handle validation errors
     if (error instanceof ZodError) {
-      const fieldErrors = error.flatten().fieldErrors;
-      return NextResponse.json(
-        { errors: fieldErrors },
-        { status: 400 }
-      );
+      const fieldErrors = error.flatten().fieldErrors
+      return NextResponse.json({ errors: fieldErrors }, { status: 400 })
     }
 
-    console.error('[UPDATE_PROFILE_ERROR]', error);
+    console.error('[UPDATE_PROFILE_ERROR]', error)
     return NextResponse.json(
       { errors: { message: 'Failed to update profile' } },
       { status: 500 }
-    );
+    )
   }
 }
