@@ -12,10 +12,15 @@ const NextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'image.simplecastcdn.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
 
 export default NextConfig;
-
 

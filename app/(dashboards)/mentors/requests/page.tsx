@@ -1,5 +1,4 @@
 "use client";
-import { QuickInfoCard } from "@/app/_components_and_hooks/ui/reusable-ui/CickableStatCard";
 import { useAuth } from "@/app/ _libs_and_schemas/context/auth-context";
 import {User, Clock, MailIcon, type LucideIcon, MegaphoneIcon } from "lucide-react";
 import { TopLeftProfile } from "@/app/_components_and_hooks/ui/reusable-ui/DashboardTopStrip";
@@ -9,6 +8,8 @@ import { ActiveMCard } from "@/app/_components_and_hooks/cards/ActiveMenteeCard"
 import { UpdatesCard } from "@/app/_components_and_hooks/cards/RecentUpdatesCard";
 import { UpcomingEventsCard } from "@/app/_components_and_hooks/cards/UpcommingSessionsCard";
 import { MentorAvailabilityCard } from "@/app/_components_and_hooks/cards/MentorAvailabiltyCard";
+import { MentorshipGoalsCard } from "@/app/_components_and_hooks/cards/MentorshipGoalCard";
+import { StatusRequestCard } from "@/app/_components_and_hooks/cards/RequestStatusCard";
 
 interface StatItem {
     title: string;
@@ -28,6 +29,10 @@ const recentUpdates = [
   { id: 3, event: "Kofi Dzisa completed Session #4", timestamp: "1 day ago" },
 ];
 
+const myGoals = [
+  { label: "Active Mentees", currentValue: 12, targetValue: 15 },
+  { label: "Weekly Hours", currentValue: 6.5 }
+];
 const sampleEvents = [
   { 
     id: 1, 
@@ -81,60 +86,68 @@ const activeMentees = [
   { name: "Kofi Dzisa", title: "BACKEND ENGINEER", id: "kofi-3" },
 ];
 
+const students = [
+  {
+    name: "Akosua Mensah",
+    year: "BA '27",
+    focus: "Marketing Strategy",
+    status: "PENDING",
+    avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&h=200&auto=format&fit=crop"
+  },
+  {
+    name: "Kwabena Boahen",
+    year: "EE '25",
+    focus: "Renewable Energy Systems",
+    status: "CONNECTED",
+    avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&h=200&auto=format&fit=crop"
+  }
+];
+
 export default function MentorHomePage() {
   const { user } = useAuth();
 
   return (
     <div id="mentor-dash-home" className=" text-accent flex flex-col items-start gap-4">
-     <section id="welcome-sec" className="w-full flex flex-col items-start justify-center">
-        <h1 className="text-3xl font-bold tracking-tight text-accent">
-      Welcome Back, {user?.firstName}!
-       </h1>
-    <p className="text-gray-500 font-medium">
-      Ready to guide the next generation of scholars!
-    </p>
-  </section>
-
-      <section id="stats" className="w-full flex md:flex-row gap-4 p-2">
-        {testStatsData.map((itm, idx)=>(
-            <QuickInfoCard key={idx} title={itm.title} statsNum={itm.statsNum} Icon={itm.icon}/>
-        ))}
+      <section id='top' className="flex flex-col gap-1">
+           <h1>
+            Incoming Mentorship Requests
+           </h1>
+           <p>
+            Review and respond to students seeking guidance in your field.
+          </p>
       </section>
 
-      <section id='request-events' className="md:mt-6 w-full md:grid md:grid-cols-[2.5fr_1fr] gap-4 ">
+      <section id='content-grid' className="grid grid-cols-[2.5fr_1fr] gap-4 ">
+            <main id='main-contents'>
+              <section id='incoming-reqs' className="flex flex-col gap-4">
+                 { pendingRequests.map((req, idx)=>(
+                 <PendingRequestCard key={idx} id={req.id} studentName={req.studentName} 
+                     studentAvatarUrl={req.studentAvatarUrl} majorAndYear={req.majorAndYear} message={req.message}
+                     onAccept={()=>alert("Accept")}
+                    onDecline={()=>alert("Declined")}
+                />))}
 
-        <div id='main area'>
-            <h1 className="text-2xl font-bold" > Mentorship Requests: </h1>
-           <section id='pending-reqs' className="w-full h-fit flex flex-col gap-4 overflow-y-auto">
-             <p className="ml-auto ">
-                <Link href='/requests' > View All Requests </Link>
-            </p>
-            {pendingRequests.slice(0,).map((req, idx)=>(
-                <PendingRequestCard key={idx} id={req.id} studentName={req.studentName} 
-                studentAvatarUrl={req.studentAvatarUrl} majorAndYear={req.majorAndYear} message={req.message}
-                onAccept={()=>alert("Accept")}
-                onDecline={()=>alert("Declined")}
-                />
-            ))}
+                 <div id='req-responded' className="mt-12 ">
+                  { students.map((std, idx)=>(
+                    <StatusRequestCard key={idx}
+                    studentName={std.name}
+                    majorAndYear={std.year}
+                    focusArea={std.focus}
+                    avatarUrl={std.avatarUrl}
+                    status={std.status}
+                     />
+                  )) }
+                 </div>
+              </section>
+            </main>
 
-           </section>
-
-           <section id='active-m' className="mt-8">
-                <h1 className="text-2xl"> Active Mentees </h1>
-                <div id='mentee-list' className='w-full grid grid-cols-3 gap-2'>
-                {activeMentees.map((m, idx)=>(
-                <ActiveMCard key={idx} mName={m.name} mTitle={m.title} onMessage={()=> alert("Clicked Message")}/>))}
-                </div>
-           </section>
-        </div>
-        
-        <div id='side-area' className="w-full flex flex-col gap-3">
-         <UpdatesCard updates={recentUpdates} title="Update" Icon={MegaphoneIcon} />
-         <UpcomingEventsCard events={sampleEvents} />
-         <MentorAvailabilityCard />
-        </div>
-
+            <aside id='side-contents' className="md:flex flex-col gap-4 ">
+              <UpdatesCard updates={recentUpdates} title="Update" Icon={MegaphoneIcon} />
+              <MentorshipGoalsCard metrics={myGoals}/>
+               <MentorAvailabilityCard />
+            </aside>
       </section>
+      
     </div>
   );
 }

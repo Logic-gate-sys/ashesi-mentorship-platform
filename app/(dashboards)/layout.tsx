@@ -7,6 +7,7 @@ import { HomeIcon, RequestIcon,MessagesIcon,MenteesIcon, MeetingsIcon,SettingsIc
 } from "../_components_and_hooks/ui/icons/DashboardNavIcons";
 import AshesiLog from '@/comp&hooks/images/ashesi_logo.svg'
 import Image from "next/image";
+import { TopLeftProfile } from "../_components_and_hooks/ui/reusable-ui/DashboardTopStrip";
 
 
 type NavItem = {
@@ -97,28 +98,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </nav>
 
       <main className="bg-[#FFF8F7] md:rounded-l-[70px] shadow-2xl overflow-hidden ">
-        <div className="w-full h-screen mx-auto md:px-12 py-4 overflow-y-auto">
-          {children || (
-            <div className="space-y-6">
-              <header className="flex justify-between items-center">
-                <h2 className="text-3xl font-bold text-gray-800">
-                  Welcome back, {user?.firstName ?? "there"} 👋
-                </h2>
-                <div className="h-12 w-12 rounded-full bg-[#923D41]/20 flex items-center justify-center font-bold text-[#923D41] uppercase">
-                  {user?.firstName?.[0] ?? "U"}
-                </div>
-              </header>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-100">
-                <div className="bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400">
-                  Left Child Content (Full Height)
-                </div>
-                <div className="bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400">
-                  Right Child Content (Full Height)
-                </div>
-              </div>
-            </div>
-          )}
+        <div className="w-full h-screen mx-auto md:px-12 overflow-y-auto bg-white  shadow-2xl">
+           <section className="sticky top-0 px-2 rounded-2xl bg-white/20 ackdrop-blur-3xl z-10 ">
+                <TopLeftProfile
+                 firstName={user?.firstName??""} 
+                 lastName={user?.lastName??""}
+                 profession={user?.profession??""} 
+                 avatarUrl={user?.avatarUrl??""}
+                 />
+              </section>
+          <div >
+            {children} 
+          </div>
+         
         </div>
       </main>
 
