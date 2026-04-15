@@ -86,7 +86,7 @@ export default function MentorHomePage() {
 
   return (
     <div id="mentor-dash-home" className=" text-accent flex flex-col items-start gap-4">
-      <section className="w-full ">
+      <section className="sticky top-0 w-full bg-red-800/5 backdrop-blur-xl shadow-accent-dark p-4 rounded-2xl ">
         <TopStrinp
          firstName={user?.firstName??""} 
          lastName={user?.lastName??""}
@@ -105,11 +105,11 @@ export default function MentorHomePage() {
 
         <div id='main area'>
             <h1 className="text-2xl font-bold" > Mentorship Requests: </h1>
-           <section id='pending-reqs' className="w-full flex flex-col gap-4">
+           <section id='pending-reqs' className="w-full h-fit flex flex-col gap-4 overflow-y-auto">
              <p className="ml-auto ">
                 <Link href='/requests' > View All Requests </Link>
             </p>
-            {pendingRequests.slice(0,2).map((req, idx)=>(
+            {pendingRequests.slice(0,).map((req, idx)=>(
                 <PendingRequestCard key={idx} id={req.id} studentName={req.studentName} 
                 studentAvatarUrl={req.studentAvatarUrl} majorAndYear={req.majorAndYear} message={req.message}
                 onAccept={()=>alert("Accept")}

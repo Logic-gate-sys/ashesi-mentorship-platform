@@ -97,7 +97,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </nav>
 
       <main className="bg-[#FFF8F7] md:rounded-l-[70px] shadow-2xl overflow-hidden ">
-        <div className="w-full h-[100vh] mx-auto md:px-12 py-6 overflow-y-auto">
+        <div className="w-full h-screen mx-auto md:px-12 py-4 overflow-y-auto">
           {children || (
             <div className="space-y-6">
               <header className="flex justify-between items-center">

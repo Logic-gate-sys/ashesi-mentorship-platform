@@ -57,14 +57,14 @@ export function PendingRequestCard({
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
           <button
             onClick={handleAccept}
-            className="w-full sm:w-40 h-12 bg-[#2E7D32] hover:bg-[#1B5E20] text-white rounded-3xl text-lg font-bold transition-colors"
+            className="w-full sm:w-40 h-10 bg-[#2E7D32] hover:bg-[#1B5E20] text-white rounded-3xl text-lg font-bold transition-colors"
           >
             Accept
           </button>
           
           <button
             onClick={handleDecline}
-            className={`w-full sm:w-40 h-12  hover:bg-white/50 bg-[#6A0A1D] rounded-3xl text-lg font-bold transition-colors`}
+            className={`w-full sm:w-40 h-10  hover:bg-[#6A0A1D]  rounded-3xl text-lg font-bold transition-colors`}
           >
             Decline
           </button>
