@@ -1,13 +1,13 @@
 import Link from 'next/link'
-import { Hero } from './_components/Hero'
-import { CheckmarkIcon } from '@/app/_components/ui/icons'
-
-
+import { Hero } from '@/comp&hooks/Hero'
+import { CheckmarkIcon } from '@/comp&hooks/ui/icons/'
+import { FeatureCard, StepCard, MentorCard, StatCard, TestimonialCard } from '@/comp&hooks/cards'
+import { StepCardProps } from '@/utils&types/types/types'
 
 const features = [
   {
     tag: 'Discovery',
-    tagClass: 'tag-accent',
+    tagClass: 'bg-accent/10 text-accent',
     title: 'Find mentors by major, industry or company',
     body: 'Search across hundreds of Ashesi alumni. Filter by graduation year, field of work, or the specific skills you want to develop.',
     stat: '500+ mentors',
@@ -28,28 +28,28 @@ const features = [
   },
 ]
 
-const steps = [
+const steps: StepCardProps[] = [
   {
     number: '01',
-    role: 'student',
+    role: 'mentee',
     title: 'Create your student profile',
     body: 'Tell us your major, career interests, and what kind of guidance you are looking for.',
   },
   {
     number: '02',
-    role: 'student',
+    role: 'mentee',
     title: 'Browse and request a mentor',
     body: 'Search alumni by industry or company. Send a personalised request with your goals.',
   },
   {
     number: '03',
-    role: 'alumni',
+    role: 'mentor',
     title: 'Alumni review and accept',
     body: 'Mentors review incoming requests and accept students that match their capacity and expertise.',
   },
   {
     number: '04',
-    role: 'both',
+    role: 'admin',
     title: 'Meet, learn, and grow',
     body: 'Schedule sessions, exchange messages, and build a relationship that outlasts campus.',
   },
@@ -65,6 +65,7 @@ const mentors = [
     tagClass: 'tag-primary',
     initials: 'AO',
     avatarBg: 'bg-primary',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AmaOwusu',
     sessions: 24,
     skills: ['Product Strategy', 'Fintech', 'Agile'],
   },
@@ -74,9 +75,10 @@ const mentors = [
     company: 'Google',
     year: '2021',
     industry: 'Technology',
-    tagClass: 'tag-accent',
+    tagClass: 'bg-accent/10 text-accent',
     initials: 'KA',
     avatarBg: 'bg-accent',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=KofiAsante',
     sessions: 18,
     skills: ['Backend', 'System Design', 'Go'],
   },
@@ -89,6 +91,7 @@ const mentors = [
     tagClass: 'tag-primary',
     initials: 'AB',
     avatarBg: 'bg-primary-light',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AbenaBoateng',
     sessions: 31,
     skills: ['Strategy', 'Leadership', 'Analytics'],
   },
@@ -141,16 +144,16 @@ export default function HomePage() {
         </div>
 
         <div className="hidden md:flex items-center gap-8 text-[14px] font-medium text-text">
-          <a href="#how-it-works" className="hover:text-brand transition-colors">How it works</a>
-          <a href="#mentors" className="hover:text-brand transition-colors">Our mentors</a>
-          <a href="#for-alumni" className="hover:text-brand transition-colors">For alumni</a>
+          <a href="#how-it-works" className="hover:text-primary transition-colors">How it works</a>
+          <a href="#mentors" className="hover:text-primary transition-colors">Our mentors</a>
+          <a href="#for-alumni" className="hover:text-primary transition-colors">For alumni</a>
         </div>
 
         <div className="flex items-center gap-3">
           <Link href="/login" className="btn btn-ghost h-[38px] px-5 text-[14px] font-semibold">
             Log in
           </Link>
-          <Link href="/register/student" className="btn btn-primary h-[38px] px-6 text-[14px] font-semibold">
+          <Link href="/register/mentee" className="btn btn-primary h-[38px] px-6 text-[14px] font-semibold">
             Get started
           </Link>
         </div>
@@ -159,7 +162,7 @@ export default function HomePage() {
      <Hero/>
 
       <section className="bg-white px-10 py-6 border-b border-border">
-        <div className="max-w-[1000px] mx-auto flex items-center gap-3.5 flex-wrap">
+        <div className="max-w-250 mx-auto flex items-center gap-3.5 flex-wrap">
           <span className="font-body text-[12px] font-bold text-text-sub uppercase tracking-[0.1em] mr-3 whitespace-nowrap">
             Industries we serve
           </span>
@@ -172,9 +175,9 @@ export default function HomePage() {
       </section>
 
       <section className="px-10 py-28 bg-background">
-        <div className="max-w-[1000px] mx-auto">
+        <div className="max-w-250 mx-auto">
           <div className="mb-16">
-            <span className="font-body text-[13px] font-bold text-brand uppercase tracking-[0.12em]">
+            <span className="font-body text-[13px] font-bold text-primary uppercase tracking-[0.12em]">
               Core features
             </span>
             <h2 className="font-display font-bold text-[48px] text-text tracking-tight mt-3 leading-tight">
@@ -184,31 +187,16 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {features.map(f => (
-              <div key={f.title} className="card p-8 flex flex-col gap-6 hover:shadow-lg transition-shadow duration-300 border-2 border-border hover:border-brand/20">
-                <div className="flex items-start justify-between">
-                  <span className={`tag ${f.tagClass} text-[12px] font-semibold px-3 py-1.5`}>{f.tag}</span>
-                  <span className="font-body text-[12px] font-bold text-brand bg-brand/8 border border-brand/20 rounded-full px-3.5 py-1.5">
-                    {f.stat}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-display font-bold text-[20px] text-text tracking-tight mb-3 leading-tight">
-                    {f.title}
-                  </h3>
-                  <p className="font-body text-[15px] text-text-sub leading-relaxed">
-                    {f.body}
-                  </p>
-                </div>
-              </div>
+              <FeatureCard key={f.title} {...f} />
             ))}
           </div>
         </div>
       </section>
 
       <section id="how-it-works" className="px-10 py-28 bg-white">
-        <div className="max-w-[1000px] mx-auto">
+        <div className="max-w-250 mx-auto">
           <div className="mb-16">
-            <span className="font-body text-[13px] font-bold text-brand uppercase tracking-[0.12em]">
+            <span className="font-body text-[13px] font-bold text-primary uppercase tracking-[0.12em]">
               Getting started
             </span>
             <h2 className="font-display font-bold text-[48px] text-text tracking-tight mt-3 leading-tight">
@@ -216,46 +204,41 @@ export default function HomePage() {
             </h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {steps.map((step, idx) => (
-              <div key={step.number} className="card p-7 relative hover:shadow-md transition-shadow">
-                {/* Step number badge */}
-                <div className={`w-10 h-10 rounded-[10px] flex items-center justify-center font-display font-extrabold text-[16px] mb-6 border-2
-                  ${step.role === 'student' ? 'bg-brand/10 text-brand border-brand/30' : ''}
-                  ${step.role === 'alumni'  ? 'bg-tag-purple/10 text-tag-purple border-tag-purple/30' : ''}
-                  ${step.role === 'both'    ? 'bg-accent/10 text-accent border-accent/30' : ''}
-                `}>
-                  {step.number}
+          {/* Steps with connecting arrows */}
+          <div className="relative w-full">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+              {steps.map((step, idx) => (
+                <div key={step.number} className={`relative ${idx === 0 ? 'lg:pl-3' : ''}`}>
+                  <StepCard {...step} />
+                  {/* Arrow to next step - visible on desktop only */}
+                  {idx < steps.length - 1 && (
+                    <div className="hidden lg:flex absolute -right-8 top-1/3 items-center justify-center w-6 h-8">
+                      <svg width="32" height="8" viewBox="0 0 32 8" className="absolute">
+                        <defs>
+                          <marker id="triangleright" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#7F1D1D" />
+                          </marker>
+                        </defs>
+                        <line x1="0" y1="4" x2="28" y2="4" stroke="#7F1D1D" strokeWidth="2.5" markerEnd="url(#triangleright)" />
+                      </svg>
+                    </div>
+                  )}
                 </div>
-                <h3 className="font-display font-bold text-[17px] text-text tracking-tight mb-3 leading-tight">
-                  {step.title}
-                </h3>
-                <p className="font-body text-[14px] text-text-sub leading-relaxed">
-                  {step.body}
-                </p>
-                {/* Role pill */}
-                <div className={`absolute top-6 right-6 h-6 px-3 rounded-full text-[11px] font-bold font-body flex items-center uppercase tracking-wider
-                  ${step.role === 'student' ? 'bg-brand/10 text-brand' : ''}
-                  ${step.role === 'alumni'  ? 'bg-tag-purple/10 text-tag-purple' : ''}
-                  ${step.role === 'both'    ? 'bg-accent/10 text-accent' : ''}
-                `}>
-                  {step.role}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Inline sign-up prompt */}
-          <div className="mt-14 p-8 bg-brand rounded-[16px] border border-brand/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
+          <div className="mt-14 p-8 bg-primary rounded-[16px] border border-primary/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
             <div>
               <p className="font-display font-bold text-[20px] text-white tracking-tight">Ready to get started?</p>
               <p className="font-body text-[15px] text-white/70 mt-1">Create your account and start your journey in just 2 minutes</p>
             </div>
             <div className="flex gap-3 shrink-0">
-              <Link href="/register/student" className="btn bg-white text-brand hover:bg-white/90 h-[42px] px-6 text-[14px] font-semibold rounded-[10px]">
+              <Link href="/register/mentee" className="btn bg-white text-primary hover:bg-white/90 h-[42px] px-6 text-[14px] font-semibold rounded-[10px]">
                 Join as student
               </Link>
-              <Link href="/register/alumni" className="btn bg-white/15 border border-white/30 text-white hover:bg-white/25 h-[42px] px-6 text-[14px] font-semibold rounded-[10px]">
+              <Link href="/register/mentor" className="btn bg-white/15 border border-white/30 text-white hover:bg-white/25 h-[42px] px-6 text-[14px] font-semibold rounded-[10px]">
                 Join as alumni
               </Link>
             </div>
@@ -267,66 +250,21 @@ export default function HomePage() {
         <div className="max-w-[1000px] mx-auto">
           <div className="flex items-end justify-between mb-16 flex-wrap gap-6">
             <div>
-              <span className="font-body text-[13px] font-bold text-brand uppercase tracking-[0.12em]">
+              <span className="font-body text-[13px] font-bold text-primary uppercase tracking-[0.12em]">
                 Featured mentors
               </span>
               <h2 className="font-display font-bold text-[48px] text-text tracking-tight mt-3 leading-tight">
                 Learn from Ashesi alumni who've made it
               </h2>
             </div>
-            <Link href="/register/student" className="btn btn-ghost h-[42px] px-5 text-[14px] font-semibold whitespace-nowrap">
+            <Link href="/register/mentee" className="btn btn-ghost h-[42px] px-5 text-[14px] font-semibold whitespace-nowrap">
               View all mentors →
             </Link>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {mentors.map(m => (
-              <div key={m.name} className="card overflow-hidden hover:shadow-lg transition-all duration-300 group border border-border hover:border-brand/20">
-                {/* Card header */}
-                <div className="h-[130px] bg-gradient-to-br from-brand/90 to-brand flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity" style={{ backgroundImage: 'radial-gradient(circle at 25% 75%, rgba(255,107,43,0.3), transparent)' }} />
-                  <span className={`tag absolute top-4 left-4 ${m.tagClass} font-semibold text-[12px] px-3 py-1.5`}>
-                    {m.industry}
-                  </span>
-                  <div className={`w-16 h-16 rounded-full ${m.avatarBg} flex items-center justify-center font-display font-bold text-2xl text-white border-4 border-white/20 shadow-lg`}>
-                    {m.initials}
-                  </div>
-                </div>
-
-                {/* Card body */}
-                <div className="p-6">
-                  <p className="font-display font-bold text-[18px] text-text tracking-tight">{m.name}</p>
-                  <p className="font-body text-[14px] text-text-sub mt-1 font-medium">{m.role}</p>
-                  <p className="font-body text-[13px] text-text-muted mt-0.5">{m.company} • Class of {m.year}</p>
-
-                  {/* Skills */}
-                  <div className="flex flex-wrap gap-2 mt-5">
-                    {m.skills.map(s => (
-                      <span key={s} className="px-3 py-1.5 rounded-full bg-brand/8 border border-brand/20 font-body text-[12px] font-medium text-brand inline-flex items-center">
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Progress */}
-                  <div className="mt-6 pt-6 border-t border-border">
-                    <div className="flex justify-between mb-2">
-                      <span className="font-body text-[12px] font-semibold text-text">Sessions hosted</span>
-                      <span className="font-body text-[13px] font-bold text-brand">{m.sessions}</span>
-                    </div>
-                    <div className="h-2 bg-border rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-brand to-accent rounded-full"
-                        style={{ width: `${Math.min((m.sessions / 40) * 100, 100)}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <Link href="/register/student" className="btn btn-primary w-full mt-6 h-[40px] text-[14px] font-semibold rounded-[10px]">
-                    Connect with {m.name.split(' ')[0]}
-                  </Link>
-                </div>
-              </div>
+              <MentorCard key={m.name} {...m} />
             ))}
           </div>
         </div>
@@ -362,7 +300,7 @@ export default function HomePage() {
               ))}
             </div>
 
-            <Link href="/register/alumni" className="btn bg-white text-brand hover:bg-white/95 h-[48px] px-8 text-[15px] font-bold rounded-[12px] shadow-xl inline-flex items-center gap-2">
+            <Link href="/register/mentor" className="btn bg-white text-primary hover:bg-white/95 h-[48px] px-8 text-[15px] font-bold rounded-[12px] shadow-xl inline-flex items-center gap-2">
               Start mentoring today →
             </Link>
           </div>
@@ -371,14 +309,11 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-5">
             {[
               { value: '2 hrs',   label: 'Avg. time per month', color: 'from-accent to-accent/80' },
-              { value: '92%',    label: 'Find it deeply rewarding', color: 'from-tag-purple to-tag-purple/80' },
-              { value: '2 min',  label: 'Quick profile setup', color: 'from-success to-success/80' },
+              { value: '92%',    label: 'Find it deeply rewarding', color: 'from-info to-info/50' },
+              { value: '2 min',  label: 'Quick profile setup', color: 'from-primary-light to-primary-light/80' },
               { value: '100%',   label: 'Completely free', color: 'from-info to-info/80' },
             ].map(s => (
-              <div key={s.label} className={`card p-6 bg-gradient-to-br ${s.color} border border-white/10 shadow-lg`}>
-                <div className="font-display font-bold text-[36px] text-white tracking-tight leading-none">{s.value}</div>
-                <div className="font-body text-[13px] text-white/70 mt-2 leading-snug font-medium">{s.label}</div>
-              </div>
+              <StatCard key={s.label} {...s} />
             ))}
           </div>
         </div>
@@ -387,7 +322,7 @@ export default function HomePage() {
       <section className="px-10 py-28 bg-white">
         <div className="max-w-[1000px] mx-auto">
           <div className="mb-16 text-center">
-            <span className="font-body text-[13px] font-bold text-brand uppercase tracking-[0.12em]">
+            <span className="font-body text-[13px] font-bold text-primary uppercase tracking-[0.12em]">
               Impact stories
             </span>
             <h2 className="font-display font-bold text-[48px] text-text tracking-tight mt-3 leading-tight">
@@ -397,28 +332,13 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map(t => (
-              <div key={t.name} className="card p-7 flex flex-col gap-5 hover:shadow-lg transition-shadow border border-border hover:border-accent/20 group">
-                {/* Quote mark */}
-                <div className="font-display text-[52px] text-brand/20 leading-none -mb-3 group-hover:text-accent/30 transition-colors">"</div>
-                <p className="font-body text-[15px] text-text-sub leading-relaxed flex-1">
-                  {t.quote}
-                </p>
-                <div className="flex items-center gap-3 pt-5 border-t border-border">
-                  <div className={`w-10 h-10 rounded-full ${t.color} flex items-center justify-center font-display font-bold text-[14px] text-white shrink-0`}>
-                    {t.initials}
-                  </div>
-                  <div>
-                    <p className="font-body text-[14px] font-semibold text-text">{t.name}</p>
-                    <p className="font-body text-[12px] text-text-muted">{t.detail}</p>
-                  </div>
-                </div>
-              </div>
+              <TestimonialCard key={t.name} {...t} />
             ))}
           </div>
         </div>
       </section>
 
-      <section className="px-10 py-32 bg-brand relative overflow-hidden">
+      <section className="px-10 py-32 bg-primary relative overflow-hidden">
         <div className="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full border border-accent/15 pointer-events-none" />
         <div className="absolute top-10 right-10 w-[350px] h-[350px] rounded-full bg-accent/15 blur-[80px] pointer-events-none" />
 
@@ -431,13 +351,13 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/register/student"
-              className="btn bg-white text-brand hover:bg-white/95 h-[52px] px-10 text-[16px] font-bold rounded-[12px] shadow-xl"
+              href="/register/mentee"
+              className="btn bg-white text-primary hover:bg-white/95 h-[52px] px-10 text-[16px] font-bold rounded-[12px] shadow-xl"
             >
               Sign up as student
             </Link>
             <Link
-              href="/register/alumni"
+              href="/register/mentor"
               className="btn h-[52px] px-10 text-[16px] font-bold bg-white/12 border-2 border-white/30 text-white hover:bg-white/20 transition-colors rounded-[12px]"
             >
               Become a mentor
@@ -454,16 +374,16 @@ export default function HomePage() {
 
       <footer className="bg-white border-t border-border px-10 py-10 flex items-center justify-between flex-wrap gap-6">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-brand rounded-[10px] flex items-center justify-center shadow-md">
+          <div className="w-8 h-8 bg-primary rounded-[10px] flex items-center justify-center shadow-md">
             <span className="font-display font-extrabold text-white text-[13px]">A</span>
           </div>
-          <span className="font-display font-bold text-[16px] text-brand">AshesiConnect</span>
+          <span className="font-display font-bold text-[16px] text-primary">AshesiConnect</span>
         </div>
         <div className="flex items-center gap-8 text-[13px] text-text-sub font-body">
-          <a href="#how-it-works" className="hover:text-brand transition-colors font-medium">How it works</a>
-          <a href="#mentors" className="hover:text-brand transition-colors font-medium">Our mentors</a>
-          <a href="#for-alumni" className="hover:text-brand transition-colors font-medium">For alumni</a>
-          <Link href="/login" className="hover:text-brand transition-colors font-medium">Log in</Link>
+          <a href="#how-it-works" className="hover:text-primary transition-colors font-medium">How it works</a>
+          <a href="#mentors" className="hover:text-primary transition-colors font-medium">Our mentors</a>
+          <a href="#for-alumni" className="hover:text-primary transition-colors font-medium">For alumni</a>
+          <Link href="/login" className="hover:text-primary transition-colors font-medium">Log in</Link>
         </div>
         <p className="font-body text-[13px] text-text-muted">
           © {new Date().getFullYear()} Ashesi University Mentorship Network

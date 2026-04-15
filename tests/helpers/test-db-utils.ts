@@ -1,9 +1,8 @@
-import {prisma} from '@/app/_utils/db'; 
+import {prisma} from '@/app/_utils_and_types/db'; 
+import { hashPassword } from '@/app/_utils_and_types/utils/password';
 
-/**
- * Clear all tables in the database (for test isolation)
- * Order matters for foreign key constraints
- */
+
+
 export async function clearDatabase() {
   try {
     // Order tables from least to most dependent
@@ -24,59 +23,96 @@ export async function clearDatabase() {
   }
 }
 
-/**
- * Create a test user
- */
-export async function createTestUser(data = {}) {
-  return prisma.user.create({
+
+export async function createTestStudent(override = {}) {
+  const rawPass = 'odkROEOWKFOKWORI'
+  const hashedPassword = override!==null? hashPassword(override?.password): hashPassword(rawPass)
+  const user =  prisma.user.create({
     data: {
       email: `test-${Date.now()}@example.com`,
       firstName: 'Test',
       lastName: 'User',
-      passwordHash: '$2b$12$abc123', // dummy hash for tests
+      passwordHash:hashedPassword , // dummy hash for tests
       role: 'STUDENT',
-      ...data,
+      ...override,
+      studentProfile:{
+      create: {
+        yearGroup: 1,
+        major: 'Computer Science',
+          }
+      }
     },
+    select: {
+      id: true,
+      email:true,
+      firstName: true,
+      lastName: true,
+      role:true,
+    }
   });
+
+  return {user, rawPassword: rawPass}
 }
 
-/**
- * Create a test alumni profile
- */
-export async function createTestAlumni(userId: string, data = {}) {
-  return prisma.alumniProfile.create({
+
+export async function createTestAlumni(override = {}) {
+  const rawPass = 'odkROEOWKFOKWORI'
+  const hashedPassword = override!==null? hashPassword(override?.password): hashPassword(rawPass)
+  const user = prisma.user.create({
     data: {
-      userId,
-      graduationYear: 2020,
-      major: 'Computer Science',
-      company: 'Test Company',
-      jobTitle: 'Software Engineer',
-      industry: 'TECHNOLOGY',
-      bio: 'Test bio',
-      ...data,
+      email: `test-${Date.now()}@ashesi.edu.gh`,
+      firstName: 'Alumi',
+      lastName: 'alumi',
+      passwordHash: hashedPassword, // dummy hash for tests
+      role: 'ALUMNI',
+      ...override,
+      alumniProfile: {
+        create: {
+          graduationYear: 2017,
+          major:'Computer Science',
+          company:'google',
+          jobTitle:"Senior Software Engineer",
+          industry:'TECHNOLOGY',
+          bio:"Iam a cool guy",
+          linkedin:"https;//mulinnkd",
+          skills:['sikkd','dkdls','kdlso']
+        }
+      }
     },
+    select: {
+      id: true,
+      email:true,
+      firstName: true,
+      lastName: true,
+      role:true,
+    }
   });
+
+  return {user, rawPassword: rawPass}
 }
 
-/**
- * Create a test student profile
- */
-export async function createTestStudent(userId: string, data = {}) {
-  return prisma.studentProfile.create({
+export async function  createTestAdmin( override = {}){
+  const rawPass = 'odkROEOWKFOKWORI'
+  const hashedPassword = override!==null? hashPassword(override?.password): hashPassword(rawPass)
+const user =  prisma.user.create({
     data: {
-      userId,
-      yearGroup: 1,
-      major: 'Computer Science',
-      ...data,
+      email: `test-${Date.now()}@ashesi.edu.gh`,
+      firstName: 'Test',
+      lastName: 'User',
+      passwordHash: hashedPassword, // dummy hash for tests
+      role: 'ADMIN',
+      ...override,
     },
+    select: {
+      id: true,
+      email:true,
+      firstName: true,
+      lastName: true,
+      role:true,
+    }
   });
+
+  return {user, rawPassword: rawPass}
 }
 
-/**
- * Disconnect Prisma after tests
- */
-export async function disconnectDatabase() {
-  await prisma.$disconnect();
-}
 
-export { prisma };

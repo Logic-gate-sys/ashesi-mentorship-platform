@@ -1,55 +1,42 @@
-import {z } from 'zod';
+import { z } from 'zod'
 
-//determine app stage
-process.env.APP_STAGE = process.env.VITEST ? 'test' : (process.env.APP_STAGE || 'dev');
-const isProduction = process.env.APP_STAGE === 'production';
-const isTesting = process.env.APP_STAGE === 'test';
-const isDevelopment = process.env.APP_STAGE === 'dev';
-
-// Note: Next.js automatically loads .env files, no need for custom-env
+process.env.APP_STAGE = process.env.VITEST ? 'test' : (process.env.APP_STAGE || 'dev')
 
 export const envSchema = z.object({
   NODE_ENV: z.enum(['production', 'development', 'test']).default('development'),
   APP_STAGE: z.enum(['production', 'dev', 'test']).default('dev'),
-  // Prisma MongoDB URL validation
+  // Prisma PostgreSQL URL validation
   DATABASE_URL: z.string().url().regex(/^postgresql:\/\//, "DATABASE_URL must be a valid Postgres connection string"),
-  JWT_SECRET: z.string().min(32),
+  JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
   JWT_EXPIRES_IN: z.string().default('7d'),
   BCRYPT_ROUNDS: z.coerce.number().min(12).default(12),
   BECRYPT_ROTATE: z.coerce.number().min(10).max(12).default(10),
-});
-// export envschema type
-export type Env = z.infer<typeof envSchema>;
-let env: Env;
+})
 
-// validate env file 
+export type Env = z.infer<typeof envSchema>
+
+let env: Env
+
 try {
-    // pass the entire .env file for schema validation
-    env = envSchema.parse(process.env); // inspecting the entire env file
-    
+  env = envSchema.parse(process.env)
 } catch (e) {
-    if (e instanceof z.ZodError) {
-        console.error("Invalid environment variables ");
-        console.log(JSON.stringify(e.flatten().fieldErrors, null, 3));
+  if (e instanceof z.ZodError) {
+    console.error(' Invalid environment variables:')
+    console.log(JSON.stringify(e.flatten().fieldErrors, null, 2))
 
-        // log all issues path
-        e.issues.forEach(err => {
-            const path = err.path.join(".");
-            // log path and error message 
-            console.log(`Path: ${path} => message: ${err.message}`)
-        })
-    //else exit 
-    process.exit(1);
-    }
-    // other if error is not from zod , throw 
-    throw (e);  
+    // Log all issues with their paths and messages
+    e.issues.forEach((err) => {
+      const path = err.path.join('.')
+      console.error(`  ${path}: ${err.message}`)
+    })
+
+    process.exit(1)
+  }
+  throw e
 }
 
+export const isProd = () => env.APP_STAGE === 'production'
+export const isDev = () => env.APP_STAGE === 'dev'
+export const isTest = () => env.APP_STAGE === 'test'
 
-// export app_stages
-export const isProd = () => env.APP_STAGE === 'production';
-export const isDev = () => env.APP_STAGE === 'dev';
-export const isTest = () => env.APP_STAGE === 'test';
-
-// export env 
-export { env };
+export { env }

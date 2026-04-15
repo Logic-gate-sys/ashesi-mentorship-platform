@@ -26,7 +26,7 @@ export type AggregateAvailability = {
 
 export type AvailabilityMinAggregateOutputType = {
   id: string | null
-  alumniId: string | null
+  mentorId: string | null
   dayOfWeek: $Enums.DayOfWeek | null
   startTime: string | null
   endTime: string | null
@@ -34,7 +34,7 @@ export type AvailabilityMinAggregateOutputType = {
 
 export type AvailabilityMaxAggregateOutputType = {
   id: string | null
-  alumniId: string | null
+  mentorId: string | null
   dayOfWeek: $Enums.DayOfWeek | null
   startTime: string | null
   endTime: string | null
@@ -42,7 +42,7 @@ export type AvailabilityMaxAggregateOutputType = {
 
 export type AvailabilityCountAggregateOutputType = {
   id: number
-  alumniId: number
+  mentorId: number
   dayOfWeek: number
   startTime: number
   endTime: number
@@ -52,7 +52,7 @@ export type AvailabilityCountAggregateOutputType = {
 
 export type AvailabilityMinAggregateInputType = {
   id?: true
-  alumniId?: true
+  mentorId?: true
   dayOfWeek?: true
   startTime?: true
   endTime?: true
@@ -60,7 +60,7 @@ export type AvailabilityMinAggregateInputType = {
 
 export type AvailabilityMaxAggregateInputType = {
   id?: true
-  alumniId?: true
+  mentorId?: true
   dayOfWeek?: true
   startTime?: true
   endTime?: true
@@ -68,7 +68,7 @@ export type AvailabilityMaxAggregateInputType = {
 
 export type AvailabilityCountAggregateInputType = {
   id?: true
-  alumniId?: true
+  mentorId?: true
   dayOfWeek?: true
   startTime?: true
   endTime?: true
@@ -149,7 +149,7 @@ export type AvailabilityGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 
 export type AvailabilityGroupByOutputType = {
   id: string
-  alumniId: string
+  mentorId: string
   dayOfWeek: $Enums.DayOfWeek
   startTime: string
   endTime: string
@@ -178,38 +178,38 @@ export type AvailabilityWhereInput = {
   OR?: Prisma.AvailabilityWhereInput[]
   NOT?: Prisma.AvailabilityWhereInput | Prisma.AvailabilityWhereInput[]
   id?: Prisma.StringFilter<"Availability"> | string
-  alumniId?: Prisma.StringFilter<"Availability"> | string
+  mentorId?: Prisma.StringFilter<"Availability"> | string
   dayOfWeek?: Prisma.EnumDayOfWeekFilter<"Availability"> | $Enums.DayOfWeek
   startTime?: Prisma.StringFilter<"Availability"> | string
   endTime?: Prisma.StringFilter<"Availability"> | string
-  alumni?: Prisma.XOR<Prisma.AlumniProfileScalarRelationFilter, Prisma.AlumniProfileWhereInput>
+  mentor?: Prisma.XOR<Prisma.MentorProfileScalarRelationFilter, Prisma.MentorProfileWhereInput>
 }
 
 export type AvailabilityOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  alumniId?: Prisma.SortOrder
+  mentorId?: Prisma.SortOrder
   dayOfWeek?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
-  alumni?: Prisma.AlumniProfileOrderByWithRelationInput
+  mentor?: Prisma.MentorProfileOrderByWithRelationInput
 }
 
 export type AvailabilityWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  alumniId_dayOfWeek_startTime?: Prisma.AvailabilityAlumniIdDayOfWeekStartTimeCompoundUniqueInput
+  mentorId_dayOfWeek_startTime?: Prisma.AvailabilityMentorIdDayOfWeekStartTimeCompoundUniqueInput
   AND?: Prisma.AvailabilityWhereInput | Prisma.AvailabilityWhereInput[]
   OR?: Prisma.AvailabilityWhereInput[]
   NOT?: Prisma.AvailabilityWhereInput | Prisma.AvailabilityWhereInput[]
-  alumniId?: Prisma.StringFilter<"Availability"> | string
+  mentorId?: Prisma.StringFilter<"Availability"> | string
   dayOfWeek?: Prisma.EnumDayOfWeekFilter<"Availability"> | $Enums.DayOfWeek
   startTime?: Prisma.StringFilter<"Availability"> | string
   endTime?: Prisma.StringFilter<"Availability"> | string
-  alumni?: Prisma.XOR<Prisma.AlumniProfileScalarRelationFilter, Prisma.AlumniProfileWhereInput>
-}, "id" | "alumniId_dayOfWeek_startTime">
+  mentor?: Prisma.XOR<Prisma.MentorProfileScalarRelationFilter, Prisma.MentorProfileWhereInput>
+}, "id" | "mentorId_dayOfWeek_startTime">
 
 export type AvailabilityOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  alumniId?: Prisma.SortOrder
+  mentorId?: Prisma.SortOrder
   dayOfWeek?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
@@ -223,7 +223,7 @@ export type AvailabilityScalarWhereWithAggregatesInput = {
   OR?: Prisma.AvailabilityScalarWhereWithAggregatesInput[]
   NOT?: Prisma.AvailabilityScalarWhereWithAggregatesInput | Prisma.AvailabilityScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Availability"> | string
-  alumniId?: Prisma.StringWithAggregatesFilter<"Availability"> | string
+  mentorId?: Prisma.StringWithAggregatesFilter<"Availability"> | string
   dayOfWeek?: Prisma.EnumDayOfWeekWithAggregatesFilter<"Availability"> | $Enums.DayOfWeek
   startTime?: Prisma.StringWithAggregatesFilter<"Availability"> | string
   endTime?: Prisma.StringWithAggregatesFilter<"Availability"> | string
@@ -234,12 +234,12 @@ export type AvailabilityCreateInput = {
   dayOfWeek: $Enums.DayOfWeek
   startTime: string
   endTime: string
-  alumni: Prisma.AlumniProfileCreateNestedOneWithoutAvailabilityInput
+  mentor: Prisma.MentorProfileCreateNestedOneWithoutAvailabilityInput
 }
 
 export type AvailabilityUncheckedCreateInput = {
   id?: string
-  alumniId: string
+  mentorId: string
   dayOfWeek: $Enums.DayOfWeek
   startTime: string
   endTime: string
@@ -250,12 +250,12 @@ export type AvailabilityUpdateInput = {
   dayOfWeek?: Prisma.EnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
-  alumni?: Prisma.AlumniProfileUpdateOneRequiredWithoutAvailabilityNestedInput
+  mentor?: Prisma.MentorProfileUpdateOneRequiredWithoutAvailabilityNestedInput
 }
 
 export type AvailabilityUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  alumniId?: Prisma.StringFieldUpdateOperationsInput | string
+  mentorId?: Prisma.StringFieldUpdateOperationsInput | string
   dayOfWeek?: Prisma.EnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
@@ -263,7 +263,7 @@ export type AvailabilityUncheckedUpdateInput = {
 
 export type AvailabilityCreateManyInput = {
   id?: string
-  alumniId: string
+  mentorId: string
   dayOfWeek: $Enums.DayOfWeek
   startTime: string
   endTime: string
@@ -278,7 +278,7 @@ export type AvailabilityUpdateManyMutationInput = {
 
 export type AvailabilityUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  alumniId?: Prisma.StringFieldUpdateOperationsInput | string
+  mentorId?: Prisma.StringFieldUpdateOperationsInput | string
   dayOfWeek?: Prisma.EnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
@@ -294,15 +294,15 @@ export type AvailabilityOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type AvailabilityAlumniIdDayOfWeekStartTimeCompoundUniqueInput = {
-  alumniId: string
+export type AvailabilityMentorIdDayOfWeekStartTimeCompoundUniqueInput = {
+  mentorId: string
   dayOfWeek: $Enums.DayOfWeek
   startTime: string
 }
 
 export type AvailabilityCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  alumniId?: Prisma.SortOrder
+  mentorId?: Prisma.SortOrder
   dayOfWeek?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
@@ -310,7 +310,7 @@ export type AvailabilityCountOrderByAggregateInput = {
 
 export type AvailabilityMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  alumniId?: Prisma.SortOrder
+  mentorId?: Prisma.SortOrder
   dayOfWeek?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
@@ -318,51 +318,51 @@ export type AvailabilityMaxOrderByAggregateInput = {
 
 export type AvailabilityMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  alumniId?: Prisma.SortOrder
+  mentorId?: Prisma.SortOrder
   dayOfWeek?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
 }
 
-export type AvailabilityCreateNestedManyWithoutAlumniInput = {
-  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutAlumniInput, Prisma.AvailabilityUncheckedCreateWithoutAlumniInput> | Prisma.AvailabilityCreateWithoutAlumniInput[] | Prisma.AvailabilityUncheckedCreateWithoutAlumniInput[]
-  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutAlumniInput | Prisma.AvailabilityCreateOrConnectWithoutAlumniInput[]
-  createMany?: Prisma.AvailabilityCreateManyAlumniInputEnvelope
+export type AvailabilityCreateNestedManyWithoutMentorInput = {
+  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutMentorInput, Prisma.AvailabilityUncheckedCreateWithoutMentorInput> | Prisma.AvailabilityCreateWithoutMentorInput[] | Prisma.AvailabilityUncheckedCreateWithoutMentorInput[]
+  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutMentorInput | Prisma.AvailabilityCreateOrConnectWithoutMentorInput[]
+  createMany?: Prisma.AvailabilityCreateManyMentorInputEnvelope
   connect?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
 }
 
-export type AvailabilityUncheckedCreateNestedManyWithoutAlumniInput = {
-  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutAlumniInput, Prisma.AvailabilityUncheckedCreateWithoutAlumniInput> | Prisma.AvailabilityCreateWithoutAlumniInput[] | Prisma.AvailabilityUncheckedCreateWithoutAlumniInput[]
-  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutAlumniInput | Prisma.AvailabilityCreateOrConnectWithoutAlumniInput[]
-  createMany?: Prisma.AvailabilityCreateManyAlumniInputEnvelope
+export type AvailabilityUncheckedCreateNestedManyWithoutMentorInput = {
+  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutMentorInput, Prisma.AvailabilityUncheckedCreateWithoutMentorInput> | Prisma.AvailabilityCreateWithoutMentorInput[] | Prisma.AvailabilityUncheckedCreateWithoutMentorInput[]
+  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutMentorInput | Prisma.AvailabilityCreateOrConnectWithoutMentorInput[]
+  createMany?: Prisma.AvailabilityCreateManyMentorInputEnvelope
   connect?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
 }
 
-export type AvailabilityUpdateManyWithoutAlumniNestedInput = {
-  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutAlumniInput, Prisma.AvailabilityUncheckedCreateWithoutAlumniInput> | Prisma.AvailabilityCreateWithoutAlumniInput[] | Prisma.AvailabilityUncheckedCreateWithoutAlumniInput[]
-  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutAlumniInput | Prisma.AvailabilityCreateOrConnectWithoutAlumniInput[]
-  upsert?: Prisma.AvailabilityUpsertWithWhereUniqueWithoutAlumniInput | Prisma.AvailabilityUpsertWithWhereUniqueWithoutAlumniInput[]
-  createMany?: Prisma.AvailabilityCreateManyAlumniInputEnvelope
+export type AvailabilityUpdateManyWithoutMentorNestedInput = {
+  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutMentorInput, Prisma.AvailabilityUncheckedCreateWithoutMentorInput> | Prisma.AvailabilityCreateWithoutMentorInput[] | Prisma.AvailabilityUncheckedCreateWithoutMentorInput[]
+  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutMentorInput | Prisma.AvailabilityCreateOrConnectWithoutMentorInput[]
+  upsert?: Prisma.AvailabilityUpsertWithWhereUniqueWithoutMentorInput | Prisma.AvailabilityUpsertWithWhereUniqueWithoutMentorInput[]
+  createMany?: Prisma.AvailabilityCreateManyMentorInputEnvelope
   set?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
   disconnect?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
   delete?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
   connect?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
-  update?: Prisma.AvailabilityUpdateWithWhereUniqueWithoutAlumniInput | Prisma.AvailabilityUpdateWithWhereUniqueWithoutAlumniInput[]
-  updateMany?: Prisma.AvailabilityUpdateManyWithWhereWithoutAlumniInput | Prisma.AvailabilityUpdateManyWithWhereWithoutAlumniInput[]
+  update?: Prisma.AvailabilityUpdateWithWhereUniqueWithoutMentorInput | Prisma.AvailabilityUpdateWithWhereUniqueWithoutMentorInput[]
+  updateMany?: Prisma.AvailabilityUpdateManyWithWhereWithoutMentorInput | Prisma.AvailabilityUpdateManyWithWhereWithoutMentorInput[]
   deleteMany?: Prisma.AvailabilityScalarWhereInput | Prisma.AvailabilityScalarWhereInput[]
 }
 
-export type AvailabilityUncheckedUpdateManyWithoutAlumniNestedInput = {
-  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutAlumniInput, Prisma.AvailabilityUncheckedCreateWithoutAlumniInput> | Prisma.AvailabilityCreateWithoutAlumniInput[] | Prisma.AvailabilityUncheckedCreateWithoutAlumniInput[]
-  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutAlumniInput | Prisma.AvailabilityCreateOrConnectWithoutAlumniInput[]
-  upsert?: Prisma.AvailabilityUpsertWithWhereUniqueWithoutAlumniInput | Prisma.AvailabilityUpsertWithWhereUniqueWithoutAlumniInput[]
-  createMany?: Prisma.AvailabilityCreateManyAlumniInputEnvelope
+export type AvailabilityUncheckedUpdateManyWithoutMentorNestedInput = {
+  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutMentorInput, Prisma.AvailabilityUncheckedCreateWithoutMentorInput> | Prisma.AvailabilityCreateWithoutMentorInput[] | Prisma.AvailabilityUncheckedCreateWithoutMentorInput[]
+  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutMentorInput | Prisma.AvailabilityCreateOrConnectWithoutMentorInput[]
+  upsert?: Prisma.AvailabilityUpsertWithWhereUniqueWithoutMentorInput | Prisma.AvailabilityUpsertWithWhereUniqueWithoutMentorInput[]
+  createMany?: Prisma.AvailabilityCreateManyMentorInputEnvelope
   set?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
   disconnect?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
   delete?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
   connect?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
-  update?: Prisma.AvailabilityUpdateWithWhereUniqueWithoutAlumniInput | Prisma.AvailabilityUpdateWithWhereUniqueWithoutAlumniInput[]
-  updateMany?: Prisma.AvailabilityUpdateManyWithWhereWithoutAlumniInput | Prisma.AvailabilityUpdateManyWithWhereWithoutAlumniInput[]
+  update?: Prisma.AvailabilityUpdateWithWhereUniqueWithoutMentorInput | Prisma.AvailabilityUpdateWithWhereUniqueWithoutMentorInput[]
+  updateMany?: Prisma.AvailabilityUpdateManyWithWhereWithoutMentorInput | Prisma.AvailabilityUpdateManyWithWhereWithoutMentorInput[]
   deleteMany?: Prisma.AvailabilityScalarWhereInput | Prisma.AvailabilityScalarWhereInput[]
 }
 
@@ -370,44 +370,44 @@ export type EnumDayOfWeekFieldUpdateOperationsInput = {
   set?: $Enums.DayOfWeek
 }
 
-export type AvailabilityCreateWithoutAlumniInput = {
+export type AvailabilityCreateWithoutMentorInput = {
   id?: string
   dayOfWeek: $Enums.DayOfWeek
   startTime: string
   endTime: string
 }
 
-export type AvailabilityUncheckedCreateWithoutAlumniInput = {
+export type AvailabilityUncheckedCreateWithoutMentorInput = {
   id?: string
   dayOfWeek: $Enums.DayOfWeek
   startTime: string
   endTime: string
 }
 
-export type AvailabilityCreateOrConnectWithoutAlumniInput = {
+export type AvailabilityCreateOrConnectWithoutMentorInput = {
   where: Prisma.AvailabilityWhereUniqueInput
-  create: Prisma.XOR<Prisma.AvailabilityCreateWithoutAlumniInput, Prisma.AvailabilityUncheckedCreateWithoutAlumniInput>
+  create: Prisma.XOR<Prisma.AvailabilityCreateWithoutMentorInput, Prisma.AvailabilityUncheckedCreateWithoutMentorInput>
 }
 
-export type AvailabilityCreateManyAlumniInputEnvelope = {
-  data: Prisma.AvailabilityCreateManyAlumniInput | Prisma.AvailabilityCreateManyAlumniInput[]
+export type AvailabilityCreateManyMentorInputEnvelope = {
+  data: Prisma.AvailabilityCreateManyMentorInput | Prisma.AvailabilityCreateManyMentorInput[]
   skipDuplicates?: boolean
 }
 
-export type AvailabilityUpsertWithWhereUniqueWithoutAlumniInput = {
+export type AvailabilityUpsertWithWhereUniqueWithoutMentorInput = {
   where: Prisma.AvailabilityWhereUniqueInput
-  update: Prisma.XOR<Prisma.AvailabilityUpdateWithoutAlumniInput, Prisma.AvailabilityUncheckedUpdateWithoutAlumniInput>
-  create: Prisma.XOR<Prisma.AvailabilityCreateWithoutAlumniInput, Prisma.AvailabilityUncheckedCreateWithoutAlumniInput>
+  update: Prisma.XOR<Prisma.AvailabilityUpdateWithoutMentorInput, Prisma.AvailabilityUncheckedUpdateWithoutMentorInput>
+  create: Prisma.XOR<Prisma.AvailabilityCreateWithoutMentorInput, Prisma.AvailabilityUncheckedCreateWithoutMentorInput>
 }
 
-export type AvailabilityUpdateWithWhereUniqueWithoutAlumniInput = {
+export type AvailabilityUpdateWithWhereUniqueWithoutMentorInput = {
   where: Prisma.AvailabilityWhereUniqueInput
-  data: Prisma.XOR<Prisma.AvailabilityUpdateWithoutAlumniInput, Prisma.AvailabilityUncheckedUpdateWithoutAlumniInput>
+  data: Prisma.XOR<Prisma.AvailabilityUpdateWithoutMentorInput, Prisma.AvailabilityUncheckedUpdateWithoutMentorInput>
 }
 
-export type AvailabilityUpdateManyWithWhereWithoutAlumniInput = {
+export type AvailabilityUpdateManyWithWhereWithoutMentorInput = {
   where: Prisma.AvailabilityScalarWhereInput
-  data: Prisma.XOR<Prisma.AvailabilityUpdateManyMutationInput, Prisma.AvailabilityUncheckedUpdateManyWithoutAlumniInput>
+  data: Prisma.XOR<Prisma.AvailabilityUpdateManyMutationInput, Prisma.AvailabilityUncheckedUpdateManyWithoutMentorInput>
 }
 
 export type AvailabilityScalarWhereInput = {
@@ -415,34 +415,34 @@ export type AvailabilityScalarWhereInput = {
   OR?: Prisma.AvailabilityScalarWhereInput[]
   NOT?: Prisma.AvailabilityScalarWhereInput | Prisma.AvailabilityScalarWhereInput[]
   id?: Prisma.StringFilter<"Availability"> | string
-  alumniId?: Prisma.StringFilter<"Availability"> | string
+  mentorId?: Prisma.StringFilter<"Availability"> | string
   dayOfWeek?: Prisma.EnumDayOfWeekFilter<"Availability"> | $Enums.DayOfWeek
   startTime?: Prisma.StringFilter<"Availability"> | string
   endTime?: Prisma.StringFilter<"Availability"> | string
 }
 
-export type AvailabilityCreateManyAlumniInput = {
+export type AvailabilityCreateManyMentorInput = {
   id?: string
   dayOfWeek: $Enums.DayOfWeek
   startTime: string
   endTime: string
 }
 
-export type AvailabilityUpdateWithoutAlumniInput = {
+export type AvailabilityUpdateWithoutMentorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   dayOfWeek?: Prisma.EnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
-export type AvailabilityUncheckedUpdateWithoutAlumniInput = {
+export type AvailabilityUncheckedUpdateWithoutMentorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   dayOfWeek?: Prisma.EnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
-export type AvailabilityUncheckedUpdateManyWithoutAlumniInput = {
+export type AvailabilityUncheckedUpdateManyWithoutMentorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   dayOfWeek?: Prisma.EnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
@@ -453,58 +453,58 @@ export type AvailabilityUncheckedUpdateManyWithoutAlumniInput = {
 
 export type AvailabilitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  alumniId?: boolean
+  mentorId?: boolean
   dayOfWeek?: boolean
   startTime?: boolean
   endTime?: boolean
-  alumni?: boolean | Prisma.AlumniProfileDefaultArgs<ExtArgs>
+  mentor?: boolean | Prisma.MentorProfileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["availability"]>
 
 export type AvailabilitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  alumniId?: boolean
+  mentorId?: boolean
   dayOfWeek?: boolean
   startTime?: boolean
   endTime?: boolean
-  alumni?: boolean | Prisma.AlumniProfileDefaultArgs<ExtArgs>
+  mentor?: boolean | Prisma.MentorProfileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["availability"]>
 
 export type AvailabilitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  alumniId?: boolean
+  mentorId?: boolean
   dayOfWeek?: boolean
   startTime?: boolean
   endTime?: boolean
-  alumni?: boolean | Prisma.AlumniProfileDefaultArgs<ExtArgs>
+  mentor?: boolean | Prisma.MentorProfileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["availability"]>
 
 export type AvailabilitySelectScalar = {
   id?: boolean
-  alumniId?: boolean
+  mentorId?: boolean
   dayOfWeek?: boolean
   startTime?: boolean
   endTime?: boolean
 }
 
-export type AvailabilityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "alumniId" | "dayOfWeek" | "startTime" | "endTime", ExtArgs["result"]["availability"]>
+export type AvailabilityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "mentorId" | "dayOfWeek" | "startTime" | "endTime", ExtArgs["result"]["availability"]>
 export type AvailabilityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  alumni?: boolean | Prisma.AlumniProfileDefaultArgs<ExtArgs>
+  mentor?: boolean | Prisma.MentorProfileDefaultArgs<ExtArgs>
 }
 export type AvailabilityIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  alumni?: boolean | Prisma.AlumniProfileDefaultArgs<ExtArgs>
+  mentor?: boolean | Prisma.MentorProfileDefaultArgs<ExtArgs>
 }
 export type AvailabilityIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  alumni?: boolean | Prisma.AlumniProfileDefaultArgs<ExtArgs>
+  mentor?: boolean | Prisma.MentorProfileDefaultArgs<ExtArgs>
 }
 
 export type $AvailabilityPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Availability"
   objects: {
-    alumni: Prisma.$AlumniProfilePayload<ExtArgs>
+    mentor: Prisma.$MentorProfilePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    alumniId: string
+    mentorId: string
     dayOfWeek: $Enums.DayOfWeek
     startTime: string
     endTime: string
@@ -902,7 +902,7 @@ readonly fields: AvailabilityFieldRefs;
  */
 export interface Prisma__AvailabilityClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  alumni<T extends Prisma.AlumniProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AlumniProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__AlumniProfileClient<runtime.Types.Result.GetResult<Prisma.$AlumniProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  mentor<T extends Prisma.MentorProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MentorProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__MentorProfileClient<runtime.Types.Result.GetResult<Prisma.$MentorProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -933,7 +933,7 @@ export interface Prisma__AvailabilityClient<T, Null = never, ExtArgs extends run
  */
 export interface AvailabilityFieldRefs {
   readonly id: Prisma.FieldRef<"Availability", 'String'>
-  readonly alumniId: Prisma.FieldRef<"Availability", 'String'>
+  readonly mentorId: Prisma.FieldRef<"Availability", 'String'>
   readonly dayOfWeek: Prisma.FieldRef<"Availability", 'DayOfWeek'>
   readonly startTime: Prisma.FieldRef<"Availability", 'String'>
   readonly endTime: Prisma.FieldRef<"Availability", 'String'>

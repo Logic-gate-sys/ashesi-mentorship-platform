@@ -1,43 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyJWT } from '@/app/_utils/jwt';
-import { prisma } from '@/app/_utils/db';
+import { prisma } from '@/utils&types/utils/db';
+import { requireAuth } from '@/app/ _libs_and_schemas/abac';
 
-
+//get user profile : details 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { errors: { message: 'Missing or invalid authorization header' } },
-        { status: 401 }
-      );
+    const authResult = await requireAuth(request)
+
+    if (authResult instanceof NextResponse) {
+      return authResult
     }
 
-    const token = authHeader.slice(7); 
-    // const token = authHeader.split('.')[1]; 
-    const payload = await verifyJWT(token);
+    const { user: userData } = authResult
 
-    if (!payload) {
-      return NextResponse.json(
-        { errors: { message: 'Invalid or expired token' } },
-        { status: 401 }
-      );
-    }
-
-    // Fetch user with profile data
+    // Fetch full user with profile data
     const user = await prisma.user.findUnique({
-      where: { id: payload.id },
+      where: { id: userData.id },
       include: {
-        studentProfile: true,
-        alumniProfile: true,
+        menteeProfile: true,
+        mentorProfile: true,
       },
-    });
+    })
 
     if (!user) {
       return NextResponse.json(
         { errors: { message: 'User not found' } },
         { status: 404 }
-      );
+      )
     }
 
     return NextResponse.json(
@@ -49,17 +38,19 @@ export async function GET(request: NextRequest) {
           lastName: user.lastName,
           role: user.role,
           avatarUrl: user.avatarUrl,
-          studentProfile: user.studentProfile,
-          alumniProfile: user.alumniProfile,
+          isVerified: user.isVerified,
+          isActive: user.isActive,
+          studentProfile: user.menteeProfile,
+          alumniProfile: user.menteeProfile,
         },
       },
       { status: 200 }
-    );
+    )
   } catch (error) {
-    console.error('[GET_ME_ERROR]', error);
+    console.error('[GET_ME_ERROR]', error)
     return NextResponse.json(
       { errors: { message: 'Failed to fetch user' } },
       { status: 500 }
-    );
+    )
   }
 }

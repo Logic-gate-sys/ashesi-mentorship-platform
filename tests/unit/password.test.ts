@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { hashPassword, verifyPassword } from '@/app/_utils/password';
+import { hashPassword, verifyPassword } from '@/app/_utils_and_types/utils/password';
 
 /**
  * Password Utility Tests

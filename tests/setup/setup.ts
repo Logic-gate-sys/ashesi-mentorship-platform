@@ -1,5 +1,13 @@
 import { afterEach } from "vitest";
-import { prisma } from '@/app/_utils/db'
+import { prisma } from '@/app/_utils_and_types/db'
+import '@testing-library/jest-dom';
+import { Buffer } from 'buffer';
+
+// Ensure Buffer is available in jsdom test environment
+// jose library requires Buffer for Uint8Array conversion
+if (typeof global.Buffer === 'undefined') {
+  (globalThis as any).Buffer = Buffer;
+}
 
 afterEach(async () => {
   try {

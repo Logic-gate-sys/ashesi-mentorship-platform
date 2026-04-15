@@ -1,74 +1,89 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/app/_utils/db';
-import { createJWT } from '@/app/_utils/jwt';
-import { verifyPassword } from '@/app/_utils/password';
-import { loginSchema } from '@/app/_schemas/auth.schema';
-import { ZodError } from 'zod';
+import { prisma } from '@/utils&types/utils/db';
+import { createJWT } from '@/utils&types/utils/jwt';
+import { verifyPassword } from '@/utils&types/utils/password';
+import { loginSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema';
 
+
+
+// api layer 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // Validate request body
-    const validatedData = loginSchema.parse(body);
+    const result = loginSchema.safeParse(body);
+    if(!result.success){
+      return NextResponse.json(
+        {
+          success: false, 
+          message:'Invalid request body',
+          details: result.error.issues.map((iss)=>({
+            path: iss.path.join("."),
+            message:iss.message
+          }) )
+        }, 
+        {status:400}
+      )
+    }
+    const validatedData = result.data ; 
 
     // Find user by email
     const user = await prisma.user.findUnique({
       where: { email: validatedData.email },
+      select: {
+        id:true,
+        email:true,
+        passwordHash:true,
+        role:true,
+        firstName:true,
+        lastName:true,
+        mentorProfile: {
+          select: {
+            company: true,
+            jobTitle: true,
+            industry: true
+          }
+        }
+      }
     });
 
-    if (!user) {
+    if (!user || !verifyPassword(validatedData.password, user.passwordHash)) {
       return NextResponse.json(
-        { errors: { message: 'Invalid email or password' } },
+        { errors: { message: 'Invalid login details' } },
         { status: 401 }
       );
     }
+    const {id, email, role,firstName, lastName} = user ; 
 
-    // Verify password
-    const isPasswordValid = verifyPassword(validatedData.password, user.passwordHash);
+    // Generate tokens
+    const accessToken = await createJWT({id, email, role, firstName, lastName,}, '15m');
+    const refreshToken = await createJWT({id, email,role, firstName,lastName}, '7d' )
 
-    if (!isPasswordValid) {
-      return NextResponse.json(
-        { errors: { message: 'Invalid email or password' } },
-        { status: 401 }
-      );
-    }
-
-    // Generate JWT token
-    const token = createJWT({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    });
-
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
-        token,
+       accessToken: accessToken, 
         user: {
           id: user.id,
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role,
+          profession: user.mentorProfile?.jobTitle??""
         },
       },
       { status: 200 }
     );
-  } catch (error) {
-    // Handle validation errors
-    if (error instanceof ZodError) {
-      const fieldErrors = error.flatten().fieldErrors;
-      return NextResponse.json(
-        { errors: fieldErrors },
-        { status: 400 }
-      );
-    }
-
-    console.error('[LOGIN_ERROR]', error);
+    response.cookies.set('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 604800, // 7 days
+      path: '/',
+    });
+    // return response
+    return response  
+  } catch (err) {
     return NextResponse.json(
-      { errors: { message: 'Login failed' } },
+      { errors: { message: 'Login failed', details:err.message } },
       { status: 500 }
     );
   }
