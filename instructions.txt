@@ -1,0 +1,35 @@
+Implementing the app dashboard screens.
+- I want you to implement the dashboard screens according to the svg images in the 
+DESIGN.txt file (for the design of the sidebar/main bar layout design in the (dashboard) )
+
+
+Notes: 
+ - There is a (dashboard) folder in which , mentor/student dashboards are to be implemented which should
+ follow these formats:
+ - use layout to define the overall dashboard layout(for both admin/student).
+ - Even though some navigations (differ for mentor/student) and what they link to (navs link are on the side bars)
+ according to the svgs, most are same and I want you to configure the dashboard/layout.tsx file to 
+ handle this correctly.
+
+ - Do not create an anti-pattern
+ # Implement the dashboard features ( from api level to the frontend level), following the prisma schema
+ 
+
+
+-------------------- MY PROMPT ------------------
+Based on the FEATURES.txt start implementing the mentor features one by one , using the 
+DESIGN.txt for actual colors and fonts, and then when you want to see how the screen should 
+look like check the DASHBOARD_DESIGN_GUIDES folder, 
+- You're to take the mentor features one step at a time and be pixel perfect according to
+the particular svg image in the DASHBOARD_DESIGN_GUIDES 
+- You're not to implement imaginary features but to follow the FEATURES.txt correctly.
+#Note
+- For each screen you want to  implement , use the particular look and feel found in the 
+
+DASHBOARD_DESIGN_GUIDES :
+- Your're to know that this is a nextjs project using app router.
+- The design is to follow modular pattern,and not introduce any anti-pattern
+- Note that, layout in the (dashboard) directory is to implement the sidebar and frame for 
+the mainbar. Ensures that that navigation tabs are tailored towards each group of user: mentor or 
+student or admin()
+#Modularity is key, and the design must correct with the svg file in the DASHBOARD_DESIGN_GUIDES directory

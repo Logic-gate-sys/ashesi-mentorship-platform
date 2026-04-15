@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "./generated/prisma"
@@ -8,12 +7,19 @@ datasource db {
   provider = "postgresql"
 }
 
-
+// --- ENUMS ---
 
 enum Role {
-  STUDENT
-  ALUMNI
+  MENTOR
+  MENTEE
   ADMIN
+}
+
+enum NotificationType {
+  NEW_MESSAGE
+  REQUEST_UPDATE
+  SESSION_REMINDER
+  SYSTEM_ANNOUNCEMENT
 }
 
 enum Industry {
@@ -23,6 +29,8 @@ enum Industry {
   HEALTHCARE
   EDUCATION
   ENGINEERING
+  ART_AND_DESIGN
+  MANUFACTURING
   OTHER
 }
 
@@ -31,12 +39,14 @@ enum RequestStatus {
   ACCEPTED
   DECLINED
   CANCELLED
+  EXPIRED
 }
 
 enum SessionStatus {
   SCHEDULED
   COMPLETED
   CANCELLED
+  RESCHEDULED
   NO_SHOW
 }
 
@@ -53,9 +63,23 @@ enum DayOfWeek {
 enum MessageType {
   TEXT
   FILE
-  SYSTEM
+  IMAGE
 }
 
+enum CycleStatus {
+  PLANNING
+  REGISTRATION_OPEN
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum MeetingType {
+  VIRTUAL
+  IN_PERSON
+}
+
+// ############################## MODELS ##############################################
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -69,205 +93,180 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  // one-to-one profile per role
-  studentProfile StudentProfile?
-  alumniProfile  AlumniProfile?
+  // Profiles
+  mentorProfile MentorProfile?
+  menteeProfile MenteeProfile?
 
-  // messaging
-  sentMessages     Message[] @relation("SentMessages")
-  conversations    ConversationParticipant[]
-
-  // notifications
-  notifications Notification[]
+  // Social / Communications
+  sentMessages     Message[]      @relation("SentMessages")
+  receivedMessages Message[]      @relation("ReceivedMessages")
+  notifications    Notification[]
+  messages         Message[]
 
   @@index([email])
   @@index([role])
 }
 
-model StudentProfile {
-  id        String  @id @default(uuid())
-  userId    String  @unique
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+model MenteeProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   yearGroup Int
   major     String
-  bio       String?
+  bio       String?  @db.Text
   linkedin  String?
-  interests String[]   // e.g. ["Fintech", "Machine Learning"]
+  interests String[]
 
-  // requests this student has sent
   requests MentorshipRequest[]
-
-  // sessions this student attended
   sessions Session[]
 
   @@index([major])
 }
 
-model AlumniProfile {
-  id             String   @id @default(uuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model MentorProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   graduationYear Int
   major          String
   company        String
   jobTitle       String
   industry       Industry
-  bio            String?
+  bio            String?  @db.Text
   linkedin       String?
-  skills         String[]    // e.g. ["React", "System Design"]
-  isAvailable    Boolean  @default(true)
+  skills         String[]
 
-  // requests received by this alumni
-  requests      MentorshipRequest[]
+  isAvailable Boolean @default(true)
+  maxMentees  Int     @default(2) // Limit mentor workload
 
-  // sessions this alumni hosted
-  sessions      Session[]
-
-  // weekly availability slots
-  availability  Availability[]
+  requests     MentorshipRequest[]
+  sessions     Session[]
+  availability Availability[]
 
   @@index([industry])
-  @@index([major])
   @@index([isAvailable])
 }
 
-model MentorshipRequest {
-  id        String        @id @default(uuid())
-  status    RequestStatus @default(PENDING)
+model MentorshipCycle {
+  id                    String              @id @default(uuid())
+  name                  String // e.g., "Fall 2026 Cohort"
+  status                CycleStatus         @default(PLANNING)
+  description           String?             @db.Text
+  startDate             DateTime
+  endDate               DateTime
+  registrationOpenDate  DateTime?
+  registrationCloseDate DateTime?
+  requests              MentorshipRequest[] // Track which requests belong to which cycle
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
 
-  studentId String
-  student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  alumniId  String
-  alumni    AlumniProfile  @relation(fields: [alumniId], references: [id], onDelete: Cascade)
-
-  goal      String         // min 20 chars, max 500
-  message   String?        // optional personal note, max 1000 chars
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  resolvedAt DateTime?
-
-  // a request, once accepted, leads to sessions
-  sessions Session[]
-
-  @@unique([studentId, alumniId, status])   // one pending request per pair
-  @@index([studentId])
-  @@index([alumniId])
-  @@index([status])
+  @@index([status, id])
 }
 
+model MentorshipRequest {
+  id         String          @id @default(uuid())
+  status     RequestStatus   @default(PENDING)
+  menteeId   String
+  mentee     MenteeProfile   @relation(fields: [menteeId], references: [id], onDelete: Cascade)
+  mentorId   String
+  mentor     MentorProfile   @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  cycleId    String
+  cycle      MentorshipCycle @relation(fields: [cycleId], references: [id])
+  goal       String          @db.Text
+  message    String?         @db.Text
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  resolvedAt DateTime?
+  sessions   Session[]
+
+  @@unique([menteeId, mentorId, cycleId]) // Prevent multiple requests in the same cycle
+  @@index([menteeId])
+  @@index([mentorId])
+}
 
 model Session {
-  id        String        @id @default(uuid())
-  status    SessionStatus @default(SCHEDULED)
-
-  requestId String
-  request   MentorshipRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-
-  studentId String
-  student   StudentProfile @relation(fields: [studentId], references: [id])
-
-  alumniId  String
-  alumni    AlumniProfile  @relation(fields: [alumniId], references: [id])
-
+  id          String            @id @default(uuid())
+  status      SessionStatus     @default(SCHEDULED)
+  type        MeetingType       @default(VIRTUAL)
+  requestId   String
+  request     MentorshipRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  menteeId    String
+  mentee      MenteeProfile     @relation(fields: [menteeId], references: [id])
+  mentorId    String
+  mentor      MentorProfile     @relation(fields: [mentorId], references: [id])
   topic       String
-  notes       String?
+  notes       String?           @db.Text
   scheduledAt DateTime
-  duration    Int          // minutes
-  meetingUrl  String?
+  duration    Int // minutes
+  meetingUrl  String? // Zoom/Google Meet link
 
-  feedback    SessionFeedback?
+  feedback  SessionFeedback?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([studentId])
-  @@index([alumniId])
+  @@index([menteeId])
+  @@index([mentorId])
   @@index([scheduledAt])
-  @@index([status])
 }
 
 model SessionFeedback {
-  id        String  @id @default(uuid())
-  sessionId String  @unique
-  session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  rating    Int     // 1–5
-  comment   String?
-
+  id        String   @id @default(uuid())
+  sessionId String   @unique
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  rating    Int // 1–5
+  comment   String?  @db.Text
   createdAt DateTime @default(now())
 }
 
 model Availability {
-  id        String   @id @default(uuid())
-  alumniId  String
-  alumni    AlumniProfile @relation(fields: [alumniId], references: [id], onDelete: Cascade)
+  id       String        @id @default(uuid())
+  mentorId String
+  mentor   MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
 
   dayOfWeek DayOfWeek
-  startTime String    // "09:00"
-  endTime   String    // "11:00"
+  startTime String // "HH:mm" format
+  endTime   String
 
-  @@unique([alumniId, dayOfWeek, startTime])
-  @@index([alumniId])
+  @@unique([mentorId, dayOfWeek, startTime])
 }
 
 model Conversation {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  participants ConversationParticipant[]
-  messages     Message[]
-}
-
-model ConversationParticipant {
-  id             String       @id @default(uuid())
-  conversationId String
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  lastReadAt DateTime?
-
-  @@unique([conversationId, userId])
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  messages  Message[]
 }
 
 model Message {
-  id             String       @id @default(uuid())
-  conversationId String
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-
-  senderId String
-  sender   User   @relation("SentMessages", fields: [senderId], references: [id])
-
-  type    MessageType @default(TEXT)
-  body    String
-  fileUrl String?
-
-  createdAt DateTime @default(now())
-
-  @@index([conversationId, createdAt])
+  id             String        @id @default(uuid())
+  senderId       String
+  receiverId     String
+  type           MessageType   @default(TEXT)
+  body           String        @db.Text
+  fileUrl        String? // if type is file
+  createdAt      DateTime      @default(now())
+  sender         User          @relation("SentMessages", fields: [senderId], references: [id])
+  receiver       User          @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  user           User?         @relation(fields: [userId], references: [id])
+  userId         String?
+  conversation   Conversation? @relation(fields: [conversationId], references: [id])
+  conversationId String?
 }
 
-
+//email notification 
 model Notification {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  type      String   // "REQUEST_RECEIVED" | "REQUEST_ACCEPTED" | "SESSION_REMINDER" etc.
+  type      NotificationType
   title     String
   body      String
-  isRead    Boolean  @default(false)
-  link      String?  // "/sessions/abc" — deep link in the app
-
-  createdAt DateTime @default(now())
+  path      String? // e.g., "/dashboard/requests/123"
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
 
   @@index([userId, isRead])
-  @@index([createdAt])
 }
-

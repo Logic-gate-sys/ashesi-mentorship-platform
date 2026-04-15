@@ -10,12 +10,22 @@
 */
 
 export const Role = {
-  STUDENT: 'STUDENT',
-  ALUMNI: 'ALUMNI',
+  MENTOR: 'MENTOR',
+  MENTEE: 'MENTEE',
   ADMIN: 'ADMIN'
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const NotificationType = {
+  NEW_MESSAGE: 'NEW_MESSAGE',
+  REQUEST_UPDATE: 'REQUEST_UPDATE',
+  SESSION_REMINDER: 'SESSION_REMINDER',
+  SYSTEM_ANNOUNCEMENT: 'SYSTEM_ANNOUNCEMENT'
+} as const
+
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
 
 
 export const Industry = {
@@ -25,6 +35,8 @@ export const Industry = {
   HEALTHCARE: 'HEALTHCARE',
   EDUCATION: 'EDUCATION',
   ENGINEERING: 'ENGINEERING',
+  ART_AND_DESIGN: 'ART_AND_DESIGN',
+  MANUFACTURING: 'MANUFACTURING',
   OTHER: 'OTHER'
 } as const
 
@@ -35,7 +47,8 @@ export const RequestStatus = {
   PENDING: 'PENDING',
   ACCEPTED: 'ACCEPTED',
   DECLINED: 'DECLINED',
-  CANCELLED: 'CANCELLED'
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED'
 } as const
 
 export type RequestStatus = (typeof RequestStatus)[keyof typeof RequestStatus]
@@ -45,6 +58,7 @@ export const SessionStatus = {
   SCHEDULED: 'SCHEDULED',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED',
+  RESCHEDULED: 'RESCHEDULED',
   NO_SHOW: 'NO_SHOW'
 } as const
 
@@ -67,7 +81,26 @@ export type DayOfWeek = (typeof DayOfWeek)[keyof typeof DayOfWeek]
 export const MessageType = {
   TEXT: 'TEXT',
   FILE: 'FILE',
-  SYSTEM: 'SYSTEM'
+  IMAGE: 'IMAGE'
 } as const
 
 export type MessageType = (typeof MessageType)[keyof typeof MessageType]
+
+
+export const CycleStatus = {
+  PLANNING: 'PLANNING',
+  REGISTRATION_OPEN: 'REGISTRATION_OPEN',
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type CycleStatus = (typeof CycleStatus)[keyof typeof CycleStatus]
+
+
+export const MeetingType = {
+  VIRTUAL: 'VIRTUAL',
+  IN_PERSON: 'IN_PERSON'
+} as const
+
+export type MeetingType = (typeof MeetingType)[keyof typeof MeetingType]

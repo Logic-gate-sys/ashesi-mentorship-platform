@@ -52,14 +52,14 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  StudentProfile: 'StudentProfile',
-  AlumniProfile: 'AlumniProfile',
+  MenteeProfile: 'MenteeProfile',
+  MentorProfile: 'MentorProfile',
+  MentorshipCycle: 'MentorshipCycle',
   MentorshipRequest: 'MentorshipRequest',
   Session: 'Session',
   SessionFeedback: 'SessionFeedback',
   Availability: 'Availability',
   Conversation: 'Conversation',
-  ConversationParticipant: 'ConversationParticipant',
   Message: 'Message',
   Notification: 'Notification'
 } as const
@@ -97,7 +97,7 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const StudentProfileScalarFieldEnum = {
+export const MenteeProfileScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   yearGroup: 'yearGroup',
@@ -107,10 +107,10 @@ export const StudentProfileScalarFieldEnum = {
   interests: 'interests'
 } as const
 
-export type StudentProfileScalarFieldEnum = (typeof StudentProfileScalarFieldEnum)[keyof typeof StudentProfileScalarFieldEnum]
+export type MenteeProfileScalarFieldEnum = (typeof MenteeProfileScalarFieldEnum)[keyof typeof MenteeProfileScalarFieldEnum]
 
 
-export const AlumniProfileScalarFieldEnum = {
+export const MentorProfileScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   graduationYear: 'graduationYear',
@@ -121,17 +121,35 @@ export const AlumniProfileScalarFieldEnum = {
   bio: 'bio',
   linkedin: 'linkedin',
   skills: 'skills',
-  isAvailable: 'isAvailable'
+  isAvailable: 'isAvailable',
+  maxMentees: 'maxMentees'
 } as const
 
-export type AlumniProfileScalarFieldEnum = (typeof AlumniProfileScalarFieldEnum)[keyof typeof AlumniProfileScalarFieldEnum]
+export type MentorProfileScalarFieldEnum = (typeof MentorProfileScalarFieldEnum)[keyof typeof MentorProfileScalarFieldEnum]
+
+
+export const MentorshipCycleScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  status: 'status',
+  description: 'description',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  registrationOpenDate: 'registrationOpenDate',
+  registrationCloseDate: 'registrationCloseDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MentorshipCycleScalarFieldEnum = (typeof MentorshipCycleScalarFieldEnum)[keyof typeof MentorshipCycleScalarFieldEnum]
 
 
 export const MentorshipRequestScalarFieldEnum = {
   id: 'id',
   status: 'status',
-  studentId: 'studentId',
-  alumniId: 'alumniId',
+  menteeId: 'menteeId',
+  mentorId: 'mentorId',
+  cycleId: 'cycleId',
   goal: 'goal',
   message: 'message',
   createdAt: 'createdAt',
@@ -145,9 +163,10 @@ export type MentorshipRequestScalarFieldEnum = (typeof MentorshipRequestScalarFi
 export const SessionScalarFieldEnum = {
   id: 'id',
   status: 'status',
+  type: 'type',
   requestId: 'requestId',
-  studentId: 'studentId',
-  alumniId: 'alumniId',
+  menteeId: 'menteeId',
+  mentorId: 'mentorId',
   topic: 'topic',
   notes: 'notes',
   scheduledAt: 'scheduledAt',
@@ -173,7 +192,7 @@ export type SessionFeedbackScalarFieldEnum = (typeof SessionFeedbackScalarFieldE
 
 export const AvailabilityScalarFieldEnum = {
   id: 'id',
-  alumniId: 'alumniId',
+  mentorId: 'mentorId',
   dayOfWeek: 'dayOfWeek',
   startTime: 'startTime',
   endTime: 'endTime'
@@ -191,24 +210,16 @@ export const ConversationScalarFieldEnum = {
 export type ConversationScalarFieldEnum = (typeof ConversationScalarFieldEnum)[keyof typeof ConversationScalarFieldEnum]
 
 
-export const ConversationParticipantScalarFieldEnum = {
-  id: 'id',
-  conversationId: 'conversationId',
-  userId: 'userId',
-  lastReadAt: 'lastReadAt'
-} as const
-
-export type ConversationParticipantScalarFieldEnum = (typeof ConversationParticipantScalarFieldEnum)[keyof typeof ConversationParticipantScalarFieldEnum]
-
-
 export const MessageScalarFieldEnum = {
   id: 'id',
-  conversationId: 'conversationId',
   senderId: 'senderId',
+  receiverId: 'receiverId',
   type: 'type',
   body: 'body',
   fileUrl: 'fileUrl',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  userId: 'userId',
+  conversationId: 'conversationId'
 } as const
 
 export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
@@ -220,8 +231,8 @@ export const NotificationScalarFieldEnum = {
   type: 'type',
   title: 'title',
   body: 'body',
+  path: 'path',
   isRead: 'isRead',
-  link: 'link',
   createdAt: 'createdAt'
 } as const
 

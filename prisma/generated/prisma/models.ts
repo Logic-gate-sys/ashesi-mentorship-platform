@@ -9,14 +9,14 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User'
-export type * from './models/StudentProfile'
-export type * from './models/AlumniProfile'
+export type * from './models/MenteeProfile'
+export type * from './models/MentorProfile'
+export type * from './models/MentorshipCycle'
 export type * from './models/MentorshipRequest'
 export type * from './models/Session'
 export type * from './models/SessionFeedback'
 export type * from './models/Availability'
 export type * from './models/Conversation'
-export type * from './models/ConversationParticipant'
 export type * from './models/Message'
 export type * from './models/Notification'
 export type * from './commonInputTypes'

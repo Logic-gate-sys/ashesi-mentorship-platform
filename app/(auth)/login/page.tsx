@@ -1,47 +1,24 @@
 'use client'
-
 import { useState } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import {Input, Button } from '@/app/_components/ui/_index'
-import { useAuth } from '@/app/_lib/auth-context'
-import { loginSchema } from '@/app/_schemas/auth.schema'
+import { useAuth } from '@/app/ _libs_and_schemas/context/auth-context'
+import { loginSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema'
+import { EyeIcon } from '@/comp&hooks/ui/icons'
+type LoginInput = z.infer<typeof loginSchema> ; 
 
-type LoginInput = z.infer<typeof loginSchema>
 
-// ── Eye icon ──────────────────────────────────────────────────
-
-function EyeIcon({ open }: { open: boolean }) {
-  return open ? (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-      <line x1="1" y1="1" x2="23" y2="23"/>
-    </svg>
-  ) : (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
-  )
-}
-
-// ── Page ──────────────────────────────────────────────────────
 
 export default function LoginPage() {
   const { login, isLoading } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
-    mode: 'onTouched', // Validate on blur/touched for better UX
+  const {register,handleSubmit,formState: { errors }} = useForm<LoginInput>({
+ resolver: zodResolver(loginSchema),
+    mode: 'onTouched',
   })
 
   const onSubmit = async (data: LoginInput) => {
@@ -54,143 +31,158 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full max-w-[400px]">
-
-      {/* Heading */}
-      <div className="mb-8">
-        <h1 className="font-display font-bold text-[28px] text-text tracking-tight leading-tight">
-          Welcome back
-        </h1>
-        <p className="font-body text-[14px] text-text-muted mt-1.5">
-          Log in to your mentorship account
-        </p>
-      </div>
-
-      {/* Server error banner */}
-      {serverError && (
-        <div className="mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-[8px] flex items-start gap-2.5">
-          <svg className="shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <p className="font-body text-[13px] text-red-600">{serverError}</p>
-        </div>
-      )}
-
-      {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
-
-        <Input
-          id="email"
-          type="email"
-          label="Email address"
-          placeholder="you@ashesi.edu.gh"
-          autoComplete="email"
-          error={errors.email?.message}
-          {...register('email')}
-        />
-
-        <Input
-          id="password"
-          type={showPassword ? 'text' : 'password'}
-          label="Password"
-          placeholder="••••••••"
-          autoComplete="current-password"
-          error={errors.password?.message}
-          right={
-            <button
-              type="button"
-              onClick={() => setShowPassword(p => !p)}
-              className="hover:text-text transition-colors"
-              tabIndex={-1}
+    <div className="w-full">
+      <div className="flex flex-col items-center justify-center">
+        <div className="w-full max-w-md">
+            {/* Heading */}
+            <h2
+              className="text-3xl text-center mb-8 text-[#181821]"
+              style={{ fontFamily: "'Bree Serif', serif", fontWeight: 400 }}
             >
-              <EyeIcon open={showPassword} />
-            </button>
-          }
-          {...register('password')}
-        />
+              Welcome Back
+            </h2>
 
-        {/* Remember + forgot */}
-        <div className="flex items-center justify-between">
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              className="w-4 h-4 rounded accent-brand cursor-pointer"
-            />
-            <span className="font-body text-[13px] text-text-sub">Keep me logged in</span>
-          </label>
-          <Link
-            href="/forgot-password"
-            className="font-body text-[13px] font-medium text-brand hover:opacity-80 transition-opacity"
-          >
-            Forgot password?
-          </Link>
+            {/* Server Error */}
+            {serverError && (
+              <div className="mb-6 p-3 bg-[#FEE2E2] border border-[#FECACA] rounded text-[#923D41] text-sm" style={{ fontFamily: "'Quicksand', sans-serif" }}>
+                {serverError}
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+              {/* Email Field */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-bold mb-2 text-[#0A0909]"
+                  style={{ fontFamily: "'Quicksand', sans-serif" }}
+                >
+                  Email Address
+                </label>
+                <div className="relative">
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="you@ashesi.edu.gh"
+                    autoComplete="email"
+                    {...register('email')}
+                    className={`w-full px-4 py-3 pr-10 rounded-lg bg-[#FAF8F8] border-2 outline-none transition-all ${
+                      errors.email ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
+                    } focus:border-[#7B1427]`}
+                    style={{ fontFamily: "'Quicksand', sans-serif" }}
+                  />
+                  <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#923D41]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                  </svg>
+                </div>
+                {errors.email && <p className="text-xs text-[#923D41] mt-1">{errors.email.message}</p>}
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-bold mb-2 text-[#0B0A0A]"
+                  style={{ fontFamily: "'Quicksand', sans-serif" }}
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    {...register('password')}
+                    className={`w-full px-4 py-3 pr-12 rounded-lg bg-[#FAF8F8] border-2 outline-none transition-all ${
+                      errors.password ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
+                    } focus:border-[#7B1427]`}
+                    style={{ fontFamily: "'Quicksand', sans-serif" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#923D41] hover:text-[#7B1427]"
+                  >
+                    <EyeIcon open={showPassword} />
+                  </button>
+                </div>
+                {errors.password && <p className="text-xs text-[#923D41] mt-1">{errors.password.message}</p>}
+              </div>
+
+              {/* Forgot Password */}
+              <div className="text-right">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm font-bold text-[#923D41] hover:text-[#7B1427]"
+                  style={{ fontFamily: "'Quicksand', sans-serif" }}
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+
+              {/* Login Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3 mt-6 bg-[#923D41] text-white font-bold rounded-lg hover:bg-[#7B1427] disabled:opacity-50 transition-all shadow-md"
+                style={{ fontFamily: "'Bree Serif', serif", fontSize: '18px' }}
+              >
+                {isLoading ? 'Logging in...' : 'Login'}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 my-6">
+              <div className="flex-1 h-px bg-[#E5E5E5]" />
+              <span className="text-xs text-[#999]" style={{ fontFamily: "'Quicksand', sans-serif" }}>
+                or
+              </span>
+              <div className="flex-1 h-px bg-[#E5E5E5]" />
+            </div>
+
+            {/* Social Buttons */}
+            <div className="flex gap-3 justify-center">
+              <button
+                type="button"
+                className="flex-1 py-3 border border-[#E5E5E5] rounded-lg hover:border-[#923D41] hover:bg-[#FAF8F8] transition-all flex items-center justify-center"
+              >
+                {/* Google Logo */}
+                <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <g transform="matrix(1, 0, 0, 1, 27.009766, -39.238281)">
+                    <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/>
+                    <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"/>
+                    <path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"/>
+                    <path fill="#EA4335" d="M -14.754 43.989 C -13.004 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/>
+                  </g>
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                className="flex-1 py-3 border border-[#E5E5E5] rounded-lg hover:border-[#923D41] bg-[#F5F5F5] hover:bg-[#ECECEC] transition-all flex items-center justify-center"
+              >
+                {/* Microsoft Logo */}
+                <svg className="w-8 h-8" viewBox="0 0 23 23" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="1" width="5" height="5" fill="#F25022"/>
+                  <rect x="9" y="1" width="5" height="5" fill="#7FBA00"/>
+                  <rect x="1" y="9" width="5" height="5" fill="#00A4EF"/>
+                  <rect x="9" y="9" width="5" height="5" fill="#FFB900"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* Sign up link */}
+            <p className="text-center text-xs text-[#666] mt-6" style={{ fontFamily: "'Quicksand', sans-serif" }}>
+              Don&apos;t have an account?{' '}
+              <Link href="/register" className="font-bold text-[#923D41] hover:text-[#7B1427]">
+                Sign up here
+              </Link>
+            </p>
         </div>
-
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          full
-          loading={isLoading}
-        >
-          Log in
-        </Button>
-      </form>
-
-      {/* Divider */}
-      <div className="flex items-center gap-3 my-7">
-        <div className="flex-1 h-px bg-border" />
-        <span className="font-body text-[12px] text-text-muted">new here?</span>
-        <div className="flex-1 h-px bg-border" />
       </div>
-
-      {/* Role cards */}
-      <div className="grid grid-cols-2 gap-3">
-
-        <Link
-          href="/register/student"
-          className="card p-4 flex flex-col items-center gap-2.5 text-center hover:border-brand transition-colors group"
-        >
-          <div className="w-9 h-9 rounded-[10px] bg-brand/10 flex items-center justify-center group-hover:bg-brand/15 transition-colors">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B2B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-            </svg>
-          </div>
-          <div>
-            <p className="font-body text-[13px] font-semibold text-text">Student</p>
-            <p className="font-body text-[11px] text-text-muted mt-0.5">Find a mentor</p>
-          </div>
-        </Link>
-
-        <Link
-          href="/register/alumni"
-          className="card p-4 flex flex-col items-center gap-2.5 text-center hover:border-tag-purple transition-colors group"
-        >
-          <div className="w-9 h-9 rounded-[10px] bg-tag-purple/10 flex items-center justify-center group-hover:bg-tag-purple/15 transition-colors">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9747FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-          </div>
-          <div>
-            <p className="font-body text-[13px] font-semibold text-text">Alumni</p>
-            <p className="font-body text-[11px] text-text-muted mt-0.5">Become a mentor</p>
-          </div>
-        </Link>
-      </div>
-
-      {/* Sign up link */}
-      <p className="font-body text-center text-[13px] text-text-muted mt-8">
-        Don&apos;t have an account?{' '}
-        <Link
-          href="/register/student"
-          className="font-semibold text-brand hover:opacity-80 transition-opacity"
-        >
-          Sign up
-        </Link>
-      </p>
     </div>
   )
 }

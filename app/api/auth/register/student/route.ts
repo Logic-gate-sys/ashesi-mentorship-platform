@@ -1,90 +1,110 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/app/_lib/db';
-import { createJWT } from '@/app/_lib/jwt';
-import { hashPassword } from '@/app/_lib/password';
-import { studentRegisterSchema } from '@/app/_schemas/auth.schema';
-import { ZodError } from 'zod';
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/utils&types/utils/db'
+import { createJWT } from '@/utils&types/utils/jwt'
+import { hashPassword } from '@/app/_utils_and_types/utils/password'
+import { studentRegisterSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema'
+import { Role } from '@/prisma/generated/prisma/enums'
 
-/**
- * POST /api/auth/register/student
- * Register a new student user
- */
+
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    
-    // Validate request body
-    const validatedData = studentRegisterSchema.parse(body);
-
-    // Check if user already exists
+    const body = await request.json()
+    const result = studentRegisterSchema.safeParse(body)
+   // if response fails
+    if (!result.success) {
+      return NextResponse.json({
+        success: false,
+        details: result.error.issues.map((iss)=>({
+          path: iss.path.join("."),
+          message:iss.message
+        }))
+      }, 
+      {
+        status:400
+      })
+    }
+    const validatedData = result.data
     const existingUser = await prisma.user.findUnique({
       where: { email: validatedData.email },
-    });
-
+    })
     if (existingUser) {
       return NextResponse.json(
-        { errors: { email: 'Email already registered' } },
-        { status: 409 }
-      );
+        { error: 'An account with this email already exists' },
+        { status: 400 }
+      )
     }
-
-    // Hash password
-    const passwordHash = hashPassword(validatedData.password);
-
-    // Create user and student profile
+    const passwordHash = hashPassword(validatedData.password)
     const user = await prisma.user.create({
       data: {
         email: validatedData.email,
         passwordHash,
-        role: 'STUDENT',
+        role: Role.MENTEE,
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
-        studentProfile: {
+        menteeProfile: {
           create: {
-            year: validatedData.year,
+            yearGroup: validatedData.year,
             major: validatedData.major,
+            interests: validatedData.interests || [],
+            bio: validatedData.bio || null,
+            linkedin: validatedData.linkedin || null,
           },
         },
       },
-      include: { studentProfile: true },
-    });
+      select:{
+       id: true,
+       email:true,
+       role:true,
+       firstName:true,
+       lastName:true,
+       menteeProfile: true
+      }
+    })
 
-    // Generate JWT token
-    const token = createJWT({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    });
-
-    return NextResponse.json(
+    const accessToken = await createJWT(
       {
-        token,
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-        },
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+      '15m' // Access token expires in 15 minutes
+    )
+    const refreshToken = await createJWT(
+      {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+      '7d' // Refresh token expires in 7 days
+    )
+    const response = NextResponse.json(
+      {
+        success: true,
+        accessToken: accessToken,
+        user: user,
       },
       { status: 201 }
-    );
-  } catch (error) {
-    // Handle validation errors
-    if (error instanceof ZodError) {
-      const fieldErrors = error.flatten().fieldErrors;
-      return NextResponse.json(
-        { errors: fieldErrors },
-        { status: 400 }
-      );
-    }
+    )
+    response.cookies.set('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 604800, // 7 days
+      path: '/',
+    })
 
-    console.error('[STUDENT_REGISTER_ERROR]', error);
+    return response
+  } catch (error) {
+    console.error('Student registration error:', error)
     return NextResponse.json(
-      { errors: { message: 'Registration failed' } },
+      { 
+        error: 'Registration failed. Please try again.',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
-    );
+    )
   }
 }

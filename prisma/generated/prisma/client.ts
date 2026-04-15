@@ -47,15 +47,20 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
- * Model StudentProfile
+ * Model MenteeProfile
  * 
  */
-export type StudentProfile = Prisma.StudentProfileModel
+export type MenteeProfile = Prisma.MenteeProfileModel
 /**
- * Model AlumniProfile
+ * Model MentorProfile
  * 
  */
-export type AlumniProfile = Prisma.AlumniProfileModel
+export type MentorProfile = Prisma.MentorProfileModel
+/**
+ * Model MentorshipCycle
+ * 
+ */
+export type MentorshipCycle = Prisma.MentorshipCycleModel
 /**
  * Model MentorshipRequest
  * 
@@ -81,11 +86,6 @@ export type Availability = Prisma.AvailabilityModel
  * 
  */
 export type Conversation = Prisma.ConversationModel
-/**
- * Model ConversationParticipant
- * 
- */
-export type ConversationParticipant = Prisma.ConversationParticipantModel
 /**
  * Model Message
  * 

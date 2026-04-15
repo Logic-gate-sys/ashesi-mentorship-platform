@@ -1,87 +1,77 @@
+'use client'
+
 import type { ReactNode } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
+import bgImage from '@/comp&hooks/images/login-bg.png';
 
-interface AuthLayoutProps {
-  children: ReactNode
-}
-
-export default function AuthLayout({ children }: AuthLayoutProps) {
+export default function AuthLayout({ children }: {children: ReactNode}) {
   return (
-    <div className="min-h-screen flex bg-page font-body">
+    <div className="flex min-h-screen w-full bg-white overflow-hidden">
+      <div className="hidden rounded-r-[120px] lg:flex lg:w-[50%] relative overflow-hidden flex-col items-center justify-center px-12 py-20">
+        {/* Background Image */}
+        <Image
+          src={bgImage}
+          alt="Mentorship Background"
+          fill
+          className="object-cover"
+          priority
+          sizes="(max-width: 1024px) 0px, 50vw"
+        />
+        
+        {/* Overlay - reddish/maroon tint */}
+        <div className="absolute inset-0 bg-[rgba(146,61,65,0.75)]" />
+        
+        {/* Content */}
+        <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
+          {/* Spacer */}
+          <div />
 
-      <div className="hidden lg:flex w-105 shrink-0 bg-red-900 flex-col justify-between px-12 py-12 relative overflow-hidden">
+          {/* Main Content */}
+          <div className="text-center max-w-sm">
+            <h1
+              className="text-4xl leading-tight text-white mb-6"
+              style={{ fontFamily: "'Bree Serif', serif", fontWeight: 400 }}
+            >
+              Discover Your Path.
+            </h1>
+            <h2
+              className="text-4xl leading-tight text-white mb-6"
+              style={{ fontFamily: "'Bree Serif', serif", fontWeight: 400 }}
+            >
+              Welcome to Ashesi Mentorship!
+            </h2>
 
-        {/* Decorative rings */}
-        <div className="absolute -top-28 -right-28 w-90 h-90 rounded-full border border-brand/10 pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-70 h-70 rounded-full bg-brand/8 blur-[60px] pointer-events-none" />
-
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 w-fit">
-          <div className="w-9 h-9 bg-orange-800 rounded-btn flex items-center justify-center shrink-0">
-            <span className="font-display font-extrabold text-white text-base leading-none">A</span>
-          </div>
-          <div>
-            <p className="font-display font-bold text-white text-[16px] tracking-tight leading-none">
-              AshesiConnect
+            <p
+              className="text-lg text-white mb-12 font-bold"
+              style={{ fontFamily: "'Quicksand', sans-serif" }}
+            >
+              Connect with alumni and peers.
             </p>
-            <p className="font-body text-[10px] text-white/35 tracking-[0.08em] uppercase mt-0.5">
-              Alumni Mentorship
+
+            <p
+              className="text-base text-white mb-6 font-bold"
+              style={{ fontFamily: "'Quicksand', sans-serif" }}
+            >
+              Don&apos;t have an account
             </p>
+
+            <Link
+              href="/register"
+              className="inline-block px-8 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-[#923D41] transition-all duration-300"
+              style={{ fontFamily: "'Quicksand', sans-serif" }}
+            >
+              Create Account
+            </Link>
           </div>
-        </Link>
 
-        {/* Copy */}
-        <div>
-    
-
-          <h2 className="font-display font-extrabold text-white text-[32px] leading-[1.15] tracking-tight mb-4">
-            Your Ashesi network,<br />working for you
-          </h2>
-
-          <p className="font-body text-[14px] text-white/45 leading-relaxed">
-            Connect with alumni who have taken the same courses,
-            faced the same challenges, and succeeded in the roles
-            you are aiming for.
-          </p>
-
-          {/* Stats */}
-          <div className="flex gap-8 mt-10">
-            {[
-              { value: '500+', label: 'Mentors'   },
-              { value: '94%',  label: 'Placement' },
-              { value: '4.9★', label: 'Rating'    },
-            ].map(s => (
-              <div key={s.label}>
-                <p className="font-display font-bold text-[24px] text-brand tracking-tight leading-none">
-                  {s.value}
-                </p>
-                <p className="font-body text-[12px] text-white/38 mt-1">
-                  {s.label}
-                </p>
-              </div>
-            ))}
-          </div>
+          {/* Spacer */}
+          <div />
         </div>
-
-        {/* Footer */}
-        <p className="font-body text-[12px] text-white/25">
-          © {new Date().getFullYear()} Ashesi University
-        </p>
       </div>
 
-      {/* ── RIGHT — form slot ──────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 overflow-y-auto">
-
-        {/* Mobile logo */}
-        <div className="absolute top-5 left-5 flex items-center gap-2 lg:hidden">
-          <div className="w-8 h-8 bg-brand rounded-[8px] flex items-center justify-center">
-            <span className="font-display font-extrabold text-white text-sm leading-none">A</span>
-          </div>
-          <span className="font-display font-bold text-text text-[15px] tracking-tight">
-            AshesiConnect
-          </span>
-        </div>
-
+      <div className="w-full lg:w-[70%] flex flex-col items-center justify-center px-6 sm:px-16 py-12 
+      sm:py-20 overflow-y-auto bg-white">
         {children}
       </div>
     </div>

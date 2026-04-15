@@ -19,7 +19,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@/comp&hooks/*":["./app/_components_and_hooks/*"],
+      "@/libs&schema/*":["./app/_libs_and_schemas/*"],
+      "@/utils&types/*":["./app/_utils_and_types/*"]
     }
   },
   "include": [
@@ -28,7 +31,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    "app/globals.css"
   ],
   "exclude": ["node_modules"]
 }

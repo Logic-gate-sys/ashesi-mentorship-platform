@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { AuthProvider, useAuth } from '@/app/_lib/auth-context';
+import { AuthProvider, useAuth } from '@/app/ _libs_and_schemas/context/auth-context';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
