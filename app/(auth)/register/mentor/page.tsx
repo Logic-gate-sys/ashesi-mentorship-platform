@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input, Button } from "@/app/_components_and_hooks/ui/_index";
-import { alumniRegisterSchema } from "@/app/ _libs_and_schemas/schemas/alumni.schema";
+import { alumniRegisterSchema } from "@/app/ _libs_and_schemas/schemas/auth.schema";
 import { validateStrongPassword } from "@/app/ _libs_and_schemas/schemas/auth.schema";
 import { useAuth } from "@/app/ _libs_and_schemas/context/auth-context";
 import { EyeIcon, ErrorIcon } from "@/comp&hooks/ui/icons";

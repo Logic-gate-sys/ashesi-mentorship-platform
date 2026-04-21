@@ -193,7 +193,7 @@ export type MentorshipRequestGroupByOutputType = {
   _max: MentorshipRequestMaxAggregateOutputType | null
 }
 
-type GetMentorshipRequestGroupByPayload<T extends MentorshipRequestGroupByArgs> = Prisma.PrismaPromise<
+export type GetMentorshipRequestGroupByPayload<T extends MentorshipRequestGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<MentorshipRequestGroupByOutputType, T['by']> &
       {

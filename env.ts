@@ -1,7 +1,14 @@
 import { z } from 'zod'
+import { env as loadEnv } from "custom-env";
 
-process.env.APP_STAGE = process.env.VITEST ? 'test' : (process.env.APP_STAGE || 'dev')
 
+process.env.APP_STAGE = process.env.VITEST ? 'test' : (process.env.APP_STAGE || 'dev');
+
+if(process.env.APP_STAGE==='dev'){
+  loadEnv()
+}else{
+  loadEnv('test')
+}
 export const envSchema = z.object({
   NODE_ENV: z.enum(['production', 'development', 'test']).default('development'),
   APP_STAGE: z.enum(['production', 'dev', 'test']).default('dev'),

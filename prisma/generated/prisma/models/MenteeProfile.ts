@@ -202,7 +202,7 @@ export type MenteeProfileGroupByOutputType = {
   _max: MenteeProfileMaxAggregateOutputType | null
 }
 
-type GetMenteeProfileGroupByPayload<T extends MenteeProfileGroupByArgs> = Prisma.PrismaPromise<
+export type GetMenteeProfileGroupByPayload<T extends MenteeProfileGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<MenteeProfileGroupByOutputType, T['by']> &
       {
@@ -229,6 +229,7 @@ export type MenteeProfileWhereInput = {
   linkedin?: Prisma.StringNullableFilter<"MenteeProfile"> | string | null
   interests?: Prisma.StringNullableListFilter<"MenteeProfile">
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  mentors?: Prisma.MentorProfileListRelationFilter
   requests?: Prisma.MentorshipRequestListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
 }
@@ -242,6 +243,7 @@ export type MenteeProfileOrderByWithRelationInput = {
   linkedin?: Prisma.SortOrderInput | Prisma.SortOrder
   interests?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  mentors?: Prisma.MentorProfileOrderByRelationAggregateInput
   requests?: Prisma.MentorshipRequestOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
 }
@@ -258,6 +260,7 @@ export type MenteeProfileWhereUniqueInput = Prisma.AtLeast<{
   linkedin?: Prisma.StringNullableFilter<"MenteeProfile"> | string | null
   interests?: Prisma.StringNullableListFilter<"MenteeProfile">
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  mentors?: Prisma.MentorProfileListRelationFilter
   requests?: Prisma.MentorshipRequestListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
 }, "id" | "userId">
@@ -298,6 +301,7 @@ export type MenteeProfileCreateInput = {
   linkedin?: string | null
   interests?: Prisma.MenteeProfileCreateinterestsInput | string[]
   user: Prisma.UserCreateNestedOneWithoutMenteeProfileInput
+  mentors?: Prisma.MentorProfileCreateNestedManyWithoutMenteesInput
   requests?: Prisma.MentorshipRequestCreateNestedManyWithoutMenteeInput
   sessions?: Prisma.SessionCreateNestedManyWithoutMenteeInput
 }
@@ -310,6 +314,7 @@ export type MenteeProfileUncheckedCreateInput = {
   bio?: string | null
   linkedin?: string | null
   interests?: Prisma.MenteeProfileCreateinterestsInput | string[]
+  mentors?: Prisma.MentorProfileUncheckedCreateNestedManyWithoutMenteesInput
   requests?: Prisma.MentorshipRequestUncheckedCreateNestedManyWithoutMenteeInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutMenteeInput
 }
@@ -322,6 +327,7 @@ export type MenteeProfileUpdateInput = {
   linkedin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interests?: Prisma.MenteeProfileUpdateinterestsInput | string[]
   user?: Prisma.UserUpdateOneRequiredWithoutMenteeProfileNestedInput
+  mentors?: Prisma.MentorProfileUpdateManyWithoutMenteesNestedInput
   requests?: Prisma.MentorshipRequestUpdateManyWithoutMenteeNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutMenteeNestedInput
 }
@@ -334,6 +340,7 @@ export type MenteeProfileUncheckedUpdateInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   linkedin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interests?: Prisma.MenteeProfileUpdateinterestsInput | string[]
+  mentors?: Prisma.MentorProfileUncheckedUpdateManyWithoutMenteesNestedInput
   requests?: Prisma.MentorshipRequestUncheckedUpdateManyWithoutMenteeNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutMenteeNestedInput
 }
@@ -416,6 +423,16 @@ export type MenteeProfileSumOrderByAggregateInput = {
   yearGroup?: Prisma.SortOrder
 }
 
+export type MenteeProfileListRelationFilter = {
+  every?: Prisma.MenteeProfileWhereInput
+  some?: Prisma.MenteeProfileWhereInput
+  none?: Prisma.MenteeProfileWhereInput
+}
+
+export type MenteeProfileOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type MenteeProfileScalarRelationFilter = {
   is?: Prisma.MenteeProfileWhereInput
   isNot?: Prisma.MenteeProfileWhereInput
@@ -470,6 +487,44 @@ export type MenteeProfileUpdateinterestsInput = {
   push?: string | string[]
 }
 
+export type MenteeProfileCreateNestedManyWithoutMentorsInput = {
+  create?: Prisma.XOR<Prisma.MenteeProfileCreateWithoutMentorsInput, Prisma.MenteeProfileUncheckedCreateWithoutMentorsInput> | Prisma.MenteeProfileCreateWithoutMentorsInput[] | Prisma.MenteeProfileUncheckedCreateWithoutMentorsInput[]
+  connectOrCreate?: Prisma.MenteeProfileCreateOrConnectWithoutMentorsInput | Prisma.MenteeProfileCreateOrConnectWithoutMentorsInput[]
+  connect?: Prisma.MenteeProfileWhereUniqueInput | Prisma.MenteeProfileWhereUniqueInput[]
+}
+
+export type MenteeProfileUncheckedCreateNestedManyWithoutMentorsInput = {
+  create?: Prisma.XOR<Prisma.MenteeProfileCreateWithoutMentorsInput, Prisma.MenteeProfileUncheckedCreateWithoutMentorsInput> | Prisma.MenteeProfileCreateWithoutMentorsInput[] | Prisma.MenteeProfileUncheckedCreateWithoutMentorsInput[]
+  connectOrCreate?: Prisma.MenteeProfileCreateOrConnectWithoutMentorsInput | Prisma.MenteeProfileCreateOrConnectWithoutMentorsInput[]
+  connect?: Prisma.MenteeProfileWhereUniqueInput | Prisma.MenteeProfileWhereUniqueInput[]
+}
+
+export type MenteeProfileUpdateManyWithoutMentorsNestedInput = {
+  create?: Prisma.XOR<Prisma.MenteeProfileCreateWithoutMentorsInput, Prisma.MenteeProfileUncheckedCreateWithoutMentorsInput> | Prisma.MenteeProfileCreateWithoutMentorsInput[] | Prisma.MenteeProfileUncheckedCreateWithoutMentorsInput[]
+  connectOrCreate?: Prisma.MenteeProfileCreateOrConnectWithoutMentorsInput | Prisma.MenteeProfileCreateOrConnectWithoutMentorsInput[]
+  upsert?: Prisma.MenteeProfileUpsertWithWhereUniqueWithoutMentorsInput | Prisma.MenteeProfileUpsertWithWhereUniqueWithoutMentorsInput[]
+  set?: Prisma.MenteeProfileWhereUniqueInput | Prisma.MenteeProfileWhereUniqueInput[]
+  disconnect?: Prisma.MenteeProfileWhereUniqueInput | Prisma.MenteeProfileWhereUniqueInput[]
+  delete?: Prisma.MenteeProfileWhereUniqueInput | Prisma.MenteeProfileWhereUniqueInput[]
+  connect?: Prisma.MenteeProfileWhereUniqueInput | Prisma.MenteeProfileWhereUniqueInput[]
+  update?: Prisma.MenteeProfileUpdateWithWhereUniqueWithoutMentorsInput | Prisma.MenteeProfileUpdateWithWhereUniqueWithoutMentorsInput[]
+  updateMany?: Prisma.MenteeProfileUpdateManyWithWhereWithoutMentorsInput | Prisma.MenteeProfileUpdateManyWithWhereWithoutMentorsInput[]
+  deleteMany?: Prisma.MenteeProfileScalarWhereInput | Prisma.MenteeProfileScalarWhereInput[]
+}
+
+export type MenteeProfileUncheckedUpdateManyWithoutMentorsNestedInput = {
+  create?: Prisma.XOR<Prisma.MenteeProfileCreateWithoutMentorsInput, Prisma.MenteeProfileUncheckedCreateWithoutMentorsInput> | Prisma.MenteeProfileCreateWithoutMentorsInput[] | Prisma.MenteeProfileUncheckedCreateWithoutMentorsInput[]
+  connectOrCreate?: Prisma.MenteeProfileCreateOrConnectWithoutMentorsInput | Prisma.MenteeProfileCreateOrConnectWithoutMentorsInput[]
+  upsert?: Prisma.MenteeProfileUpsertWithWhereUniqueWithoutMentorsInput | Prisma.MenteeProfileUpsertWithWhereUniqueWithoutMentorsInput[]
+  set?: Prisma.MenteeProfileWhereUniqueInput | Prisma.MenteeProfileWhereUniqueInput[]
+  disconnect?: Prisma.MenteeProfileWhereUniqueInput | Prisma.MenteeProfileWhereUniqueInput[]
+  delete?: Prisma.MenteeProfileWhereUniqueInput | Prisma.MenteeProfileWhereUniqueInput[]
+  connect?: Prisma.MenteeProfileWhereUniqueInput | Prisma.MenteeProfileWhereUniqueInput[]
+  update?: Prisma.MenteeProfileUpdateWithWhereUniqueWithoutMentorsInput | Prisma.MenteeProfileUpdateWithWhereUniqueWithoutMentorsInput[]
+  updateMany?: Prisma.MenteeProfileUpdateManyWithWhereWithoutMentorsInput | Prisma.MenteeProfileUpdateManyWithWhereWithoutMentorsInput[]
+  deleteMany?: Prisma.MenteeProfileScalarWhereInput | Prisma.MenteeProfileScalarWhereInput[]
+}
+
 export type MenteeProfileCreateNestedOneWithoutRequestsInput = {
   create?: Prisma.XOR<Prisma.MenteeProfileCreateWithoutRequestsInput, Prisma.MenteeProfileUncheckedCreateWithoutRequestsInput>
   connectOrCreate?: Prisma.MenteeProfileCreateOrConnectWithoutRequestsInput
@@ -505,6 +560,7 @@ export type MenteeProfileCreateWithoutUserInput = {
   bio?: string | null
   linkedin?: string | null
   interests?: Prisma.MenteeProfileCreateinterestsInput | string[]
+  mentors?: Prisma.MentorProfileCreateNestedManyWithoutMenteesInput
   requests?: Prisma.MentorshipRequestCreateNestedManyWithoutMenteeInput
   sessions?: Prisma.SessionCreateNestedManyWithoutMenteeInput
 }
@@ -516,6 +572,7 @@ export type MenteeProfileUncheckedCreateWithoutUserInput = {
   bio?: string | null
   linkedin?: string | null
   interests?: Prisma.MenteeProfileCreateinterestsInput | string[]
+  mentors?: Prisma.MentorProfileUncheckedCreateNestedManyWithoutMenteesInput
   requests?: Prisma.MentorshipRequestUncheckedCreateNestedManyWithoutMenteeInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutMenteeInput
 }
@@ -543,6 +600,7 @@ export type MenteeProfileUpdateWithoutUserInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   linkedin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interests?: Prisma.MenteeProfileUpdateinterestsInput | string[]
+  mentors?: Prisma.MentorProfileUpdateManyWithoutMenteesNestedInput
   requests?: Prisma.MentorshipRequestUpdateManyWithoutMenteeNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutMenteeNestedInput
 }
@@ -554,8 +612,67 @@ export type MenteeProfileUncheckedUpdateWithoutUserInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   linkedin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interests?: Prisma.MenteeProfileUpdateinterestsInput | string[]
+  mentors?: Prisma.MentorProfileUncheckedUpdateManyWithoutMenteesNestedInput
   requests?: Prisma.MentorshipRequestUncheckedUpdateManyWithoutMenteeNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutMenteeNestedInput
+}
+
+export type MenteeProfileCreateWithoutMentorsInput = {
+  id?: string
+  yearGroup: number
+  major: string
+  bio?: string | null
+  linkedin?: string | null
+  interests?: Prisma.MenteeProfileCreateinterestsInput | string[]
+  user: Prisma.UserCreateNestedOneWithoutMenteeProfileInput
+  requests?: Prisma.MentorshipRequestCreateNestedManyWithoutMenteeInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutMenteeInput
+}
+
+export type MenteeProfileUncheckedCreateWithoutMentorsInput = {
+  id?: string
+  userId: string
+  yearGroup: number
+  major: string
+  bio?: string | null
+  linkedin?: string | null
+  interests?: Prisma.MenteeProfileCreateinterestsInput | string[]
+  requests?: Prisma.MentorshipRequestUncheckedCreateNestedManyWithoutMenteeInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutMenteeInput
+}
+
+export type MenteeProfileCreateOrConnectWithoutMentorsInput = {
+  where: Prisma.MenteeProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.MenteeProfileCreateWithoutMentorsInput, Prisma.MenteeProfileUncheckedCreateWithoutMentorsInput>
+}
+
+export type MenteeProfileUpsertWithWhereUniqueWithoutMentorsInput = {
+  where: Prisma.MenteeProfileWhereUniqueInput
+  update: Prisma.XOR<Prisma.MenteeProfileUpdateWithoutMentorsInput, Prisma.MenteeProfileUncheckedUpdateWithoutMentorsInput>
+  create: Prisma.XOR<Prisma.MenteeProfileCreateWithoutMentorsInput, Prisma.MenteeProfileUncheckedCreateWithoutMentorsInput>
+}
+
+export type MenteeProfileUpdateWithWhereUniqueWithoutMentorsInput = {
+  where: Prisma.MenteeProfileWhereUniqueInput
+  data: Prisma.XOR<Prisma.MenteeProfileUpdateWithoutMentorsInput, Prisma.MenteeProfileUncheckedUpdateWithoutMentorsInput>
+}
+
+export type MenteeProfileUpdateManyWithWhereWithoutMentorsInput = {
+  where: Prisma.MenteeProfileScalarWhereInput
+  data: Prisma.XOR<Prisma.MenteeProfileUpdateManyMutationInput, Prisma.MenteeProfileUncheckedUpdateManyWithoutMentorsInput>
+}
+
+export type MenteeProfileScalarWhereInput = {
+  AND?: Prisma.MenteeProfileScalarWhereInput | Prisma.MenteeProfileScalarWhereInput[]
+  OR?: Prisma.MenteeProfileScalarWhereInput[]
+  NOT?: Prisma.MenteeProfileScalarWhereInput | Prisma.MenteeProfileScalarWhereInput[]
+  id?: Prisma.StringFilter<"MenteeProfile"> | string
+  userId?: Prisma.StringFilter<"MenteeProfile"> | string
+  yearGroup?: Prisma.IntFilter<"MenteeProfile"> | number
+  major?: Prisma.StringFilter<"MenteeProfile"> | string
+  bio?: Prisma.StringNullableFilter<"MenteeProfile"> | string | null
+  linkedin?: Prisma.StringNullableFilter<"MenteeProfile"> | string | null
+  interests?: Prisma.StringNullableListFilter<"MenteeProfile">
 }
 
 export type MenteeProfileCreateWithoutRequestsInput = {
@@ -566,6 +683,7 @@ export type MenteeProfileCreateWithoutRequestsInput = {
   linkedin?: string | null
   interests?: Prisma.MenteeProfileCreateinterestsInput | string[]
   user: Prisma.UserCreateNestedOneWithoutMenteeProfileInput
+  mentors?: Prisma.MentorProfileCreateNestedManyWithoutMenteesInput
   sessions?: Prisma.SessionCreateNestedManyWithoutMenteeInput
 }
 
@@ -577,6 +695,7 @@ export type MenteeProfileUncheckedCreateWithoutRequestsInput = {
   bio?: string | null
   linkedin?: string | null
   interests?: Prisma.MenteeProfileCreateinterestsInput | string[]
+  mentors?: Prisma.MentorProfileUncheckedCreateNestedManyWithoutMenteesInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutMenteeInput
 }
 
@@ -604,6 +723,7 @@ export type MenteeProfileUpdateWithoutRequestsInput = {
   linkedin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interests?: Prisma.MenteeProfileUpdateinterestsInput | string[]
   user?: Prisma.UserUpdateOneRequiredWithoutMenteeProfileNestedInput
+  mentors?: Prisma.MentorProfileUpdateManyWithoutMenteesNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutMenteeNestedInput
 }
 
@@ -615,6 +735,7 @@ export type MenteeProfileUncheckedUpdateWithoutRequestsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   linkedin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interests?: Prisma.MenteeProfileUpdateinterestsInput | string[]
+  mentors?: Prisma.MentorProfileUncheckedUpdateManyWithoutMenteesNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutMenteeNestedInput
 }
 
@@ -626,6 +747,7 @@ export type MenteeProfileCreateWithoutSessionsInput = {
   linkedin?: string | null
   interests?: Prisma.MenteeProfileCreateinterestsInput | string[]
   user: Prisma.UserCreateNestedOneWithoutMenteeProfileInput
+  mentors?: Prisma.MentorProfileCreateNestedManyWithoutMenteesInput
   requests?: Prisma.MentorshipRequestCreateNestedManyWithoutMenteeInput
 }
 
@@ -637,6 +759,7 @@ export type MenteeProfileUncheckedCreateWithoutSessionsInput = {
   bio?: string | null
   linkedin?: string | null
   interests?: Prisma.MenteeProfileCreateinterestsInput | string[]
+  mentors?: Prisma.MentorProfileUncheckedCreateNestedManyWithoutMenteesInput
   requests?: Prisma.MentorshipRequestUncheckedCreateNestedManyWithoutMenteeInput
 }
 
@@ -664,6 +787,7 @@ export type MenteeProfileUpdateWithoutSessionsInput = {
   linkedin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interests?: Prisma.MenteeProfileUpdateinterestsInput | string[]
   user?: Prisma.UserUpdateOneRequiredWithoutMenteeProfileNestedInput
+  mentors?: Prisma.MentorProfileUpdateManyWithoutMenteesNestedInput
   requests?: Prisma.MentorshipRequestUpdateManyWithoutMenteeNestedInput
 }
 
@@ -675,7 +799,42 @@ export type MenteeProfileUncheckedUpdateWithoutSessionsInput = {
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   linkedin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interests?: Prisma.MenteeProfileUpdateinterestsInput | string[]
+  mentors?: Prisma.MentorProfileUncheckedUpdateManyWithoutMenteesNestedInput
   requests?: Prisma.MentorshipRequestUncheckedUpdateManyWithoutMenteeNestedInput
+}
+
+export type MenteeProfileUpdateWithoutMentorsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  yearGroup?: Prisma.IntFieldUpdateOperationsInput | number
+  major?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkedin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interests?: Prisma.MenteeProfileUpdateinterestsInput | string[]
+  user?: Prisma.UserUpdateOneRequiredWithoutMenteeProfileNestedInput
+  requests?: Prisma.MentorshipRequestUpdateManyWithoutMenteeNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutMenteeNestedInput
+}
+
+export type MenteeProfileUncheckedUpdateWithoutMentorsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  yearGroup?: Prisma.IntFieldUpdateOperationsInput | number
+  major?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkedin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interests?: Prisma.MenteeProfileUpdateinterestsInput | string[]
+  requests?: Prisma.MentorshipRequestUncheckedUpdateManyWithoutMenteeNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutMenteeNestedInput
+}
+
+export type MenteeProfileUncheckedUpdateManyWithoutMentorsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  yearGroup?: Prisma.IntFieldUpdateOperationsInput | number
+  major?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkedin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interests?: Prisma.MenteeProfileUpdateinterestsInput | string[]
 }
 
 
@@ -684,11 +843,13 @@ export type MenteeProfileUncheckedUpdateWithoutSessionsInput = {
  */
 
 export type MenteeProfileCountOutputType = {
+  mentors: number
   requests: number
   sessions: number
 }
 
 export type MenteeProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  mentors?: boolean | MenteeProfileCountOutputTypeCountMentorsArgs
   requests?: boolean | MenteeProfileCountOutputTypeCountRequestsArgs
   sessions?: boolean | MenteeProfileCountOutputTypeCountSessionsArgs
 }
@@ -701,6 +862,13 @@ export type MenteeProfileCountOutputTypeDefaultArgs<ExtArgs extends runtime.Type
    * Select specific fields to fetch from the MenteeProfileCountOutputType
    */
   select?: Prisma.MenteeProfileCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * MenteeProfileCountOutputType without action
+ */
+export type MenteeProfileCountOutputTypeCountMentorsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MentorProfileWhereInput
 }
 
 /**
@@ -727,6 +895,7 @@ export type MenteeProfileSelect<ExtArgs extends runtime.Types.Extensions.Interna
   linkedin?: boolean
   interests?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  mentors?: boolean | Prisma.MenteeProfile$mentorsArgs<ExtArgs>
   requests?: boolean | Prisma.MenteeProfile$requestsArgs<ExtArgs>
   sessions?: boolean | Prisma.MenteeProfile$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.MenteeProfileCountOutputTypeDefaultArgs<ExtArgs>
@@ -767,6 +936,7 @@ export type MenteeProfileSelectScalar = {
 export type MenteeProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "yearGroup" | "major" | "bio" | "linkedin" | "interests", ExtArgs["result"]["menteeProfile"]>
 export type MenteeProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  mentors?: boolean | Prisma.MenteeProfile$mentorsArgs<ExtArgs>
   requests?: boolean | Prisma.MenteeProfile$requestsArgs<ExtArgs>
   sessions?: boolean | Prisma.MenteeProfile$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.MenteeProfileCountOutputTypeDefaultArgs<ExtArgs>
@@ -782,6 +952,7 @@ export type $MenteeProfilePayload<ExtArgs extends runtime.Types.Extensions.Inter
   name: "MenteeProfile"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    mentors: Prisma.$MentorProfilePayload<ExtArgs>[]
     requests: Prisma.$MentorshipRequestPayload<ExtArgs>[]
     sessions: Prisma.$SessionPayload<ExtArgs>[]
   }
@@ -1188,6 +1359,7 @@ readonly fields: MenteeProfileFieldRefs;
 export interface Prisma__MenteeProfileClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  mentors<T extends Prisma.MenteeProfile$mentorsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MenteeProfile$mentorsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MentorProfilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   requests<T extends Prisma.MenteeProfile$requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MenteeProfile$requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MentorshipRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.MenteeProfile$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MenteeProfile$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1624,6 +1796,30 @@ export type MenteeProfileDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many MenteeProfiles to delete.
    */
   limit?: number
+}
+
+/**
+ * MenteeProfile.mentors
+ */
+export type MenteeProfile$mentorsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MentorProfile
+   */
+  select?: Prisma.MentorProfileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MentorProfile
+   */
+  omit?: Prisma.MentorProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MentorProfileInclude<ExtArgs> | null
+  where?: Prisma.MentorProfileWhereInput
+  orderBy?: Prisma.MentorProfileOrderByWithRelationInput | Prisma.MentorProfileOrderByWithRelationInput[]
+  cursor?: Prisma.MentorProfileWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MentorProfileScalarFieldEnum | Prisma.MentorProfileScalarFieldEnum[]
 }
 
 /**

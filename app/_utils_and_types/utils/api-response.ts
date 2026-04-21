@@ -45,9 +45,8 @@ export function successResponse<T>(
   );
 }
 
-/**
- * Success Response with Pagination
- */
+
+
 export function paginatedResponse<T>(
   data: T[],
   limit: number,

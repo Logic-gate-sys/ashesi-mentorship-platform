@@ -65,7 +65,7 @@ export function useMentorDashboardData() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user || user?.role !== 'ALUMNI') {
+    if (!user || user?.role !== 'MENTOR') {
       return;
     }
 
@@ -74,8 +74,8 @@ export function useMentorDashboardData() {
         setLoading(true);
         setError(null);
 
-        let accessToken = getAccessToken();
-        let response = await fetch('/api/mentor/dashboard', {
+        const accessToken = getAccessToken();
+        let response = await fetch('/api/mentors/dashboard', {
           headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
           credentials: 'include',
         });
@@ -84,7 +84,7 @@ export function useMentorDashboardData() {
         if (response.status === 401 && accessToken) {
           const newAccessToken = await refreshAccessToken();
           if (newAccessToken) {
-            response = await fetch('/api/mentor/dashboard', {
+            response = await fetch('/api/mentors/dashboard', {
               headers: { Authorization: `Bearer ${newAccessToken}` },
               credentials: 'include',
             });
@@ -96,23 +96,10 @@ export function useMentorDashboardData() {
           throw new Error(errorData.error || 'Failed to fetch dashboard data');
         }
 
-        const dashboardData = await response.json();
-        
-        // Transform sessions to match SessionsList component expectations
-        const transformedSessions = dashboardData.upcomingSessions.map((session: any) => {
-          const scheduledDate = new Date(session.scheduledAt);
-          return {
-            ...session,
-            mentee: session.studentName,
-            date: scheduledDate.toLocaleDateString(),
-            time: scheduledDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          };
-        });
+        const apiResponse = await response.json();
+        const dashboardData = apiResponse.data;
 
-        setData({
-          ...dashboardData,
-          upcomingSessions: transformedSessions,
-        });
+        setData(dashboardData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
         console.error('Dashboard data fetch error:', err);
@@ -122,7 +109,7 @@ export function useMentorDashboardData() {
     };
 
     fetchDashboardData();
-  }, [user?.role, getAccessToken, refreshAccessToken]);
+  }, [user, getAccessToken, refreshAccessToken]);
 
   return { data, loading, error };
 }

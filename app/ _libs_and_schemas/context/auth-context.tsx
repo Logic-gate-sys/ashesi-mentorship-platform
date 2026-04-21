@@ -114,7 +114,7 @@ export function AuthProvider({ children, config = defaultAuthConfig }: AuthProvi
 
 
 
-  const login = useCallback(
+const login = useCallback(
     async (email: string, password: string) => {
       setIsLoading(true);
       try {
@@ -134,7 +134,7 @@ export function AuthProvider({ children, config = defaultAuthConfig }: AuthProvi
         saveAuthData(data.user, data.accessToken);
         router.push(data.user.role === 'MENTEE'? '/mentees' : '/mentors');
       }catch(err){
-        alert({message:'Something went wrong!', detail:err?.message?? "unknown error"});
+        alert(err.message??"Something went wrong");
         // bring back to login
         router.push('/login')
       } finally {
@@ -163,7 +163,7 @@ export function AuthProvider({ children, config = defaultAuthConfig }: AuthProvi
 
         const result = await response.json();
         saveAuthData(result.user, result.accessToken);
-        router.push('/student/dashboard');
+        router.push('/mentees');
       } finally {
         setIsLoading(false);
       }
@@ -189,7 +189,7 @@ export function AuthProvider({ children, config = defaultAuthConfig }: AuthProvi
 
         const result = await response.json();
         saveAuthData(result.user, result.accessToken);
-        router.push('/mentor');
+        router.push('/mentors');
       } finally {
         setIsLoading(false);
       }
