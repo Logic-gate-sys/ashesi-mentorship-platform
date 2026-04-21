@@ -36,7 +36,10 @@ export function UpdatesCard({
 
       {/* Updates List */}
       <section className="flex flex-col gap-5">
-        {updates.map((update) => (
+        {updates.length === 0 ? (
+          <p className="text-sm text-gray-500">No recent updates yet.</p>
+        ) : (
+          updates.map((update) => (
           
           // Use CSS Grid for robust alignment of dot and content
           <div key={update.id} className="grid grid-cols-[auto_1fr] items-start gap-x-3.5 gap-y-1">
@@ -58,7 +61,8 @@ export function UpdatesCard({
             </div>
 
           </div>
-        ))}
+          ))
+        )}
       </section>
 
     </div>

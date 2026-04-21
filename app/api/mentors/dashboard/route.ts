@@ -16,11 +16,11 @@ export async function GET(request: NextRequest) {
     const user = await extractUserFromRequest(request);
 
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse('Unauthorized', { status: 401 });
     }
 
     if (user.role !== 'MENTOR') {
-      return errorResponse('Only mentors can access this endpoint', 403);
+      return errorResponse('Only mentors can access this endpoint', { status: 403 });
     }
 
     // Get mentor profile
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!mentorProfile) {
-      return errorResponse('Mentor profile not found', 404);
+      return errorResponse('Mentor profile not found', { status: 404 });
     }
 
     // Fetch complete dashboard overview

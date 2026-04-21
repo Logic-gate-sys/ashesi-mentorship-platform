@@ -1,5 +1,6 @@
 "use client";
 import Image from 'next/image';
+import { Check, Loader2 } from 'lucide-react';
 
 interface RequestProps {
   id: string | number;
@@ -7,6 +8,10 @@ interface RequestProps {
   studentAvatarUrl: string;
   message: string;
   majorAndYear?: string; // Example: (CS '26)
+  isAccepting?: boolean;
+  isDeclining?: boolean;
+  isAccepted?: boolean;
+  isDeclined?: boolean;
   onAccept?: (id: string | number) => void;
   onDecline?: (id: string | number) => void;
 }
@@ -17,12 +22,17 @@ export function PendingRequestCard({
   studentAvatarUrl,
   majorAndYear,
   message,
+  isAccepting = false,
+  isDeclining = false,
+  isAccepted = false,
+  isDeclined = false,
   onAccept,
   onDecline,
 }: RequestProps) {
   
   const handleAccept = () => onAccept?.(id);
   const handleDecline = () => onDecline?.(id);
+  const disableActions = isAccepting || isDeclining || isAccepted || isDeclined;
 
   return (
     <div 
@@ -30,7 +40,7 @@ export function PendingRequestCard({
     >
       <div className="relative w-25 h-25 sm:w-22 sm:h-22 shrink-0 rounded-[20px] overflow-hidden border">
         <Image
-          src={studentAvatarUrl || "/default-student.png"} 
+          src={studentAvatarUrl} 
           alt={`${studentName}'s profile`}
           fill
           className="object-cover"
@@ -57,16 +67,50 @@ export function PendingRequestCard({
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
           <button
             onClick={handleAccept}
-            className="w-full sm:w-40 h-10 bg-[#2E7D32] hover:bg-[#1B5E20] text-white rounded-3xl text-lg font-bold transition-colors"
+            disabled={disableActions}
+            className={`w-full sm:w-40 h-10 rounded-3xl text-lg font-bold transition-colors inline-flex items-center justify-center gap-2 ${
+              isAccepted
+                ? 'bg-[#1B5E20] text-white'
+                : 'bg-[#2E7D32] hover:bg-[#1B5E20] text-white'
+            } ${disableActions ? 'opacity-80 cursor-not-allowed' : ''}`}
           >
-            Accept
+            {isAccepting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Processing
+              </>
+            ) : isAccepted ? (
+              <>
+                <Check className="w-4 h-4" />
+                Accepted
+              </>
+            ) : (
+              'Accept'
+            )}
           </button>
           
           <button
             onClick={handleDecline}
-            className={`w-full sm:w-40 h-10  hover:bg-[#6A0A1D]  rounded-3xl text-lg font-bold transition-colors`}
+            disabled={disableActions}
+            className={`w-full sm:w-40 h-10 rounded-3xl text-lg font-bold transition-colors inline-flex items-center justify-center gap-2 ${
+              isDeclined
+                ? 'bg-[#6A0A1D] text-white'
+                : 'hover:bg-[#6A0A1D]'
+            } ${disableActions ? 'opacity-80 cursor-not-allowed' : ''}`}
           >
-            Decline
+            {isDeclining ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Processing
+              </>
+            ) : isDeclined ? (
+              <>
+                <Check className="w-4 h-4" />
+                Declined
+              </>
+            ) : (
+              'Decline'
+            )}
           </button>
         </div>
         

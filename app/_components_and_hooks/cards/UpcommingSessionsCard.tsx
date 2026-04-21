@@ -37,7 +37,10 @@ export function UpcomingEventsCard({
 
       {/* Events List */}
       <section className="flex flex-col gap-4">
-        {events.map((event) => (
+        {events.length === 0 ? (
+          <p className="text-sm text-gray-500">No upcoming sessions scheduled.</p>
+        ) : (
+          events.map((event) => (
           
           // EVENT ITEM CONTAINER: Inner flex layout
           <div key={event.id} className="w-full flex flex-row items-start gap-4 p-4 pl-3.5 pr-3.5 bg-white rounded-2xl shadow-inner">
@@ -68,7 +71,8 @@ export function UpcomingEventsCard({
             </div>
 
           </div>
-        ))}
+          ))
+        )}
       </section>
 
     </div>

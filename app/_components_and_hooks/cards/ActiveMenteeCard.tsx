@@ -29,7 +29,7 @@ export function ActiveMCard({
         </div>
         <UserCircle className="w-9 h-9 text-[#8D8386]" strokeWidth={1} />
       </div>
-      <Link href='/messages'>
+      <Link href='/mentors/messages'>
       <button
         onClick={onMessage}
         className={`w-full bg-accent accent-[#6C1221] hover:brightness-110 active:scale-[0.98] h-12 flex flex-row items-center justify-center gap-3 rounded-3xl transition-all`}

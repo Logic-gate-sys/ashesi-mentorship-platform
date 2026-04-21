@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   try {
     const user = await extractUserFromRequest(request);
     if (!user || user.role !== 'MENTOR') {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse('Unauthorized', { status: 401 });
     }
 
     // Get mentor profile
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!mentorProfile) {
-      return errorResponse('Mentor profile not found', 404);
+      return errorResponse('Mentor profile not found', { status: 404 });
     }
 
     // Get status filter from query

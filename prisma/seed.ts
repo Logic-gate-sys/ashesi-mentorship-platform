@@ -35,6 +35,13 @@ async function main() {
   ];
 
   for (let i = 0; i < mentees.length; i++) {
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email: `${mentees[i].first.toLowerCase()}${i}@ashesi.edu.gh` },
+    });
+
+    if (existingUser) continue;
+
     const user = await prisma.user.create({
       data: {
         email: `${mentees[i].first.toLowerCase()}${i}@ashesi.edu.gh`,

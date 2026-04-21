@@ -46,6 +46,12 @@ export interface DashboardOverview {
   pendingRequests: any[];
   activeMentees: any[];
   upcomingSessions: any[];
+  recentActivities: Array<{
+    id: string | number;
+    event: string;
+    timestamp: string;
+    type: 'request' | 'message' | 'session' | 'feedback';
+  }>;
 }
 
 /**
@@ -137,6 +143,9 @@ export async function getMentorDashboardOverview(mentorProfileId: string): Promi
   // Fetch upcoming sessions
   const upcomingSessions = await getUpcomingMentorSessions(mentorProfileId);
 
+  // Fetch recent activities
+  const recentActivities = await getMentorRecentActivities(mentorProfileId, 6);
+
   return {
     mentor,
     metrics,
@@ -168,6 +177,7 @@ export async function getMentorDashboardOverview(mentorProfileId: string): Promi
       meetingUrl: session.meetingUrl,
       status: session.status,
     })),
+    recentActivities,
   };
 }
 

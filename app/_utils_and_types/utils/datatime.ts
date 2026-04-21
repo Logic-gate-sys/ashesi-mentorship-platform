@@ -1,26 +1,13 @@
-
-export function formatRelativeTime(dateInput: string | Date): string {
-  const date = new Date(dateInput);
+export function formatRelativeTime(date: Date): string {
   const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
-  if (diffInSeconds < 5) return "just now";
-  const units = [
-    { label: "year", seconds: 31536000 },
-    { label: "month", seconds: 2592000 },
-    { label: "week", seconds: 604800 },
-    { label: "day", seconds: 86400 },
-    { label: "hour", seconds: 3600 },
-    { label: "minute", seconds: 60 },
-    { label: "second", seconds: 1 },
-  ];
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
 
-  for (const unit of units) {
-    const interval = Math.floor(diffInSeconds / unit.seconds);
-    if (interval >= 1) {
-      return `${interval} ${unit.label}${interval > 1 ? "s" : ""} ago`;
-    }
-  }
-
-  return "just now";
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
 }

@@ -1,47 +1,43 @@
-import { Server, Socket } from 'socket.io';
+import { Server, type Socket } from 'socket.io';
 import type { Server as HttpServer } from 'http';
-import { verifyJWT } from '@/app/_utils_and_types/jwt';
-import { prisma } from '@/app/_utils_and_types/db';
+import { verifyJWT } from '@/utils&types/utils/jwt';
+import { prisma } from '@/utils&types/utils/db';
 
-let io: Server;
-
+let io: Server | null = null;
 export interface SocketUser {
   id: string;
   email: string;
   role: string;
 }
 
-export interface SocketWithUser extends Socket {
+export interface AuthedSocket extends Socket {
   user?: SocketUser;
 }
 
-/**
- * Initialize Socket.IO with authentication and event handlers
- */
-export const initSocket = (server: HttpServer) => {
+export const init = (server: HttpServer) => {
   io = new Server(server, {
     cors: { origin: '*' },
     transports: ['websocket', 'polling'],
   });
 
-  // Authentication middleware
-  io.use(async (socket: SocketWithUser, next) => {
+  io.use(async (socket: AuthedSocket, next) => {
     try {
-      const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.replace('Bearer ', '');
+      const authToken = socket.handshake.auth?.token;
+      const headerToken = socket.handshake.headers.authorization?.replace('Bearer ', '');
+      const token = authToken || headerToken;
 
       if (!token) {
         return next(new Error('Authentication failed: No token provided'));
       }
 
       const payload = await verifyJWT(token);
-
-      if (!payload) {
+      if (!payload || typeof payload.id !== 'string') {
         return next(new Error('Authentication failed: Invalid token'));
       }
 
-      // Verify user exists
       const user = await prisma.user.findUnique({
         where: { id: payload.id },
+        select: { id: true, email: true, role: true, isActive: true },
       });
 
       if (!user || !user.isActive) {
@@ -54,102 +50,77 @@ export const initSocket = (server: HttpServer) => {
         role: user.role,
       };
 
-      next();
+      //go to connection
+      return next();
     } catch (error) {
-      next(new Error('Authentication failed'));
+      return next(new Error('Authentication failed'));
     }
   });
 
-  io.on('connection', (socket: SocketWithUser) => {
-    console.log(`[Socket] User connected: ${socket.user?.id}`);
+  // when connected
+  io.on('connection', (socket: AuthedSocket) => {
+    console.log(`[socket] User connected: ${socket.user?.id ?? 'unknown'}`);
 
-    // Join user's personal room for notifications
     if (socket.user?.id) {
       socket.join(`user:${socket.user.id}`);
     }
 
-    // ===== CONVERSATION EVENTS =====
-
-    /**
-     * Join conversation room
-     * Allows user to receive real-time messages
-     */
     socket.on('join_conversation', (conversationId: string) => {
       if (!socket.user?.id) return;
 
       socket.join(`conversation:${conversationId}`);
       socket.emit('joined_conversation', { conversationId });
-      console.log(`[Socket] User ${socket.user.id} joined conversation ${conversationId}`);
+      console.log(`[socket] User ${socket.user.id} joined conversation ${conversationId}`);
     });
 
-    /**
-     * Leave conversation room
-     */
     socket.on('leave_conversation', (conversationId: string) => {
       socket.leave(`conversation:${conversationId}`);
-      console.log(`[Socket] User left conversation ${conversationId}`);
     });
 
-    /**
-     * Typing indicator
-     */
     socket.on('typing', (conversationId: string) => {
       if (!socket.user?.id) return;
 
-      socket.to(`conversation:${conversationId}`).emit('user_typing', {
-        userId: socket.user.id,
-        conversationId,
-      });
+      socket.to(`conversation:${conversationId}`)
+            .emit('user_typing', {
+                 userId: socket.user.id,
+                 conversationId,
+              });
     });
 
-    /**
-     * Stop typing
-     */
     socket.on('stop_typing', (conversationId: string) => {
       if (!socket.user?.id) return;
 
-      socket.to(`conversation:${conversationId}`).emit('user_stopped_typing', {
-        userId: socket.user.id,
-        conversationId,
-      });
+      socket.to(`conversation:${conversationId}`)
+            .emit('user_stopped_typing', {
+               userId: socket.user.id,
+               conversationId,
+               });
     });
 
-    // ===== SESSION EVENTS =====
-
-    /**
-     * Join session room
-     */
     socket.on('join_session', (sessionId: string) => {
       if (!socket.user?.id) return;
 
       socket.join(`session:${sessionId}`);
       socket.emit('joined_session', { sessionId });
-      
-      // Notify others that user joined
-      socket.to(`session:${sessionId}`).emit('session_user_joined', {
-        userId: socket.user.id,
-        sessionId,
-      });
 
-      console.log(`[Socket] User ${socket.user.id} joined session ${sessionId}`);
+      socket.to(`session:${sessionId}`)
+            .emit('session_user_joined', {
+                userId: socket.user.id,
+                sessionId,
+              });
     });
 
-    /**
-     * Leave session room
-     */
     socket.on('leave_session', (sessionId: string) => {
       if (!socket.user?.id) return;
 
       socket.leave(`session:${sessionId}`);
-      socket.to(`session:${sessionId}`).emit('session_user_left', {
-        userId: socket.user.id,
-        sessionId,
-      });
+      socket.to(`session:${sessionId}`)
+            .emit('session_user_left', {
+                userId: socket.user.id,
+                sessionId,
+              });
     });
 
-    /**
-     * Session status update
-     */
     socket.on('session_started', (sessionId: string) => {
       if (!socket.user?.id) return;
 
@@ -172,15 +143,10 @@ export const initSocket = (server: HttpServer) => {
       socket.leave(`session:${sessionId}`);
     });
 
-    // ===== NOTIFICATION EVENTS =====
+    socket.on('request_received', (data: { mentorId?: string; body?: string; requestId?: string }) => {
+      if (!data.mentorId || !io) return;
 
-    /**
-     * Request received (for mentors)
-     */
-    socket.on('request_received', (data: any) => {
-      if (!data.mentorId) return;
-
-      io?.to(`user:${data.mentorId}`).emit('notification', {
+      io.to(`user:${data.mentorId}`).emit('notification', {
         type: 'REQUEST_RECEIVED',
         title: 'New Mentorship Request',
         body: data.body,
@@ -188,12 +154,11 @@ export const initSocket = (server: HttpServer) => {
       });
     });
 
-    /**
-     * Session reminder (for participants)
-     */
-    socket.on('session_reminder', (data: any) => {
+    socket.on('session_reminder', (data: { studentId?: string; mentorId?: string; body?: string; sessionId?: string }) => {
+      if (!io) return;
+
       if (data.studentId) {
-        io?.to(`user:${data.studentId}`).emit('notification', {
+        io.to(`user:${data.studentId}`).emit('notification', {
           type: 'SESSION_REMINDER',
           title: 'Upcoming Session',
           body: data.body,
@@ -202,7 +167,7 @@ export const initSocket = (server: HttpServer) => {
       }
 
       if (data.mentorId) {
-        io?.to(`user:${data.mentorId}`).emit('notification', {
+        io.to(`user:${data.mentorId}`).emit('notification', {
           type: 'SESSION_REMINDER',
           title: 'Upcoming Session',
           body: data.body,
@@ -211,11 +176,6 @@ export const initSocket = (server: HttpServer) => {
       }
     });
 
-    // ===== AVAILABILITY EVENTS =====
-
-    /**
-     * Join mentor availability updates
-     */
     socket.on('watch_mentor_availability', (mentorId: string) => {
       socket.join(`mentor:${mentorId}:availability`);
     });
@@ -224,65 +184,46 @@ export const initSocket = (server: HttpServer) => {
       socket.leave(`mentor:${mentorId}:availability`);
     });
 
-    // ===== CONNECTION EVENTS =====
-
     socket.on('disconnect', () => {
-      console.log(`[Socket] User disconnected: ${socket.user?.id}`);
+      console.log(`[socket] User disconnected: ${socket.user?.id ?? 'unknown'}`);
     });
 
     socket.on('error', (error) => {
-      console.error(`[Socket] Error for user ${socket.user?.id}:`, error);
+      console.error(`[socket] Error for user ${socket.user?.id ?? 'unknown'}:`, error);
     });
   });
 
   return io;
 };
 
-/**
- * Emit event to specific room
- */
 export const emitUpdate = <T extends object>(room: string, event: string, data: T) => {
   if (io) {
     io.to(room).emit(event, data);
   }
 };
 
-/**
- * Emit to user's personal notification room
- */
-export const notifyUser = (userId: string, notification: any) => {
+export const notifyUser = (userId: string, notification: unknown) => {
   if (io) {
     io.to(`user:${userId}`).emit('notification', notification);
   }
 };
 
-/**
- * Emit to conversation room
- */
-export const broadcastToConversation = (conversationId: string, event: string, data: any) => {
+export const broadcastToConversation = (conversationId: string, event: string, data: unknown) => {
   if (io) {
     io.to(`conversation:${conversationId}`).emit(event, data);
   }
 };
 
-/**
- * Emit to session room
- */
-export const broadcastToSession = (sessionId: string, event: string, data: any) => {
+export const broadcastToSession = (sessionId: string, event: string, data: unknown) => {
   if (io) {
     io.to(`session:${sessionId}`).emit(event, data);
   }
 };
 
-/**
- * Get online users
- */
 export const getOnlineUsers = (room: string): string[] => {
   if (!io) return [];
-  const socketIds = io.sockets.adapter.rooms.get(room);
-  return socketIds ? Array.from(socketIds) : [];
+  const ids = io.sockets.adapter.rooms.get(room);
+  return ids ? Array.from(ids) : [];
 };
 
 export const getIoInstance = () => io;
-
-
