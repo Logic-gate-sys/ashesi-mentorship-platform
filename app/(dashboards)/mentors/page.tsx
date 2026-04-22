@@ -1,13 +1,11 @@
 "use client";
 import { useMemo, useState } from "react";
-import { QuickInfoCard } from "@/app/_components_and_hooks/ui/reusable-ui/CickableStatCard";
-import { useAuth } from "@/app/ _libs_and_schemas/context/auth-context";
+import { QuickInfoCard } from "#comp-hooks/ui/reusable-ui/CickableStatCard";
+import { useAuth } from "#/libs_schemas/context/auth-context";
 import { User, Clock, MailIcon, type LucideIcon, MegaphoneIcon } from "lucide-react";
 import Link from "next/link";
-import { PendingRequestCard, MentorAvailabilityCard, ActiveMCard, UpdatesCard, UpcomingEventsCard } from "@/app/_components_and_hooks/cards";
-import { useMentorDashboard, useMentorshipRequests } from "@/app/_components_and_hooks/_hooks/mentor";
-
-
+import { PendingRequestCard, MentorAvailabilityCard, ActiveMCard, UpdatesCard, UpcomingEventsCard } from "#comp-hooks/cards";
+import { useMentorDashboard, useMentorshipRequests } from "#comp-hooks/hooks/mentor";
 const statsIcons: LucideIcon[] = [User, MailIcon, Clock];
 
 export default function MentorHomePage() {
@@ -16,6 +14,7 @@ export default function MentorHomePage() {
   const { acceptRequest, declineRequest } = useMentorshipRequests();
   const [actionState, setActionState] = useState<Record<string, 'idle' | 'accepting' | 'declining' | 'accepted' | 'declined'>>({});
 
+  
   const requestState = useMemo(() => {
     return (id: string) => actionState[id] || 'idle';
   }, [actionState]);

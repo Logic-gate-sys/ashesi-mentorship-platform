@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { NextRequest } from 'next/server';
-import { POST as registerStudent } from '@/app/api/auth/register/student/route';
-import { POST as registerAlumni } from '@/app/api/auth/register/alumni/route';
-import { POST as login } from '@/app/api/auth/login/route';
-import { GET as authMe } from '@/app/api/auth/me/route';
-import { PATCH as updateProfile } from '@/app/api/auth/profile/route';
+import { POST as registerStudent } from '#app/api/auth/register/student/route';
+import { POST as registerAlumni } from '#app/api/auth/register/alumni/route';
+import { POST as login } from '#app/api/auth/login/route';
+import { GET as authMe } from '#app/api/auth/me/route';
+import { PATCH as updateProfile } from '#app/api/auth/profile/route';
 import { clearDatabase, createTestAlumni, createTestStudent } from '../helpers/test-db-utils';
-import { studentRegisterSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema';
+import { studentRegisterSchema } from '#/libs_schemas/schemas/auth.schema';
 import z from 'zod';
-import { createJWT } from '@/app/_utils_and_types/jwt';
+import { createJWT } from '#utils-types/utils/jwt';
 
 describe('Auth API - Registration & Authentication', () => {
   beforeAll(async () => {

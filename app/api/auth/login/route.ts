@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/utils&types/utils/db';
-import { createJWT } from '@/utils&types/utils/jwt';
-import { verifyPassword } from '@/utils&types/utils/password';
-import { loginSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema';
+import { prisma } from '#utils-types/utils/db';
+import { createJWT } from '#utils-types/utils/jwt';
+import { verifyPassword } from '#utils-types/utils/password';
+import { loginSchema } from '#/libs_schemas/schemas/auth.schema';
 
 
 
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     return response  
   } catch (err) {
     return NextResponse.json(
-      { errors: { message: 'Login failed', details:err.message } },
+      { errors: { message: 'Login failed', details:err?.message } },
       { status: 500 }
     );
   }

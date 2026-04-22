@@ -10,16 +10,16 @@
  */
 
 import { NextRequest } from 'next/server';
-import { successResponse, errorResponse } from '@/app/_utils_and_types/utils/api-response';
-import { extractUserFromRequest } from '@/app/ _libs_and_schemas/middlewares/auth.middleware';
+import { successResponse, errorResponse } from '#utils-types/utils/api-response';
+import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
 import {
   getMentorRequests,
   acceptMentorshipRequest,
   declineMentorshipRequest,
   getMentorshipRequest,
-} from '@/app/api/services/mentorship-requests.service';
-import { prisma } from '@/app/_utils_and_types/utils/db';
-import { RequestStatus } from '@/prisma/generated/prisma/client';
+} from '#services/mentorship-requests.service';
+import { prisma } from '#utils-types/utils/db';
+import { RequestStatus } from '#/prisma/generated/prisma/client';
 
 /**
  * GET - List requests with optional status filter
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching requests:', error);
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to fetch requests',
-      500
+      { status: 500 }
     );
   }
 }

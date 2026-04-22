@@ -1,5 +1,5 @@
-import {prisma} from '@/app/_utils_and_types/db'; 
-import { hashPassword } from '@/app/_utils_and_types/utils/password';
+import {prisma} from '#utils-types/utils/db'; 
+import { hashPassword } from '#utils-types/utils/password';
 
 
 
@@ -14,8 +14,8 @@ export async function clearDatabase() {
     await prisma.conversationParticipant.deleteMany();
     await prisma.notification.deleteMany();
     await prisma.availability.deleteMany();
-    await prisma.alumniProfile.deleteMany();
-    await prisma.studentProfile.deleteMany();
+    await prisma.mentorProfileProfile.deleteMany();
+    await prisma.menteeProfileProfile.deleteMany();
     await prisma.user.deleteMany();
   } catch (error) {
     console.error('Error clearing database:', error);

@@ -1,7 +1,7 @@
 import { Industry, RequestStatus, SessionStatus, CycleStatus, MeetingType } from './generated/prisma/client';
 import { Role } from './generated/prisma/enums';
-import { prisma } from '@/app/_utils_and_types/utils/db';
-import { hashPassword } from '@/app/_utils_and_types/utils/password';
+import { prisma } from '#utils-types/utils/db';
+import { hashPassword } from '#utils-types/utils/password';
 
 async function main() {
   const passwordHash = hashPassword('password123');

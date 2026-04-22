@@ -16,6 +16,8 @@ export const envSchema = z.object({
   DATABASE_URL: z.string().url().regex(/^postgresql:\/\//, "DATABASE_URL must be a valid Postgres connection string"),
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
   JWT_EXPIRES_IN: z.string().default('7d'),
+  SOCKET_PORT:z.coerce.number().describe("Socket port number"),
+  SOCKET_HOST: z.string().describe("Host of the socket"),
   BCRYPT_ROUNDS: z.coerce.number().min(12).default(12),
   BECRYPT_ROTATE: z.coerce.number().min(10).max(12).default(10),
 })

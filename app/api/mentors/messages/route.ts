@@ -4,9 +4,9 @@
  */
 
 import { NextRequest } from 'next/server';
-import { successResponse, errorResponse } from '@/app/_utils_and_types/utils/api-response';
-import { extractUserFromRequest } from '@/app/ _libs_and_schemas/middlewares/auth.middleware';
-import { getUserConversations, getMentorMessageRecipients } from '@/app/api/services/messages.service';
+import { successResponse, errorResponse } from '#utils-types/utils/api-response';
+import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
+import { getUserConversations, getMentorMessageRecipients } from '#services/messages.service';
 
 /**
  * GET - List conversations
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   try {
     const user = await extractUserFromRequest(request);
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse('Unauthorized', { status: 401 });
     }
 
     const url = new URL(request.url);
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching conversations:', error);
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to fetch conversations',
-      500
+      { status: 500 }
     );
   }
 }

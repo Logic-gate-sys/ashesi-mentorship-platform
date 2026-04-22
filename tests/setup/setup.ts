@@ -1,5 +1,5 @@
 import { afterEach } from "vitest";
-import { prisma } from '@/app/_utils_and_types/db'
+import { prisma } from '#utils-types/utils/db'
 import '@testing-library/jest-dom';
 import { Buffer } from 'buffer';
 

@@ -4,9 +4,9 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useAuth } from '@/app/ _libs_and_schemas/context/auth-context'
-import { loginSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema'
-import { EyeIcon } from '@/comp&hooks/ui/icons'
+import { useAuth } from '#/libs_schemas/context/auth-context'
+import { loginSchema } from '#/libs_schemas/schemas/auth.schema'
+import { EyeIcon } from '#comp-hooks/ui/icons/EyeIcon'
 type LoginInput = z.infer<typeof loginSchema> ; 
 
 

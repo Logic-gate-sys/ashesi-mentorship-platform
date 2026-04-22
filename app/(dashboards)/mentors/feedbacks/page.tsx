@@ -1,169 +1,206 @@
 "use client";
 
-import React from 'react';
-import { Star, TrendingUp, Users, Clock, Award, Quote } from 'lucide-react';
+import { useEffect, useMemo } from "react";
+import Image from "next/image";
+import { RefreshCw, Star, Users, CalendarCheck2, MessageSquareText } from "lucide-react";
+import { useMentorFeedback, useMentorRealtime } from "#comp-hooks/hooks/mentor";
 
-/**
- * MENTEE FEEDBACK VIEW
- * Core Screen for tracking impact and reading student testimonials.
- */
+const STAR_FILL = "#6A0A1D";
 
-export default function FeedbackScreen() {
+function formatDate(dateText: string) {
+  const date = new Date(dateText);
+  if (Number.isNaN(date.getTime())) {
+    return "Unknown date";
+  }
+
+  return date.toLocaleDateString([], {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function RatingStars({ value }: { value: number }) {
   return (
-    <div className="flex-1 p-10 overflow-y-auto no-scrollbar rounded-tl-[60px] ml-[-60px] ">
-      {/* --- PAGE HEADER --- */}
-      <header className="flex justify-between items-end mb-10">
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className="h-4 w-4"
+          color={star <= value ? STAR_FILL : "#D1D5DB"}
+          fill={star <= value ? STAR_FILL : "none"}
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function MentorFeedbackPage() {
+  const { feedback, metrics, topRatingCount, isLoading, error, refresh } = useMentorFeedback();
+  const { enabled, on } = useMentorRealtime();
+
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const unsubNotification = on("notification", () => {
+      void refresh();
+    });
+
+    return () => {
+      unsubNotification();
+    };
+  }, [enabled, on, refresh]);
+
+  const averageRatingDisplay = useMemo(() => {
+    return metrics.averageRating ? metrics.averageRating.toFixed(1) : "0.0";
+  }, [metrics.averageRating]);
+
+  const ratingBreakdown = useMemo(() => {
+    const buckets = [5, 4, 3, 2, 1].map((rating) => ({ rating, count: 0 }));
+
+    for (const item of feedback) {
+      const bucket = buckets.find((entry) => entry.rating === item.rating);
+      if (bucket) {
+        bucket.count += 1;
+      }
+    }
+
+    return buckets;
+  }, [feedback]);
+
+  return (
+    <div className="flex flex-col gap-6 pb-8">
+      <section className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-serif font-bold text-[#241919] mb-2">Mentee Feedback</h1>
-          <p className="text-gray-500 font-medium">Refining academic growth through impactful peer guidance.</p>
+          <h1 className="text-2xl font-bold text-[#241919]">Feedback Insights</h1>
+          <p className="text-gray-500">Track mentee sentiment and session outcomes over time.</p>
         </div>
-        <div className="flex gap-3 bg-[#F3E8E8]/50 p-1.5 rounded-2xl border border-[#6A0A1D]/5">
-           <button className="px-6 py-2.5 bg-white text-[#6A0A1D] rounded-xl text-xs font-bold shadow-sm">Pending Feedback</button>
-           <button className="px-6 py-2.5 text-gray-400 text-xs font-bold">Feedback Given</button>
-           <button className="px-6 py-2.5 bg-[#6A0A1D] text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg">View Impact Reports</button>
-        </div>
-      </header>
 
-      {/* --- STATS OVERVIEW --- */}
-      <div className="grid grid-cols-4 gap-6 mb-10">
-        <StatCard label="Total Mentees" value="42" trend="+12%" icon={<Users className="w-4 h-4" />} />
-        <StatCard label="Total Hours" value="320" subValue="Sessions" icon={<Clock className="w-4 h-4" />} />
-        <StatCard label="Average Rating" value="4.9" trend="TOP 1%" isBadge icon={<Star className="w-4 h-4" />} />
-        <StatCard label="Outcomes" value="38" subValue="Grants" icon={<Award className="w-4 h-4" />} />
-      </div>
+        <button
+          onClick={() => void refresh()}
+          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-[#6A0A1D] hover:bg-[#FDF1F2]"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Refresh
+        </button>
+      </section>
 
-      {/* --- SKILLS & PROGRESSION GRID --- */}
-      <div className="grid grid-cols-12 gap-8 mb-12">
-        
-        {/* SKILLS TRANSFERRED */}
-        <div className="col-span-5 bg-[#F3E8E8]/30 rounded-[40px] p-10 border border-[#6A0A1D]/5">
-          <h3 className="text-xl font-bold text-[#6A0A1D] mb-8">Skills Transferred</h3>
-          <div className="space-y-8">
-            <SkillBar label="Python & Data Science" percentage={88} />
-            <SkillBar label="Research Methodology" percentage={94} />
-            <SkillBar label="Leadership & Mentoring" percentage={72} />
-            <SkillBar label="Academic Writing" percentage={65} />
+      {error ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
+      ) : null}
+
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <MetricCard label="Total Mentees" value={metrics.totalMentees} icon={<Users className="h-4 w-4" />} />
+        <MetricCard
+          label="Total Sessions"
+          value={metrics.totalSessions}
+          icon={<CalendarCheck2 className="h-4 w-4" />}
+        />
+        <MetricCard
+          label="Completed Sessions"
+          value={metrics.completedSessions}
+          icon={<CalendarCheck2 className="h-4 w-4" />}
+        />
+        <MetricCard
+          label="Average Rating"
+          value={averageRatingDisplay}
+          icon={<Star className="h-4 w-4" />}
+        />
+        <MetricCard
+          label="Top Ratings (4-5)"
+          value={topRatingCount}
+          icon={<MessageSquareText className="h-4 w-4" />}
+        />
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[1fr_2fr]">
+        <aside className="rounded-3xl border border-[#6A0A1D]/10 bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-semibold text-[#241919]">Rating Distribution</h2>
+
+          {!feedback.length && !isLoading ? (
+            <p className="text-sm text-gray-500">No feedback submitted yet.</p>
+          ) : null}
+
+          <div className="space-y-3">
+            {ratingBreakdown.map((entry) => {
+              const total = metrics.totalFeedback || feedback.length || 1;
+              const percentage = Math.round((entry.count / total) * 100);
+
+              return (
+                <div key={entry.rating} className="grid grid-cols-[32px_1fr_auto] items-center gap-2">
+                  <span className="text-sm font-semibold text-[#241919]">{entry.rating}</span>
+                  <div className="h-2 rounded-full bg-gray-100">
+                    <div
+                      className="h-2 rounded-full bg-[#6A0A1D] transition-all duration-300"
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-gray-500">{entry.count}</span>
+                </div>
+              );
+            })}
           </div>
-        </div>
+        </aside>
 
-        {/* IMPACT PROGRESSION CHART */}
-        <div className="col-span-7 bg-white rounded-[40px] p-10 border border-gray-100 shadow-sm relative overflow-hidden">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-xl font-bold text-[#241919]">Impact Progression</h3>
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Session Engagement (Monthly)</span>
-          </div>
-          
-          <div className="flex items-end justify-between h-48 gap-2">
-            <Bar height="30%" month="Sep" />
-            <Bar height="45%" month="Oct" />
-            <Bar height="40%" month="Nov" />
-            <Bar height="65%" month="Dec" active />
-            <Bar height="50%" month="Jan" />
-            <Bar height="75%" month="Feb" active />
-            <Bar height="80%" month="Mar" active />
-            <Bar height="85%" month="Apr" active />
-            <Bar height="90%" month="May" active />
-            <Bar height="88%" month="Jun" active />
-            <Bar height="100%" month="Jul" active />
-          </div>
-        </div>
-      </div>
+        <main className="rounded-3xl border border-[#6A0A1D]/10 bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-semibold text-[#241919]">Recent Feedback</h2>
 
-      {/* --- TESTIMONIALS SECTION --- */}
-      <section>
-        <h3 className="text-2xl font-serif font-bold text-[#241919] mb-8">Voices from Mentees</h3>
-        <div className="grid grid-cols-3 gap-6">
-          <TestimonialCard 
-            rating={5}
-            text="Elena's guidance on my doctoral thesis was transformative. She didn't just teach me Python; she taught me how to think like a scientist and tackle complex data problems."
-            author="Marcus Thorne"
-            role="PHD CANDIDATE, CS"
-            avatar="https://i.pravatar.cc/150?u=marcus"
-          />
-          <TestimonialCard 
-            rating={5}
-            text="I went from struggling with methodology to winning a department research grant. The structured feedback sessions were exactly what I needed to refine my proposal."
-            author="Sarah Jenkins"
-            role="RESEARCH ASSOCIATE"
-            avatar="https://i.pravatar.cc/150?u=sarah"
-          />
-          <TestimonialCard 
-            rating={5}
-            text="The clarity she brings to complex academic writing is unmatched. My publication rate has doubled since we started our monthly reviews and deep-dives."
-            author="David Okafor"
-            role="JUNIOR FACULTY"
-            avatar="https://i.pravatar.cc/150?u=david"
-          />
-        </div>
+          {isLoading ? <p className="text-sm text-gray-500">Loading feedback...</p> : null}
+
+          {!isLoading && !feedback.length ? (
+            <p className="text-sm text-gray-500">No feedback records yet.</p>
+          ) : null}
+
+          <div className="grid gap-3">
+            {feedback.map((item) => (
+              <article
+                key={item.id}
+                className="rounded-2xl border border-gray-100 bg-[#FAFAFA] p-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="relative h-11 w-11 overflow-hidden rounded-full border border-gray-100">
+                      <Image src={item.menteeAvatar} alt={item.menteeName} fill className="object-cover" />
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-[#241919]">{item.menteeName}</h3>
+                      <p className="text-xs text-gray-500">{item.topic}</p>
+                    </div>
+                  </div>
+
+                  <RatingStars value={item.rating} />
+                </div>
+
+                <p className="mt-3 text-sm text-gray-700">{item.comment}</p>
+                <p className="mt-2 text-xs text-gray-500">{formatDate(item.createdAt)}</p>
+              </article>
+            ))}
+          </div>
+        </main>
       </section>
     </div>
   );
 }
 
-// --- UI HELPER COMPONENTS ---
-
-function StatCard({ label, value, subValue, trend, isBadge, icon }: any) {
+function MetricCard({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: number | string;
+  icon: React.ReactNode;
+}) {
   return (
-    <div className="bg-white p-6 rounded-[30px] border border-gray-100 shadow-sm">
-      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+    <div className="rounded-2xl border border-[#6A0A1D]/10 bg-white p-4 shadow-sm">
+      <p className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        {icon}
         {label}
       </p>
-      <div className="flex items-end justify-between">
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-[#241919]">{value}</span>
-          {subValue && <span className="text-xs text-gray-400 font-medium">{subValue}</span>}
-        </div>
-        {trend && (
-          <span className={`px-3 py-1 rounded-lg text-[10px] font-black ${isBadge ? 'bg-[#FDCBCB] text-[#6A0A1D]' : 'bg-[#DCFCE7] text-[#15803d]'}`}>
-            {trend}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function SkillBar({ label, percentage }: { label: string, percentage: number }) {
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-xs font-bold text-[#241919]">{label}</span>
-        <span className="text-xs font-bold text-[#6A0A1D]">{percentage}%</span>
-      </div>
-      <div className="w-full h-2 bg-white rounded-full overflow-hidden">
-        <div className="h-full bg-[#6A0A1D] rounded-full transition-all duration-1000" style={{ width: `${percentage}%` }} />
-      </div>
-    </div>
-  );
-}
-
-function Bar({ height, month, active }: { height: string, month: string, active?: boolean }) {
-  return (
-    <div className="flex-1 flex flex-col items-center gap-3">
-      <div 
-        className={`w-full rounded-t-xl transition-all duration-500 ${active ? 'bg-[#6A0A1D]' : 'bg-[#E5D1D1]'}`} 
-        style={{ height }} 
-      />
-      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">{month}</span>
-    </div>
-  );
-}
-
-function TestimonialCard({ rating, text, author, role, avatar }: any) {
-  return (
-    <div className="bg-white p-10 rounded-[40px] border border-gray-100 shadow-sm relative group hover:shadow-md transition-shadow">
-      <Quote className="absolute top-8 right-8 w-12 h-12 text-[#F3E8E8] group-hover:text-[#6A0A1D]/10 transition-colors" />
-      <div className="flex gap-1 mb-6">
-        {[...Array(rating)].map((_, i) => <Star key={i} className="w-4 h-4 fill-[#6A0A1D] text-[#6A0A1D]" />)}
-      </div>
-      <p className="text-sm text-gray-600 leading-relaxed mb-8 relative z-10 font-medium italic">"{text}"</p>
-      <div className="flex items-center gap-4">
-        <img src={avatar} alt={author} className="w-12 h-12 rounded-full border-2 border-white shadow-sm" />
-        <div>
-          <h4 className="text-sm font-bold text-[#6A0A1D]">{author}</h4>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{role}</p>
-        </div>
-      </div>
+      <p className="text-2xl font-bold text-[#241919]">{value}</p>
     </div>
   );
 }

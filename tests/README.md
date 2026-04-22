@@ -112,7 +112,7 @@ Prebuilt test data to reuse across tests:
 **Usage:**
 
 ```typescript
-import { renderWithAuth, screen, waitFor } from '@/tests/helpers/render-with-providers';
+import { renderWithAuth, screen, waitFor } from '@app/tests/helpers/render-with-providers';
 
 // Render with no auth
 renderWithAuth(<LoginPage />);
@@ -144,7 +144,7 @@ describe('validateEmail', () => {
 
 ```typescript
 import { describe, it, expect, beforeEach } from 'vitest';
-import { clearDatabase, createTestUser } from '../../helpers/test-db-utils';
+import { clearDatabase, createTestUser } from '@/prisma/helpers/test-db-utils';
 
 describe('POST /api/auth/register', () => {
   beforeEach(async () => {
@@ -167,8 +167,8 @@ describe('POST /api/auth/register', () => {
 import { describe, it, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithAuth } from '../../helpers/render-with-providers';
-import LoginPage from '@/app/(auth)/login/page';
+import { renderWithAuth } from '@/prisma/helpers/render-with-providers';
+import LoginPage from '@app//(auth)/login/page';
 
 describe('LoginPage', () => {
   it('should render login form', () => {
@@ -272,7 +272,7 @@ describe('LoginPage', () => {
 **Example:**
 
 ```typescript
-import { renderWithAuth, screen, waitFor } from '@/tests/helpers/render-with-providers';
+import { renderWithAuth, screen, waitFor } from '@app/tests/helpers/render-with-providers';
 import userEvent from '@testing-library/user-event';
 
 describe('LoginPage', () => {

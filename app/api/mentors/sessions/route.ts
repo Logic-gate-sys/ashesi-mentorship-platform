@@ -7,11 +7,11 @@
  */
 
 import { NextRequest } from 'next/server';
-import { successResponse, errorResponse } from '@/app/_utils_and_types/utils/api-response';
-import { extractUserFromRequest } from '@/app/ _libs_and_schemas/middlewares/auth.middleware';
-import { getMentorSessions, createSession, getUpcomingMentorSessions } from '@/app/api/services/sessions.service';
-import { prisma } from '@/app/_utils_and_types/utils/db';
-import { SessionStatus } from '@/prisma/generated/prisma/client';
+import { successResponse, errorResponse } from '#utils-types/utils/api-response';
+import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
+import { getMentorSessions, createSession, getUpcomingMentorSessions } from '#services/sessions.service';
+import { prisma } from '#utils-types/utils/db';
+import { SessionStatus } from '#/prisma/generated/prisma/client';
 
 /**
  * GET - List sessions with optional filters
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   try {
     const user = await extractUserFromRequest(request);
     if (!user || user.role !== 'MENTOR') {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse('Unauthorized', { status: 401 });
     }
 
     const mentorProfile = await prisma.mentorProfile.findUnique({
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!mentorProfile) {
-      return errorResponse('Mentor profile not found', 404);
+      return errorResponse('Mentor profile not found', { status: 404 });
     }
 
     const url = new URL(request.url);
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching sessions:', error);
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to fetch sessions',
-      500
+      { status: 500 }
     );
   }
 }
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
   try {
     const user = await extractUserFromRequest(request);
     if (!user || user.role !== 'MENTOR') {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse('Unauthorized', { status: 401 });
     }
 
     const mentorProfile = await prisma.mentorProfile.findUnique({
@@ -76,14 +76,14 @@ export async function POST(request: NextRequest) {
     });
 
     if (!mentorProfile) {
-      return errorResponse('Mentor profile not found', 404);
+      return errorResponse('Mentor profile not found', { status: 404 });
     }
 
     const body = await request.json();
     const { requestId, menteeId, topic, scheduledAt, duration, type, notes, meetingUrl } = body;
 
     if (!requestId || !menteeId || !topic || !scheduledAt || !duration) {
-      return errorResponse('Missing required fields', 400);
+      return errorResponse('Missing required fields', { status: 400 });
     }
 
     const session = await createSession({
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     console.error('Error creating session:', error);
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to create session',
-      500
+      { status: 500 }
     );
   }
 }

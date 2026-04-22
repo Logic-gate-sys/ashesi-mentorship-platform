@@ -1,17 +1,27 @@
 {
-  "name": "ashesi-mentor-platform",
-  "version": "0.1.0",
+  "name": "mentor-pro",
+  "version": "1.0.0",
+  "main": "server.ts",
   "private": true,
+  "type": "module",
+  "imports": {
+    "#/*": "./*",
+    "#app/*": "./app/*",
+    "#services/*": "./services/*",
+    "#comp-hooks/*": "./components_hooks/*",
+    "#libs-schemas/*": "./libs_schemas/*",
+    "#utils-types/*": "./utils_types/*"
+  },
   "scripts": {
-    "dev": "next dev",
+    "dev": "node --experimental-strip-types --trace-warnings server.ts ",
     "build": "next build",
-    "start": "next start",
+    "start": "NODE_ENV=production node server.ts",
     "lint": "eslint",
     "unit:tests": "vitest --project unit-tests --coverage --watch",
     "integration:tests": "vitest --project integration-tests --coverage --watch",
     "component:tests": "vitest --project component-tests --coverage ",
     "all:tests": "vitest run --coverage",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node prisma/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

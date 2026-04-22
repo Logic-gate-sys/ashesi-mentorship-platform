@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { Hero } from '@/comp&hooks/Hero'
-import { CheckmarkIcon } from '@/comp&hooks/ui/icons/'
-import { FeatureCard, StepCard, MentorCard, StatCard, TestimonialCard } from '@/comp&hooks/cards'
-import { StepCardProps } from '@/utils&types/types/types'
+import { Hero } from '#comp-hooks/Hero'
+import { CheckmarkIcon } from '#comp-hooks/ui/icons/'
+import { FeatureCard, StepCard, MentorCard, StatCard, TestimonialCard } from '#comp-hooks/cards'
+import { StepCardProps } from '#utils-types/types/types'
 
 const features = [
   {

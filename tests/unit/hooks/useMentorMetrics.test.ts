@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { useMentorMetrics } from '@/app/_components_and_hooks/_hooks/useMentorMetrics';
+import { useMentorMetrics } from '#comp-hooks/hooks/useMentorMetrics';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock fetch

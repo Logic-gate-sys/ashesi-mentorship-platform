@@ -5,10 +5,10 @@
  */
 
 import { NextRequest } from 'next/server';
-import { successResponse, errorResponse } from '@/app/_utils_and_types/utils/api-response';
-import { requirePermission, extractUserFromRequest } from '@/app/ _libs_and_schemas/middlewares/auth.middleware';
-import { getMentorDashboardOverview } from '@/app/api/services/metrics.service';
-import { prisma } from '@/app/_utils_and_types/utils/db';
+import { successResponse, errorResponse } from '#utils-types/utils/api-response';
+import { requirePermission, extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
+import { getMentorDashboardOverview } from '#services/metrics.service';
+import { prisma } from '#utils-types/utils/db';
 
 export async function GET(request: NextRequest) {
   try {

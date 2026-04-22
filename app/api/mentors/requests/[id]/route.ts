@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server';
-import { successResponse, errorResponse } from '@/app/_utils_and_types/utils/api-response';
-import { extractUserFromRequest } from '@/app/ _libs_and_schemas/middlewares/auth.middleware';
-import { getMentorshipRequest,acceptMentorshipRequest, declineMentorshipRequest,} from '@/app/api/services/mentorship-requests.service';
-import { prisma } from '@/app/_utils_and_types/utils/db';
+import { successResponse, errorResponse } from '#utils-types/utils/api-response';
+import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
+import { getMentorshipRequest,acceptMentorshipRequest, declineMentorshipRequest,} from '#services/mentorship-requests.service';
+import { prisma } from '#utils-types/utils/db';
 
 
 export async function GET(
@@ -68,9 +68,12 @@ export async function POST(
 
     if (action === 'accept') {
       const result = await acceptMentorshipRequest(id, mentorProfile.id);
+
+
       return successResponse(result, 'Request accepted successfully', 200);
     } else if (action === 'decline') {
       const result = await declineMentorshipRequest(id, mentorProfile.id);
+
       return successResponse(result, 'Request declined successfully', 200);
     } else {
       return errorResponse('Invalid action. Use ?action=accept or ?action=decline', { status: 400 });

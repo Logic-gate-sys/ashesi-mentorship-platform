@@ -1,13 +1,13 @@
 "use client";
 import React from "react";
-import { useAuth } from "../ _libs_and_schemas/context/auth-context";
+import { useAuth } from "../../libs_schemas/context/auth-context";
 import Link from "next/link";
 import { HomeIcon, RequestIcon,MessagesIcon,MenteesIcon, MeetingsIcon,SettingsIcon,FeedbackIcon, 
   ManageIcon, UsersIcon, ReportsIcon
-} from "../_components_and_hooks/ui/icons/DashboardNavIcons";
-import AshesiLog from '@/comp&hooks/images/ashesi_logo.svg'
+} from "#comp-hooks/ui/icons/DashboardNavIcons";
+import AshesiLog from '#comp-hooks/images/ashesi_logo.svg'
 import Image from "next/image";
-import { TopLeftProfile } from "../_components_and_hooks/ui/reusable-ui/DashboardTopStrip";
+import { TopLeftProfile } from "#comp-hooks/ui/reusable-ui/DashboardTopStrip";
 
 
 type NavItem = {

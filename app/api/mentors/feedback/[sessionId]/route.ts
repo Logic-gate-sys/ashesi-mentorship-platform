@@ -13,32 +13,34 @@
  */
 
 import { NextRequest } from 'next/server';
-import { successResponse, errorResponse } from '@/app/_utils_and_types/utils/api-response';
-import { extractUserFromRequest } from '@/app/ _libs_and_schemas/middlewares/auth.middleware';
+import { successResponse, errorResponse } from '#utils-types/utils/api-response';
+import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
 import {
   getSessionFeedback,
   createSessionFeedback,
   updateSessionFeedback,
   deleteSessionFeedback,
-} from '@/app/api/services/feedback.service';
+} from '#services/feedback.service';
 
 /**
  * GET - Get feedback for a session
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ) {
   try {
     const user = await extractUserFromRequest(request);
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse('Unauthorized', { status: 401 });
     }
 
-    const feedback = await getSessionFeedback(params.sessionId);
+    const { sessionId } = await params;
+
+    const feedback = await getSessionFeedback(sessionId);
 
     if (!feedback) {
-      return errorResponse('Feedback not found', 404);
+      return errorResponse('Feedback not found', { status: 404 });
     }
 
     return successResponse(feedback, 'Feedback retrieved successfully');
@@ -46,7 +48,7 @@ export async function GET(
     console.error('Error fetching feedback:', error);
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to fetch feedback',
-      500
+      { status: 500 }
     );
   }
 }
@@ -56,23 +58,25 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ) {
   try {
     const user = await extractUserFromRequest(request);
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse('Unauthorized', { status: 401 });
     }
+
+    const { sessionId } = await params;
 
     const body = await request.json();
     const { rating, comment } = body;
 
     if (!rating) {
-      return errorResponse('Missing required field: rating', 400);
+      return errorResponse('Missing required field: rating', { status: 400 });
     }
 
     const feedback = await createSessionFeedback({
-      sessionId: params.sessionId,
+      sessionId,
       rating: parseInt(rating, 10),
       comment,
     });
@@ -82,7 +86,7 @@ export async function POST(
     console.error('Error creating feedback:', error);
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to create feedback',
-      500
+      { status: 500 }
     );
   }
 }
@@ -92,18 +96,20 @@ export async function POST(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ) {
   try {
     const user = await extractUserFromRequest(request);
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse('Unauthorized', { status: 401 });
     }
+
+    const { sessionId } = await params;
 
     const body = await request.json();
     const { rating, comment } = body;
 
-    const feedback = await updateSessionFeedback(params.sessionId, {
+    const feedback = await updateSessionFeedback(sessionId, {
       rating: rating ? parseInt(rating, 10) : undefined,
       comment,
     });
@@ -113,7 +119,7 @@ export async function PATCH(
     console.error('Error updating feedback:', error);
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to update feedback',
-      500
+      { status: 500 }
     );
   }
 }
@@ -123,22 +129,24 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ) {
   try {
     const user = await extractUserFromRequest(request);
     if (!user) {
-      return errorResponse('Unauthorized', 401);
+      return errorResponse('Unauthorized', { status: 401 });
     }
 
-    await deleteSessionFeedback(params.sessionId);
+    const { sessionId } = await params;
+
+    await deleteSessionFeedback(sessionId);
 
     return successResponse(null, 'Feedback deleted successfully');
   } catch (error) {
     console.error('Error deleting feedback:', error);
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to delete feedback',
-      500
+      { status: 500 }
     );
   }
 }

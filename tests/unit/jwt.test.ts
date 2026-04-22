@@ -1,5 +1,5 @@
 import { describe, it, expect} from 'vitest';
-import { createJWT, verifyJWT, decodeJWT } from '@/app/_utils_and_types/jwt';
+import { createJWT, verifyJWT, decodeJWT } from '#utils-types/utils/jwt';
 
 
 describe('JWT Utilities', () => {
