@@ -1,4 +1,4 @@
-import { createServer } from "node:http";
+import { createServer } from "http";
 import { initSocketNameSpaces } from "#libs-schemas/socket/index";
 import next from "next";
 import {env } from './env'; 
@@ -7,9 +7,8 @@ import {env } from './env';
 
 const hostname = env.SOCKET_HOST ||"localhost";
 const port = env.SOCKET_PORT ||3000;
+const dev =env.NODE_ENV !=='production';
 
-
-// when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
 

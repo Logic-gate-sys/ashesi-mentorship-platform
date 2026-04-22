@@ -1,6 +1,6 @@
 
 import { SignJWT, jwtVerify, decodeJwt, JWTPayload } from 'jose';
-import { env } from '@/env';
+import { env } from '#/env';
 
 
 export interface CustomPayload extends JWTPayload{

@@ -13,9 +13,9 @@
     "#utils-types/*": "./utils_types/*"
   },
   "scripts": {
-    "dev": "node --experimental-strip-types --trace-warnings server.ts ",
-    "build": "next build",
-    "start": "NODE_ENV=production node server.ts",
+    "dev": "tsx --watch server.ts ",
+    "build": "next build && tsup server.ts --out-dir dist --format esm",
+    "start": "NODE_ENV=production node dist/server.ts",
     "lint": "eslint",
     "unit:tests": "vitest --project unit-tests --coverage --watch",
     "integration:tests": "vitest --project integration-tests --coverage --watch",
@@ -60,6 +60,7 @@
     "socket.io-client": "^4.8.3",
     "supertest": "^7.0.0",
     "tailwindcss": "^4",
+    "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5",
     "vitest": "^4.1.0",
