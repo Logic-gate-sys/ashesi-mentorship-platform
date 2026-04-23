@@ -1,38 +1,32 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
-import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
-import { getMentorshipRequest,acceptMentorshipRequest, declineMentorshipRequest,} from '#services/mentorship-requests.service';
-import { prisma } from '#utils-types/utils/db';
+import { getMentorshipRequestDetails,updateMentorshipRequestStatus,} from '#services/mentorship-requests.service';
 import { getIOInstance } from '#libs-schemas/socket/index.js';
+import { requireAuth, requirePermission } from '#/libs_schemas/middlewares/auth.middleware';
 
-const io = getIOInstance(); 
 
 
+const io = getIOInstance();
+ 
+// get deatils of one request
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await extractUserFromRequest(request);
-    if (!user || user.role !== 'MENTOR') {
-      return errorResponse('Unauthorized', { status: 401 });
+    const {user} = await requireAuth(request); 
+    const isAllowed = requirePermission(user.id, 'mentorship_request', 'accept');
+    if(!isAllowed){
+      return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});
     }
-    const { id } = await params;
-    const req = await getMentorshipRequest(id);
-    if (!req) {
-      return errorResponse('Request not found', { status: 404 });
-    }
-    // Verify mentor ownership
-    const mentorProfile = await prisma.mentorProfile.findUnique({
-      where: { userId: user.id },
-      select: { id: true },
-    });
-
-    if (req.mentorId !== mentorProfile?.id) {
-      return errorResponse('Unauthorized: Not your request', { status: 403 });
-    }
-
-    return successResponse(req, 'Request retrieved successfully');
+    const {id } = await params; 
+    const requestDetails  = await getMentorshipRequestDetails(id);
+    return NextResponse.json({
+      success: true,
+      data: requestDetails,
+    },
+    {status: 200}
+  )
   } catch (error) {
     console.error('Error fetching request:', error);
     return errorResponse(
@@ -42,54 +36,45 @@ export async function GET(
   }
 }
 
-//mentor accepting request
+
+
+//mentor accepting/declining request
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await extractUserFromRequest(request);
-    if (!user || user.role !== 'MENTOR') {
-      return errorResponse('Unauthorized', { status: 401 });
-    }
-
-    // Get mentor profile
-    const mentorProfile = await prisma.mentorProfile.findUnique({
-      where: { userId: user.id },
-      select: { id: true },
-    });
-
-    if (!mentorProfile) {
-      return errorResponse('Mentor profile not found', { status: 404 });
+    const {user} = await requireAuth(request); 
+    const isAllowed = requirePermission(user.id, 'mentorship_request', 'accept');
+    if(!isAllowed){
+      return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});
     }
 
     // Check action from query param
-    const url = new URL(request.url);
-    const action = url.searchParams.get('action');
-
+    const action = request.nextUrl.searchParams.get('action');
     const { id } = await params;
-
+    // if accept
     if (action === 'accept') {
-      const result = await acceptMentorshipRequest(id, mentorProfile.id);
-
+      const result = await updateMentorshipRequestStatus(id, user.id, "ACCEPTED");
       // emit request accepted --. shown to sender
-      io.of('/req').to(`user:${user?.id}`).emit('request:accepted', {
+      io.of('/requests').to(`user:${user?.id}`).emit('request:accepted', {
         mentorId: user.id,
         firstName: user.firstName, 
-        lastName: user.lastName})
+        lastName: user.lastName
+      })
       return successResponse(result, 'Request accepted successfully', 200);
     } else if (action === 'decline') {
-      const result = await declineMentorshipRequest(id, mentorProfile.id);
-       io.of('/req').to(`user:${user?.id}`).emit('request:declined', {
+      const result = await updateMentorshipRequestStatus(id, user.id, "DECLINED");
+       io.of('/requests').to(`user:${user?.id}`).emit('request:declined', {
         mentorId: user.id, 
         firstName: user.firstName, 
-        lastName: user.lastName})
+        lastName: user.lastName
+      })
       return successResponse(result, 'Request declined successfully', 200);
     } else {
       return errorResponse('Invalid action. Use ?action=accept or ?action=decline', { status: 400 });
     }
   } catch (error) {
-    console.error('Error processing request action:', error);
     if (error instanceof Error && error.message.includes('Cannot')) {
       return errorResponse(error.message, { status: 400 });
     }

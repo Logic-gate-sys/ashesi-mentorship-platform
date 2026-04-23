@@ -39,16 +39,14 @@ export function useMentorDashboard(): DashboardData {
         throw new Error(`Failed to fetch dashboard: ${response.status}`);
       }
 
-      const payload = await response.json();
-      const data = payload?.data;
-
+      const {metrics, mentor, pendingRequests,activeMentees,upcomingSessions,recentActivities} = await response.json();
       setStats([
-        { title: 'mentees', statsNum: data?.metrics?.totalMentees || 0 },
-        { title: 'sessions', statsNum: data?.metrics?.totalSessions || 0 },
-        { title: 'feedbacks', statsNum: data?.metrics?.completedSessions || 0 },
+        { title: 'mentees', statsNum: metrics?.totalMentees || 0 },
+        { title: 'sessions', statsNum: metrics?.totalSessions || 0 },
+        { title: 'feedbacks', statsNum: metrics?.completedSessions || 0 },
       ]);
 
-      const pending = Array.isArray(data?.pendingRequests) ? data.pendingRequests : [];
+      const pending = Array.isArray(pendingRequests) ? pendingRequests : [];
       setPendingRequests(
         pending.map((req: any) => ({
           id: req.id,
@@ -59,7 +57,7 @@ export function useMentorDashboard(): DashboardData {
         }))
       );
 
-      const active = Array.isArray(data?.activeMentees) ? data.activeMentees : [];
+      const active = Array.isArray(activeMentees) ? activeMentees : [];
       setActiveMentees(
         active.map((mentee: any) => ({
           id: mentee.id,
@@ -68,7 +66,7 @@ export function useMentorDashboard(): DashboardData {
         }))
       );
 
-      const upcoming = Array.isArray(data?.upcomingSessions) ? data.upcomingSessions : [];
+      const upcoming = Array.isArray(upcomingSessions) ? upcomingSessions : [];
       setScheduleEvents(
         upcoming.map((session: any) => ({
           id: session.id,
@@ -79,9 +77,9 @@ export function useMentorDashboard(): DashboardData {
         }))
       );
 
-      if (Array.isArray(data?.recentActivities)) {
+      if (Array.isArray(recentActivities)) {
         setRecentUpdates(
-          data.recentActivities.map((activity: any) => ({
+          recentActivities.map((activity: any) => ({
             id: activity.id,
             event: activity.event,
             timestamp: activity.timestamp,
@@ -109,15 +107,6 @@ export function useMentorDashboard(): DashboardData {
     refresh();
   }, [refresh]);
 
-  return {
-    stats,
-    recentUpdates,
-    pendingRequests,
-    activeMentees,
-    scheduleEvents,
-    isLoading,
-    error,
-    refresh,
-  };
+  return {stats,recentUpdates,pendingRequests,activeMentees,scheduleEvents,isLoading,error,refresh};
 }
 

@@ -13,7 +13,7 @@ import { useSocket } from "#comp-hooks/hooks/socket/useSocket";
 export default function MentorHomePage() {
   const { user , getAccessToken} = useAuth();
   const { stats, recentUpdates, pendingRequests, activeMentees, scheduleEvents, isLoading, error } = useMentorDashboard();
-  const { acceptRequest, declineRequest } = useMentorshipRequests();
+  const { acceptRequest, declineRequest, } = useMentorshipRequests();
   const [actionState, setActionState] = useState<Record<string, 'idle' | 'accepting' | 'declining' | 'accepted' | 'declined'>>({});
   
   // token and socket

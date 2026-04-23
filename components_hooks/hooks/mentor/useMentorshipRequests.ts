@@ -31,17 +31,6 @@ export function useMentorshipRequests(): UseMentorshipRequestsReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const parseRequest = (req: any): MentorshipRequest => ({
-    id: req.id,
-    studentName: req.studentName,
-    majorAndYear: req.majorAndYear,
-    studentAvatarUrl: req.studentAvatarUrl,
-    message: req.message || req.goal,
-    goal: req.goal,
-    status: req.status,
-    createdAt: req.createdAt,
-  });
-
   const refresh = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -64,7 +53,7 @@ export function useMentorshipRequests(): UseMentorshipRequestsReturn {
     } 
   }, [authorizedFetch]);
 
-  
+
   useEffect(() => {
     refresh();
   }, [refresh]);
@@ -102,14 +91,6 @@ export function useMentorshipRequests(): UseMentorshipRequestsReturn {
       return false;
     }
   };
-
-  return {
-    requests,
-    history,
-    isLoading,
-    error,
-    refresh,
-    acceptRequest,
-    declineRequest,
-  };
+  //return
+  return { requests, history, isLoading, error, refresh, acceptRequest, declineRequest };
 }

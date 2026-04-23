@@ -3,42 +3,12 @@ import { prisma } from '#utils-types/utils/db';
 import {z} from 'zod'; 
 import { RequestStatus } from '#/prisma/generated/prisma/enums';
 
-export async function getMentorRequests(mentorProfileId: string) {
-  return await prisma.mentorshipRequest.findMany({
-    where: {mentorId: mentorProfileId},
-    select: {
-      mentee: {
-        select: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              lastName: true,
-              avatarUrl: true,
-            },
-          },
-        },
-      },
-      cycle: {
-        select: {
-          id: true,
-          name: true,
-          status: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-}
 
 
 
 
 
-export async function acceptMentorshipRequest(requestId: string, mentorProfileId: string) {
+export async function updateMentorshipRequestStatus(requestId: string, mentorProfileId: string, status: RequestStatus) {
   // Verify the mentor owns this request
   const request = await prisma.mentorshipRequest.findUnique({
     where: { id: requestId },
@@ -58,9 +28,9 @@ export async function acceptMentorshipRequest(requestId: string, mentorProfileId
   }
 
   return await prisma.mentorshipRequest.update({
-    where: { id: requestId },
+    where: { id: requestId, mentorId: mentorProfileId },
     data: {
-      status: 'ACCEPTED',
+      status:status,
       updatedAt: new Date(),
     },
     include: {
@@ -79,40 +49,6 @@ export async function acceptMentorshipRequest(requestId: string, mentorProfileId
   });
 }
 
-export async function declineMentorshipRequest(requestId: string, mentorProfileId: string) {
-  const request = await prisma.mentorshipRequest.findUnique({
-    where: { id: requestId },
-    select: { mentorId: true, status: true },
-  });
-
-  if (!request) {
-    throw new Error('Request not found');
-  }
-
-  if (request.mentorId !== mentorProfileId) {
-    throw new Error('Unauthorized: Not the mentor for this request');
-  }
-
-  if (request.status !== 'PENDING') {
-    throw new Error(`Cannot decline request with status: ${request.status}`);
-  }
-
-  return await prisma.mentorshipRequest.update({
-    where: { id: requestId },
-    data: {
-      status: 'DECLINED',
-      resolvedAt: new Date(),
-      updatedAt: new Date(),
-    },
-    include: {
-      mentee: {
-        include: {
-          user: true,
-        },
-      },
-    },
-  });
-}
 
 export async function getPendingRequestsCount(mentorProfileId: string) {
   return await prisma.mentorshipRequest.count({
@@ -137,27 +73,60 @@ export async function sendMentorshipRequest(data: z.infer<typeof createMentorshi
 
 }
 
-export async function getMentorshipRequest(id: string, page: number, limit:number) {
-  const skip = (page - 1) * limit; 
-  const take = limit ; 
+export async function getMentorshipRequestDetails(requestId: string) {
+   return await prisma.mentorshipRequest.findMany({
+     where: { id: requestId },
+     include: {
+       id: true,
+       mentor:{
+         select: {
+         id: true,
+         firstName: true,
+         lastName: true,
+         profession: true,
+         graduationYear: true,
+         }
+       },
+       message: true,
+       status: true,
+       sessions: true,
+       resolvedAt: true,
+       createdAt: true   }
+   });
+ }
+export async function getMentorshipRequests(mentorProfileId: string, status?: RequestStatus) {
   return await prisma.mentorshipRequest.findMany({
-    where: { menteeId: id },
-    skip: skip,
-    take: take,
+    where: {mentorId: mentorProfileId, status: status},
     select: {
       id: true,
-      mentor:{
-        select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        profession: true,
-        }
-      },
+      goal: true,
       message: true,
       status: true,
-      resolvedAt: true,
-      createdAt: true
-    }
+      mentee: {
+        select: {
+          yearGroup: true,
+          major: true,
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      },
+      cycle: {
+        select: {
+          id: true,
+          name: true,
+          status: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 }

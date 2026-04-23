@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getIOInstance } from '#libs-schemas/socket/index.js';
 import { requireAuth, requirePermission } from '#/libs_schemas/middlewares/auth.middleware';
 import { createMentorshipRequestSchema } from '#libs-schemas/schemas/request.schema.js';
-import {sendMentorshipRequest, getMentorshipRequest} from '#services/mentorship-requests.service'
+import {sendMentorshipRequest, getMentorshipRequestDetails} from '#services/mentorship-requests.service'
 
 const io = getIOInstance(); 
 
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest){
     // retrieve all user request
     const pageNum = parseInt(page, 1);
     const limitNum = parseInt(limit, 10); 
-    const mentorshipRequest = await getMentorshipRequest(user.id, pageNum, limitNum); 
+    const mentorshipRequest = await getMentorshipRequestDetails(user.id, pageNum, limitNum); 
     return NextResponse.json({
       success: true,
       data: mentorshipRequest

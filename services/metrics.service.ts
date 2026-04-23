@@ -4,12 +4,8 @@
  */
 
 import { prisma } from '#utils-types/utils/db';
-import {
-  getMentorSessions,
-  getUpcomingMentorSessions,
-  getMentorSessionStats,
-} from './sessions.service';
-import { getMentorRequests, getPendingRequestsCount } from './mentorship-requests.service';
+import {getMentorSessions,getUpcomingMentorSessions,getMentorSessionStats} from './sessions.service';
+import { getMentorshipRequests, getPendingRequestsCount } from './mentorship-requests.service';
 import { getMentorFeedback, getMentorAverageRating } from './feedback.service';
 
 export interface MentorMetrics {
@@ -58,26 +54,16 @@ export interface DashboardOverview {
  * Get comprehensive metrics for a mentor
  */
 export async function getMentorMetrics(mentorProfileId: string): Promise<MentorMetrics> {
-  const [
-    activeMentees,
-    totalAcceptedRequests,
-    sessionStats,
-    pendingRequests,
-    ratingData,
-  ] = await Promise.all([
+  const [activeMentees,totalAcceptedRequests,sessionStats,pendingRequests,ratingData] = await Promise.all([
+    //all distinct mentees
     prisma.mentorshipRequest.findMany({
-      where: {
-        mentorId: mentorProfileId,
-        status: 'ACCEPTED',
-      },
+      where: { mentorId: mentorProfileId, status: 'ACCEPTED' },
       distinct: ['menteeId'],
       select: { menteeId: true },
     }),
+     // all accepted requests
     prisma.mentorshipRequest.count({
-      where: {
-        mentorId: mentorProfileId,
-        status: 'ACCEPTED',
-      },
+      where: {mentorId: mentorProfileId,status: 'ACCEPTED' },
     }),
     getMentorSessionStats(mentorProfileId),
     getPendingRequestsCount(mentorProfileId),
@@ -96,9 +82,6 @@ export async function getMentorMetrics(mentorProfileId: string): Promise<MentorM
   };
 }
 
-/**
- * Get complete dashboard overview for a mentor
- */
 export async function getMentorDashboardOverview(mentorProfileId: string): Promise<DashboardOverview> {
   // Fetch mentor profile
   const mentor = await prisma.mentorProfile.findUnique({
@@ -115,34 +98,27 @@ export async function getMentorDashboardOverview(mentorProfileId: string): Promi
       },
     },
   });
-
+  //if no mentor
   if (!mentor) {
     throw new Error('Mentor profile not found');
   }
-
   // Fetch metrics
   const metrics = await getMentorMetrics(mentorProfileId);
-
   // Fetch pending requests
-  const pendingRequests = await getMentorRequests(mentorProfileId, 'PENDING');
-
+  const pendingRequests = await getMentorshipRequests(mentorProfileId, 'PENDING');
   // Fetch active mentees
-  const acceptedRequests = await getMentorRequests(mentorProfileId, 'ACCEPTED');
+  const acceptedRequests = await getMentorshipRequests(mentorProfileId, 'ACCEPTED');
   const activeMentees = acceptedRequests.map(req => ({
-    id: req.mentee?.id,
-    studentId: req.mentee?.userId,
-    studentName: req.mentee?.user?.firstName
-      ? `${req.mentee.user.firstName} ${req.mentee.user.lastName}`
-      : 'Unknown',
+    id: req.id,
+    studentId: req.mentee?.user.id,
+    studentName: req.mentee?.user?.firstName? `${req.mentee.user.firstName} ${req.mentee.user.lastName}`: 'Unknown',
     studentEmail: req.mentee?.user?.email || '',
     studentAvatarUrl: req.mentee?.user?.avatarUrl,
     goal: req.goal,
     status: 'active' as const,
   }));
-
   // Fetch upcoming sessions
   const upcomingSessions = await getUpcomingMentorSessions(mentorProfileId);
-
   // Fetch recent activities
   const recentActivities = await getMentorRecentActivities(mentorProfileId, 6);
 
@@ -151,7 +127,7 @@ export async function getMentorDashboardOverview(mentorProfileId: string): Promi
     metrics,
     pendingRequests: pendingRequests.map(req => ({
       id: req.id,
-      studentId: req.mentee?.userId,
+      studentId: req.mentee?.user?.id,
       studentName: req.mentee?.user?.firstName
         ? `${req.mentee.user.firstName} ${req.mentee.user.lastName}`
         : 'Unknown',
