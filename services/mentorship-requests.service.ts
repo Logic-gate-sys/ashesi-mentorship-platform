@@ -50,10 +50,11 @@ export async function updateMentorshipRequestStatus(requestId: string, mentorPro
 }
 
 
-export async function getPendingRequestsCount(mentorProfileId: string) {
+export async function getPendingRequestsCount(userProfileId: string, user:'MENTEE'|'MENTOR') {
+  const where = user==='MENTEE'? {menteeId: userProfileId} : {mentorId: userProfileId}
   return await prisma.mentorshipRequest.count({
     where: {
-      mentorId: mentorProfileId,
+      ...where,
       status: 'PENDING',
     },
   });
@@ -94,9 +95,12 @@ export async function getMentorshipRequestDetails(requestId: string) {
        createdAt: true   }
    });
  }
-export async function getMentorshipRequests(mentorProfileId: string, status?: RequestStatus) {
+export async function getMentorshipRequests(userProfileId: string, user: 'MENTEE'|'MENTOR',status?: RequestStatus, ) {
+
+  
+  const where = user==='MENTEE'? {menteeId: userProfileId}:{mentorId: userProfileId}
   return await prisma.mentorshipRequest.findMany({
-    where: {mentorId: mentorProfileId, status: status},
+    where: {...where, status: status},
     select: {
       id: true,
       goal: true,
@@ -106,6 +110,22 @@ export async function getMentorshipRequests(mentorProfileId: string, status?: Re
         select: {
           yearGroup: true,
           major: true,
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      },
+      mentor: {
+        select: {
+         jobTitle: true,
+         graduationYear: true,
+         major: true,
           user: {
             select: {
               id: true,

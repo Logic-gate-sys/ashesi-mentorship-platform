@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useMentorApi } from './useMentorApi';
+import { useFetchApi } from '../shared/useMentorApi';
 
 export interface MentorProfileData {
   user: {
@@ -32,7 +32,7 @@ type MentorProfileUpdatePayload = {
 };
 
 export function useMentorProfile() {
-  const { authorizedFetch } = useMentorApi();
+  const { authorizedFetch } = useFetchApi();
   const [profile, setProfile] = useState<MentorProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

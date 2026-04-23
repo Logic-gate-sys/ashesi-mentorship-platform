@@ -73,13 +73,14 @@ export async function getMentorSessions(mentorProfileId: string, status?: Sessio
 /**
  * Get upcoming sessions for a mentor (within next 30 days)
  */
-export async function getUpcomingMentorSessions(mentorProfileId: string) {
+export async function getUpcomingMentorSessions(userProfileId: string, user:'MENTOR'|'MENTEE') {
   const now = new Date();
   const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const where = user==='MENTEE'?{menteeId: userProfileId}: {mentorId: userProfileId};
 
   return await prisma.session.findMany({
     where: {
-      mentorId: mentorProfileId,
+      ...where,
       status: { in: ['SCHEDULED', 'RESCHEDULED'] },
       scheduledAt: {
         gte: now,
@@ -309,26 +310,27 @@ export async function cancelSession(sessionId: string, mentorProfileId: string, 
 /**
  * Get mentor's session statistics
  */
-export async function getMentorSessionStats(mentorProfileId: string) {
+export async function getUserSessionStats(userProfileId: string, user:'MENTOR'|'MENTEE') {
+  const where = user==='MENTEE'? {menteeId: userProfileId} : {mentorId: userProfileId}
   const [total, completed, scheduled, cancelled] = await Promise.all([
     prisma.session.count({
-      where: { mentorId: mentorProfileId },
+      where:  where ,
     }),
     prisma.session.count({
       where: {
-        mentorId: mentorProfileId,
+        ...where,
         status: 'COMPLETED',
       },
     }),
     prisma.session.count({
       where: {
-        mentorId: mentorProfileId,
+       ...where,
         status: { in: ['SCHEDULED', 'RESCHEDULED'] },
       },
     }),
     prisma.session.count({
       where: {
-        mentorId: mentorProfileId,
+        ...where,
         status: 'CANCELLED',
       },
     }),

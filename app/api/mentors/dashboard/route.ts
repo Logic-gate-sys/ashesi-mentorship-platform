@@ -7,7 +7,7 @@
 import { NextRequest } from 'next/server';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
 import { requirePermission, extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
-import { getMentorDashboardOverview } from '#services/metrics.service';
+import { getMentorDashboardOverview } from '#services/mentor-metrics.service';
 import { prisma } from '#utils-types/utils/db';
 
 export async function GET(request: NextRequest) {
@@ -35,13 +35,12 @@ export async function GET(request: NextRequest) {
 
     // Fetch complete dashboard overview
     const dashboard = await getMentorDashboardOverview(mentorProfile.id);
-
     return successResponse(dashboard, 'Dashboard data retrieved successfully');
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to fetch dashboard data',
-      500
+      {status: 500}
     );
   }
 }

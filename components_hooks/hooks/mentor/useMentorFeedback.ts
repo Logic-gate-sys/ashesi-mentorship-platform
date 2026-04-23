@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useMentorApi } from './useMentorApi';
+import { useFetchApi } from '../shared/useMentorApi';
 
 export interface MentorFeedbackItem {
   id: string;
@@ -15,7 +15,7 @@ export interface MentorFeedbackItem {
 }
 
 export function useMentorFeedback() {
-  const { authorizedFetch } = useMentorApi();
+  const { authorizedFetch } = useFetchApi();
   const [feedback, setFeedback] = useState<MentorFeedbackItem[]>([]);
   const [metrics, setMetrics] = useState({
     totalMentees: 0,

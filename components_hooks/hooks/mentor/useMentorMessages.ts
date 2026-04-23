@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '#/libs_schemas/context/auth-context';
-import { useMentorApi } from './useMentorApi';
+import { useFetchApi } from '../shared/useMentorApi';
 
 export interface MentorConversation {
   id: string;
@@ -24,7 +24,7 @@ export interface MentorMessage {
 
 export function useMentorMessages() {
   const { user } = useAuth();
-  const { authorizedFetch } = useMentorApi();
+  const { authorizedFetch } = useFetchApi();
 
   const [conversations, setConversations] = useState<MentorConversation[]>([]);
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);

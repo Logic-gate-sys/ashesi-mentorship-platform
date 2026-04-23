@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useMentorApi } from './useMentorApi';
+import { useFetchApi } from '../shared/useMentorApi';
 
 export interface MentorSession {
   id: string;
@@ -22,7 +22,7 @@ export interface MentorAvailabilitySlot {
 }
 
 export function useMentorMeetings() {
-  const { authorizedFetch } = useMentorApi();
+  const { authorizedFetch } = useFetchApi();
 
   const [sessions, setSessions] = useState<MentorSession[]>([]);
   const [availabilitySlots, setAvailabilitySlots] = useState<MentorAvailabilitySlot[]>([]);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useMentorApi } from './useMentorApi';
+import { useFetchApi } from '../shared/useMentorApi';
 
 interface MentorshipRequest {
   id: string;
@@ -20,12 +20,13 @@ interface UseMentorshipRequestsReturn {
   isLoading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
+  sendRequest: (mentorId: string)=> Promise<JSON>; 
   acceptRequest: (requestId: string) => Promise<boolean>;
   declineRequest: (requestId: string) => Promise<boolean>;
 }
 
 export function useMentorshipRequests(): UseMentorshipRequestsReturn {
-  const { authorizedFetch } = useMentorApi();
+  const { authorizedFetch } = useFetchApi();
   const [requests, setRequests] = useState<MentorshipRequest[]>([]);
   const [history, setHistory] = useState<MentorshipRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,6 +58,10 @@ export function useMentorshipRequests(): UseMentorshipRequestsReturn {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  const sendRequest = async(mentorId: string): Promise<JSON> => {
+      return JSON;
+  }
 
   const acceptRequest = async (requestId: string) => {
     try {
@@ -92,5 +97,7 @@ export function useMentorshipRequests(): UseMentorshipRequestsReturn {
     }
   };
   //return
-  return { requests, history, isLoading, error, refresh, acceptRequest, declineRequest };
+  return { requests, history, isLoading, error, refresh, acceptRequest, declineRequest , sendRequest};
 }
+
+

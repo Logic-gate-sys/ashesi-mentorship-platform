@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { useAuth } from '#/libs_schemas/context/auth-context';
 
-export function useMentorApi() {
+export function useFetchApi() {
   const { getAccessToken, refreshAccessToken } = useAuth();
 
   const authorizedFetch = useCallback(

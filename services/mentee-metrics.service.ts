@@ -4,32 +4,26 @@
  */
 
 import { prisma } from '#utils-types/utils/db';
-import {getMentorSessions,getUpcomingMentorSessions,getMentorSessionStats} from './sessions.service';
+import {getMentorSessions,getUpcomingMentorSessions,getUserSessionStats} from './sessions.service';
 import { getMentorshipRequests, getPendingRequestsCount } from './mentorship-requests.service';
-import { getMentorFeedback, getMentorAverageRating } from './feedback.service';
+import { getMentorFeedback, } from './feedback.service';
 
-export interface MentorMetrics {
-  totalMentees: number;
-  activeMentees: number;
+export interface MenteeMetrics {
+  totalMentors: number;
+  activeMentors: number;
   totalSessions: number;
   completedSessions: number;
   upcomingSessions: number;
   pendingRequests: number;
-  averageRating: number;
   completionRate: number;
 }
 
 export interface DashboardOverview {
-  mentor: {
+  mentee: {
     id: string;
     userId: string;
-    graduationYear: number;
     major: string;
-    company: string;
-    jobTitle: string;
     bio?: string | null;
-    isAvailable: boolean;
-    maxMentees: number;
     user: {
       id: string;
       email: string;
@@ -38,9 +32,9 @@ export interface DashboardOverview {
       avatarUrl?: string | null;
     };
   };
-  metrics: MentorMetrics;
+  metrics: MenteeMetrics;
   pendingRequests: any[];
-  activeMentees: any[];
+  activeMentors: any[];
   upcomingSessions: any[];
   recentActivities: Array<{
     id: string | number;
@@ -50,42 +44,40 @@ export interface DashboardOverview {
   }>;
 }
 
-/**
- * Get comprehensive metrics for a mentor
- */
-export async function getMentorMetrics(mentorProfileId: string): Promise<MentorMetrics> {
-  const [activeMentees,totalAcceptedRequests,sessionStats,pendingRequests,ratingData] = await Promise.all([
+
+export async function getMenteeMetrics(menteeProfileId: string): Promise<MenteeMetrics> {
+  const [activeMentors,totalAcceptedRequests,sessionStats,pendingRequests] = await Promise.all([
     //all distinct mentees
     prisma.mentorshipRequest.findMany({
-      where: { mentorId: mentorProfileId, status: 'ACCEPTED' },
-      distinct: ['menteeId'],
-      select: { menteeId: true },
+      where: { menteeId: menteeProfileId, status: 'ACCEPTED' },
+      distinct: ['mentorId'],
+      select: { mentorId: true },
     }),
      // all accepted requests
     prisma.mentorshipRequest.count({
-      where: {mentorId: mentorProfileId,status: 'ACCEPTED' },
+      where: {menteeId: menteeProfileId,status: 'ACCEPTED' },
     }),
-    getMentorSessionStats(mentorProfileId),
-    getPendingRequestsCount(mentorProfileId),
-    getMentorAverageRating(mentorProfileId),
+
+    //
+    getUserSessionStats(menteeProfileId, 'MENTEE'),
+    getPendingRequestsCount(menteeProfileId, "MENTEE"),
   ]);
 
   return {
-    totalMentees: totalAcceptedRequests,
-    activeMentees: activeMentees.length,
+    totalMentors: totalAcceptedRequests,
+    activeMentors: activeMentors.length,
     totalSessions: sessionStats.total,
     completedSessions: sessionStats.completed,
     upcomingSessions: sessionStats.scheduled,
     pendingRequests,
-    averageRating: ratingData.averageRating,
     completionRate: sessionStats.completionRate,
   };
 }
 
-export async function getMentorDashboardOverview(mentorProfileId: string): Promise<DashboardOverview> {
+export async function getMenteeDashboardOverview(menteeProfileId: string): Promise<DashboardOverview> {
   // Fetch mentor profile
-  const mentor = await prisma.mentorProfile.findUnique({
-    where: { id: mentorProfileId },
+  const mentee = await prisma.menteeProfile.findUnique({
+    where: { id: menteeProfileId },
     include: {
       user: {
         select: {
@@ -99,45 +91,45 @@ export async function getMentorDashboardOverview(mentorProfileId: string): Promi
     },
   });
   //if no mentor
-  if (!mentor) {
+  if (!mentee) {
     throw new Error('Mentor profile not found');
   }
   // Fetch metrics
-  const metrics = await getMentorMetrics(mentorProfileId);
+  const metrics = await getMenteeMetrics(menteeProfileId);
   // Fetch pending requests
-  const pendingRequests = await getMentorshipRequests(mentorProfileId, 'PENDING');
+  const pendingRequests = await getMentorshipRequests(menteeProfileId,"MENTEE", 'PENDING');
   // Fetch active mentees
-  const acceptedRequests = await getMentorshipRequests(mentorProfileId, 'ACCEPTED');
-  const activeMentees = acceptedRequests.map(req => ({
+  const acceptedRequests = await getMentorshipRequests(menteeProfileId, "MENTEE", 'ACCEPTED');
+  const activeMentors = acceptedRequests.map(req => ({
     id: req.id,
-    studentId: req.mentee?.user.id,
-    studentName: req.mentee?.user?.firstName? `${req.mentee.user.firstName} ${req.mentee.user.lastName}`: 'Unknown',
-    studentEmail: req.mentee?.user?.email || '',
-    studentAvatarUrl: req.mentee?.user?.avatarUrl,
+    mentorId: req.mentor?.user.id,
+    mentorName: req.mentor?.user?.firstName? `${req.mentor.user.firstName} ${req.mentor.user.lastName}`: 'Unknown',
+    mentorEmail: req.mentor?.user?.email || '',
+    mentorAvatarUrl: req.mentor?.user?.avatarUrl,
     goal: req.goal,
     status: 'active' as const,
   }));
   // Fetch upcoming sessions
-  const upcomingSessions = await getUpcomingMentorSessions(mentorProfileId);
+  const upcomingSessions = await getUpcomingMentorSessions(menteeProfileId, "MENTEE");
   // Fetch recent activities
-  const recentActivities = await getMentorRecentActivities(mentorProfileId, 6);
+  const recentActivities = await getMenteeRecentActivities(menteeProfileId, 6);
 
   return {
-    mentor,
+    mentee: mentee,
     metrics,
     pendingRequests: pendingRequests.map(req => ({
       id: req.id,
-      studentId: req.mentee?.user?.id,
-      studentName: req.mentee?.user?.firstName
+      mentorId: req.mentor?.user?.id,
+      mentorName: req.mentor?.user?.firstName
         ? `${req.mentee.user.firstName} ${req.mentee.user.lastName}`
         : 'Unknown',
-      studentAvatarUrl: req.mentee?.user?.avatarUrl,
-      majorAndYear: req.mentee?.major ? `${req.mentee.major} '${(req.mentee.yearGroup % 100).toString().padStart(2, '0')}` : '',
-      message: req.message || req.goal,
+      mentorAvatarUrl: req.mentor?.user?.avatarUrl,
+      graduationYear: req.mentor?.graduationYear ? `${req.mentor.major} '${(req.mentor.graduationYear % 100).toString().padStart(2, '0')}` : '',
+      message: req.message,
       goal: req.goal,
       status: req.status,
     })),
-    activeMentees,
+    activeMentors,
     upcomingSessions: upcomingSessions.map(session => ({
       id: session.id,
       mentee: session.mentee?.user?.firstName
@@ -160,7 +152,7 @@ export async function getMentorDashboardOverview(mentorProfileId: string): Promi
 /**
  * Get recent activities for mentor dashboard
  */
-export async function getMentorRecentActivities(mentorProfileId: string, limit = 10) {
+export async function getMenteeRecentActivities(menteeProfileId: string, limit = 10) {
   const activities: Array<{
     id: string | number;
     event: string;
@@ -170,12 +162,12 @@ export async function getMentorRecentActivities(mentorProfileId: string, limit =
 
   // Recent requests
   const recentRequests = await prisma.mentorshipRequest.findMany({
-    where: { mentorId: mentorProfileId },
+    where: { menteeId: menteeProfileId },
     select: {
       id: true,
       createdAt: true,
       status: true,
-      mentee: {
+      mentor: {
         select: {
           user: {
             select: {
@@ -191,10 +183,10 @@ export async function getMentorRecentActivities(mentorProfileId: string, limit =
   });
 
   recentRequests.forEach(req => {
-    const studentName = req.mentee?.user?.firstName || 'Unknown';
+    const mentorName = req.mentor?.user?.firstName || 'Unknown';
     activities.push({
       id: `req-${req.id}`,
-      event: `${studentName} sent a request`,
+      event: `${mentorName} sent a request`,
       timestamp: getTimeAgo(req.createdAt),
       type: 'request',
     });
@@ -204,8 +196,8 @@ export async function getMentorRecentActivities(mentorProfileId: string, limit =
   const recentMessages = await prisma.message.findMany({
     where: {
       OR: [
-        { senderId: (await prisma.mentorProfile.findUnique({
-          where: { id: mentorProfileId },
+        { senderId: (await prisma.menteeProfile.findUnique({
+          where: { id: menteeProfileId },
           select: { userId: true },
         }))?.userId || '' },
       ],
@@ -242,13 +234,13 @@ export async function getMentorRecentActivities(mentorProfileId: string, limit =
   // Recent completed sessions
   const recentSessions = await prisma.session.findMany({
     where: {
-      mentorId: mentorProfileId,
+      menteeId: menteeProfileId,
       status: 'COMPLETED',
     },
     select: {
       id: true,
       createdAt: true,
-      mentee: {
+      mentor: {
         select: {
           user: {
             select: {
@@ -265,7 +257,7 @@ export async function getMentorRecentActivities(mentorProfileId: string, limit =
   recentSessions.forEach(session => {
     activities.push({
       id: `session-${session.id}`,
-      event: `Completed session with ${session.mentee?.user?.firstName || 'mentee'}`,
+      event: `Completed session with ${session.mentor?.user?.firstName || 'mentor'}`,
       timestamp: getTimeAgo(session.createdAt),
       type: 'session',
     });

@@ -8,4 +8,4 @@ export * from './sessions.service';
 export * from './messages.service';
 export * from './availability.service';
 export * from './feedback.service';
-export * from './metrics.service';
+export * from './mentor-metrics.service';

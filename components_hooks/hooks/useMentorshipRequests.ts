@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '#/libs_schemas/context/auth-context'
+import { useAuth } from '@/libs_schemas/context/auth-context'
 
 interface MentorshipRequest {
   id: string
