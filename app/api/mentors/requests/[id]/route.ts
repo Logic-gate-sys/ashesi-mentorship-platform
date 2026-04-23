@@ -3,6 +3,9 @@ import { successResponse, errorResponse } from '#utils-types/utils/api-response'
 import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
 import { getMentorshipRequest,acceptMentorshipRequest, declineMentorshipRequest,} from '#services/mentorship-requests.service';
 import { prisma } from '#utils-types/utils/db';
+import { getIOInstance } from '#libs-schemas/socket/index.js';
+
+const io = getIOInstance(); 
 
 
 export async function GET(
@@ -39,7 +42,7 @@ export async function GET(
   }
 }
 
-
+//mentor accepting request
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -69,11 +72,18 @@ export async function POST(
     if (action === 'accept') {
       const result = await acceptMentorshipRequest(id, mentorProfile.id);
 
-
+      // emit request accepted --. shown to sender
+      io.of('/req').to(`user:${user?.id}`).emit('request:accepted', {
+        mentorId: user.id,
+        firstName: user.firstName, 
+        lastName: user.lastName})
       return successResponse(result, 'Request accepted successfully', 200);
     } else if (action === 'decline') {
       const result = await declineMentorshipRequest(id, mentorProfile.id);
-
+       io.of('/req').to(`user:${user?.id}`).emit('request:declined', {
+        mentorId: user.id, 
+        firstName: user.firstName, 
+        lastName: user.lastName})
       return successResponse(result, 'Request declined successfully', 200);
     } else {
       return errorResponse('Invalid action. Use ?action=accept or ?action=decline', { status: 400 });

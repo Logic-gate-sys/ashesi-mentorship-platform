@@ -1,0 +1,75 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getIOInstance } from '#libs-schemas/socket/index.js';
+import { requireAuth, requirePermission } from '#/libs_schemas/middlewares/auth.middleware';
+import { createMentorshipRequestSchema } from '#libs-schemas/schemas/request.schema.js';
+import {sendMentorshipRequest, getMentorshipRequest} from '#services/mentorship-requests.service'
+
+const io = getIOInstance(); 
+
+// retrieve all user request in descending order limit by 10
+export async function GET(request: NextRequest){
+  try {
+    const searchParams = request.nextUrl.searchParams; 
+    const page = searchParams.get("page");
+    const limit = searchParams.get("limit"); 
+    //authorise user 
+    const {user} = await requireAuth(request);
+    //authorise user 
+    const isAllowed = requirePermission(user.id, 'mentorship_request', 'read');
+    if(!isAllowed){
+        return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});
+    }
+    // retrieve all user request
+    const pageNum = parseInt(page, 1);
+    const limitNum = parseInt(limit, 10); 
+    const mentorshipRequest = await getMentorshipRequest(user.id, pageNum, limitNum); 
+    return NextResponse.json({
+      success: true,
+      data: mentorshipRequest
+    },
+    {status: 200}
+  )
+}catch(err){
+  return NextResponse.json(
+    {error: err instanceof Error ? err.message : 'Failed to process request' },
+      { status: 500 }
+    );
+   }
+}
+
+//send mentorship request 
+export async function POST( request: NextRequest) {
+  try {
+    //authorise user 
+    const {user} = await requireAuth(request);
+    //authorise user 
+    const isAllowed = requirePermission(user.id, 'mentorship_request', 'create');
+    if(!isAllowed){
+        return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});
+    }
+    // extract request data 
+    const body = await request.json();
+    const result = createMentorshipRequestSchema.safeParse(body); 
+    if(result.error){
+      return NextResponse.json({
+        message: "error",
+        details: result.error.issues.map((iss)=>({
+          path: iss.path.join("."),
+          message: iss.message
+        }))
+      },
+      {status: 400}
+    )
+    }
+    const mentorshipRequest = await sendMentorshipRequest(result.data); 
+     
+    io.of('/requests').to(`user:${mentorshipRequest.mentorId}`).emit('requets:sent', {...mentorshipRequest})
+    return NextResponse.json({message: 'success', data: mentorshipRequest});
+  } catch (error) {
+    return NextResponse.json({
+      error: error instanceof Error ? error.message : 'Failed to process request'
+      },
+      { status: 500 }
+    );
+  }
+}

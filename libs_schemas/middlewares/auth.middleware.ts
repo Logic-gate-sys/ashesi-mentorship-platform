@@ -72,9 +72,9 @@ export async function requirePermission<Res extends keyof Resources>(
 ) {
   const isAllowed = await checkPermission(userId, resource, action, condition);
   if(!isAllowed){
-    return NextResponse.json({error:"Unauthorised", action:action, canPerform: isAllowed}, {status:403})
+    return isAllowed
   }
-  return  null; // you can continue execution 
+  return  isAllowed; // you can continue execution 
 }
 
 

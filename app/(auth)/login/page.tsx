@@ -16,13 +16,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
 
-  const {register,handleSubmit,formState: { errors }} = useForm<LoginInput>({
- resolver: zodResolver(loginSchema),
-    mode: 'onTouched',
+  const {register, handleSubmit ,formState: { errors }} = useForm<LoginInput>({
+      resolver: zodResolver(loginSchema),
+      mode: 'onTouched',
   })
 
   const onSubmit = async (data: LoginInput) => {
     setServerError(null)
+    console.log("Data: ", data)
     try {
       await login(data.email, data.password)
     } catch (error) {

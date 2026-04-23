@@ -1,60 +1,26 @@
-/**
- * GET /api/mentors/requests
- * List mentorship requests for the mentor
- * 
- * POST /api/mentors/requests/:id/accept
- * Accept a mentorship request
- * 
- * POST /api/mentors/requests/:id/decline
- * Decline a mentorship request
- */
 
-import { NextRequest } from 'next/server';
-import { successResponse, errorResponse } from '#utils-types/utils/api-response';
-import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
-import {
-  getMentorRequests,
-  acceptMentorshipRequest,
-  declineMentorshipRequest,
-  getMentorshipRequest,
-} from '#services/mentorship-requests.service';
-import { prisma } from '#utils-types/utils/db';
-import { RequestStatus } from '#/prisma/generated/prisma/client';
+import { NextRequest, NextResponse } from 'next/server';
+import {  errorResponse } from '#utils-types/utils/api-response';
+import {requireAuth, requirePermission } from '#/libs_schemas/middlewares/auth.middleware';
+import { getMentorRequests,} from '#services/mentorship-requests.service';
 
-/**
- * GET - List requests with optional status filter
- */
+
 export async function GET(request: NextRequest) {
   try {
-    const user = await extractUserFromRequest(request);
-    if (!user || user.role !== 'MENTOR') {
-      return errorResponse('Unauthorized', { status: 401 });
-    }
+     const {user} = await requireAuth(request); 
+     const isAllowed = requirePermission(user.id, 'mentorship_request', 'read');
+        if(!isAllowed){
+            return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});
+        }
+    const requests = await getMentorRequests(user?.id);
 
-    // Get mentor profile
-    const mentorProfile = await prisma.mentorProfile.findUnique({
-      where: { userId: user.id },
-      select: { id: true },
-    });
-
-    if (!mentorProfile) {
-      return errorResponse('Mentor profile not found', { status: 404 });
-    }
-
-    // Get status filter from query
-    const url = new URL(request.url);
-    const status = url.searchParams.get('status') as RequestStatus | null;
-
-    const requests = await getMentorRequests(mentorProfile.id, status || undefined);
-
-    return successResponse(
-      {
-        requests,
-        count: requests.length,
-        filters: { status: status || 'all' },
-      },
-      'Requests retrieved successfully'
-    );
+    return NextResponse.json({
+      data: requests,
+      count: requests.length,
+      filters: { status: 'all' },
+    },
+    {status: 200}
+  )
   } catch (error) {
     console.error('Error fetching requests:', error);
     return errorResponse(

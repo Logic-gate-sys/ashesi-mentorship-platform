@@ -10,7 +10,6 @@ export function useMentorApi() {
     async (input: string, init: RequestInit = {}) => {
       const token = getAccessToken();
       const headers = new Headers(init.headers || {});
-
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }

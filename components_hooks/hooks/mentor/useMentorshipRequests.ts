@@ -50,18 +50,21 @@ export function useMentorshipRequests(): UseMentorshipRequestsReturn {
         throw new Error(`Failed to fetch requests: ${response.status}`);
       }
 
-      const payload = await response.json();
-      const allRequests = Array.isArray(payload?.data?.requests) ? payload.data.requests.map(parseRequest) : [];
-      setRequests(allRequests.filter((request: MentorshipRequest) => request.status === 'PENDING'));
-      setHistory(allRequests.filter((request: MentorshipRequest) => request.status !== 'PENDING'));
+      const body = await response.json();
+      const {data, count, filters} = body.data ; 
+      const pendingRequests: MentorshipRequest[] = data.filter((dt: MentorshipRequest)=> dt.status ==='PENDING');
+      const resolvedRequests: MentorshipRequest[] = data.filter((request: MentorshipRequest) => request.status !== 'PENDING')
+      setRequests(pendingRequests);
+      setHistory(resolvedRequests);
+
       setError(null);
+      setIsLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch requests');
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   }, [authorizedFetch]);
 
+  
   useEffect(() => {
     refresh();
   }, [refresh]);

@@ -2,10 +2,7 @@ import { getIOInstance } from '#/libs_schemas/socket';
 import { NextRequest } from 'next/server';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
 import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
-import {
-  updateAvailabilitySlot,
-  deleteAvailabilitySlot,
-} from '#services/availability.service';
+import { updateAvailabilitySlot, deleteAvailabilitySlot,} from '#services/availability.service';
 import { prisma } from '#utils-types/utils/db';
 
 /**
