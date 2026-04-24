@@ -4,14 +4,6 @@
   "main": "server.ts",
   "private": true,
   "type": "module",
-  "imports": {
-    "#/*": "./*",
-    "#app/*": "./app/*",
-    "#services/*": "./services/*",
-    "#comp-hooks/*": "./components_hooks/*",
-    "#libs-schemas/*": "./libs_schemas/*",
-    "#utils-types/*": "./utils_types/*"
-  },
   "scripts": {
     "dev": "tsx --watch server.ts ",
     "build": "next build && tsup server.ts --out-dir dist --format esm",

@@ -34,6 +34,7 @@ export interface DashboardOverview {
   };
   metrics: MenteeMetrics;
   pendingRequests: any[];
+  requestHistory: any[];
   activeMentors: any[];
   upcomingSessions: any[];
   recentActivities: Array<{
@@ -98,6 +99,7 @@ export async function getMenteeDashboardOverview(menteeProfileId: string): Promi
   const metrics = await getMenteeMetrics(menteeProfileId);
   // Fetch pending requests
   const pendingRequests = await getMentorshipRequests(menteeProfileId,"MENTEE", 'PENDING');
+  const requestHistory = await getMentorshipRequests(menteeProfileId, "MENTEE")
   // Fetch active mentees
   const acceptedRequests = await getMentorshipRequests(menteeProfileId, "MENTEE", 'ACCEPTED');
   const activeMentors = acceptedRequests.map(req => ({
@@ -118,6 +120,18 @@ export async function getMenteeDashboardOverview(menteeProfileId: string): Promi
     mentee: mentee,
     metrics,
     pendingRequests: pendingRequests.map(req => ({
+      id: req.id,
+      mentorId: req.mentor?.user?.id,
+      mentorName: req.mentor?.user?.firstName
+        ? `${req.mentee.user.firstName} ${req.mentee.user.lastName}`
+        : 'Unknown',
+      mentorAvatarUrl: req.mentor?.user?.avatarUrl,
+      graduationYear: req.mentor?.graduationYear ? `${req.mentor.major} '${(req.mentor.graduationYear % 100).toString().padStart(2, '0')}` : '',
+      message: req.message,
+      goal: req.goal,
+      status: req.status,
+    })),
+    requestHistory: requestHistory.map(req => ({
       id: req.id,
       mentorId: req.mentor?.user?.id,
       mentorName: req.mentor?.user?.firstName

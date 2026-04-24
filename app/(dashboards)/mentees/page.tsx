@@ -41,12 +41,6 @@ export default function MentorHomePage() {
     }, 1500);
   };
 
-  // const handleSendRequest = async (id: string) => {
-  //   setActionState((prev) => ({ ...prev, [id]: 'declining' }));
-  //   await declineRequest(id);
-  //   markDone(id, 'declined');
-  // };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -70,7 +64,7 @@ export default function MentorHomePage() {
           Welcome Back, {user?.firstName}!
         </h1>
         <p className="text-gray-500 font-medium">
-          Ready to guide the next generation of scholars!
+          You've got your foot in the door, use it wisely!
         </p>
       </section>
 
@@ -110,7 +104,7 @@ export default function MentorHomePage() {
           </section>
 
           <section id="active-m" className="mt-8">
-            <h1 className="text-2xl">Active Mentees</h1>
+            <h1 className="text-2xl">Active Mentors</h1>
             <div id="mentee-list" className="w-full grid grid-cols-3 gap-2">
               {activeMentors?.length ? (
                 activeMentors.map((m, idx) => (
@@ -130,7 +124,6 @@ export default function MentorHomePage() {
         <div id="side-area" className="w-full flex flex-col gap-3">
           <UpdatesCard updates={recentUpdates} title="Updates" Icon={MegaphoneIcon} />
           <UpcomingEventsCard events={scheduleEvents} />
-          <MentorAvailabilityCard />
         </div>
       </section>
     </div>

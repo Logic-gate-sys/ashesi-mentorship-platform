@@ -1,5 +1,5 @@
 'use client';
-
+import { MentorshipRequest , RequestStatus} from '#/prisma/generated/prisma/client';
 import { useCallback, useEffect, useState } from 'react';
 import { formatRelativeTime } from '#utils-types/utils/datatime';
 import { useFetchApi } from '#comp-hooks/hooks/shared/useMentorApi';
@@ -13,6 +13,15 @@ interface DashboardData {
     majorAndYear: string;
     studentAvatarUrl: string | null;
     message: string;
+  }>;
+  requestHistory: Array<{
+    id: string;
+    studentName: string;
+    goal: string;
+    majorAndYear: string;
+    studentAvatarUrl: string | null;
+    message: string;
+    status: RequestStatus; 
   }>;
   activeMentors: Array<{ id: string; name: string; title: string }>;
   scheduleEvents: Array<{ id: string; month: string; day: number; title: string; meetingUrl: string }>;
@@ -30,6 +39,8 @@ export function useMenteeDashboard(): DashboardData {
   const [scheduleEvents, setScheduleEvents] = useState<DashboardData['scheduleEvents']>([]);
   const [activeMentors, setActiveMentors] = useState<DashboardData['activeMentors']>([]);
   const [pendingRequests, setPendingRequests] = useState<DashboardData['pendingRequests']>([])
+    const [requestHistory, setRequestHistory] = useState<DashboardData['requestHistory']>([])
+
   
 
   const refresh = useCallback(async () => {
@@ -57,6 +68,20 @@ export function useMenteeDashboard(): DashboardData {
           mentorAvatarUrl: req.mentorAvatarUrl,
           message: req.message,
           goal: req.goal
+        }))
+      );
+      //  past request 
+      const history = Array.isArray(data?.requestHistory) ? data.requestHistory : [];
+      setRequestHistory(
+        pending.map((req: any) => ({
+          id: req.id,
+          mentorName: req.mentorName,
+          gaol: req.goal,
+          graduationYear: req.graduationYear,
+          mentorAvatarUrl: req.mentorAvatarUrl,
+          message: req.message,
+          goal: req.goal,
+          status: req.status
         }))
       );
 
@@ -114,6 +139,7 @@ export function useMenteeDashboard(): DashboardData {
     stats,
     recentUpdates,
     pendingRequests,
+    requestHistory,
     activeMentors,
     scheduleEvents,
     isLoading,

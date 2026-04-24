@@ -3,7 +3,7 @@ import React from "react";
 import { useAuth } from "../../libs_schemas/context/auth-context";
 import Link from "next/link";
 import { HomeIcon, RequestIcon,MessagesIcon,MenteesIcon, MeetingsIcon,SettingsIcon,FeedbackIcon, 
-  ManageIcon, UsersIcon, ReportsIcon
+ManageIcon, UsersIcon, ReportsIcon
 } from "#comp-hooks/ui/icons/DashboardNavIcons";
 import AshesiLog from '#comp-hooks/images/ashesi_logo.svg'
 import Image from "next/image";

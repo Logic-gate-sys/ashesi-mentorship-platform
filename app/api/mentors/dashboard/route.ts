@@ -1,8 +1,3 @@
-/**
- * GET /api/mentors/dashboard
- * Get comprehensive dashboard data for the logged-in mentor
- * ABAC: User must be a mentor
- */
 
 import { NextRequest } from 'next/server';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';

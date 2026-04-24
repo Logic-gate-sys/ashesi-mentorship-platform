@@ -1,10 +1,13 @@
 'use client'
 import {io, Socket} from 'socket.io-client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-const port = process.env.NEXT_PUBLIC_SOCKET_PORT || 3000
+
+const port = process.env.NEXT_PUBLIC_SOCKET_PORT || 3000;
+
 export function useSocket(namespace: string, token: string){
     const socketRef = useRef<Socket |null>(null); 
+    const [isOn, setIsOn] =useState<boolean>(false); 
 
     //useEffect
     useEffect(()=>{
@@ -17,10 +20,12 @@ export function useSocket(namespace: string, token: string){
         // when connected
         socketRef.current.on("connect", ()=>{
             console.log(`Socket connect to namespace: ${namespace}`)
+            setIsOn(true); 
         })
         //when error occurs
         socketRef.current.on("connection_error", (err)=>{
-            console.log(`Connection to namespace ${namespace} failed, try again`)
+            console.log(`Connection to namespace ${namespace} failed, try again`);
+            setIsOn(false); 
         });
     }
        
@@ -35,5 +40,5 @@ export function useSocket(namespace: string, token: string){
     },[namespace, token])
 
 
-    return socketRef; 
+    return {socketRef, isOn}; 
 }
