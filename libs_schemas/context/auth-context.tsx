@@ -14,6 +14,8 @@ export interface User {
   lastName: string;
   role: 'MENTEE' | 'MENTOR' | 'ADMIN';
   avatarUrl?: string;
+  mentorProfile?: any; 
+  menteeProfile?: any; 
 }
 
 

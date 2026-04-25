@@ -18,14 +18,16 @@ const SocketContext = createContext<SocketContextType | undefined>(undefined);
 export const SocketProvider = ({ children, namespace }: SocketProps) => {
     const [isOn, setIsOn] = useState<boolean>(false); 
     const [socketInstance, setSocketInstance] = useState< Socket | null>(); 
-    const {getAccessToken} = useAuth(); 
+    const {getAccessToken, user} = useAuth(); 
     const socketRef  = useRef<Socket |null>(null);
     //useEffect
     useEffect(() => {
         const token = getAccessToken();
         // socket 
         const socket = io(`http://localhost:${port}${namespace}`, {
-           auth: {token},
+           auth: {
+            token,
+          },
            transports: ["polling","websocket"],
            path: "/soc/socket/io"
           });
@@ -56,7 +58,7 @@ export const SocketProvider = ({ children, namespace }: SocketProps) => {
            }
         }
 
-    },[getAccessToken, namespace]);
+    },[getAccessToken, namespace, user?.mentorProfile?.id]);
 
     
   return (

@@ -3,6 +3,7 @@ import { getIOInstance } from '#libs-schemas/socket/index';
 import { requireAuth, requirePermission } from '#/libs_schemas/middlewares/auth.middleware';
 import { createMentorshipRequestSchema } from '#libs-schemas/schemas/request.schema';
 import {sendMentorshipRequest, getMentorshipRequests} from '#services/mentorship-requests.service'
+import MentorRequestsPage from '#/app/(dashboards)/mentors/requests/page';
 
 const io = getIOInstance(); 
 
@@ -58,7 +59,12 @@ export async function POST( request: NextRequest) {
     }
     const mentorshipRequest = await sendMentorshipRequest(result.data); 
     //emit socket 
-    io.of('/requests').to(`user:${mentorshipRequest.mentorId}`).emit('requets:sent', {...mentorshipRequest})
+    io.of('/requests').to(`user:${mentorshipRequest.mentorId}`).emit('requets:sent', {
+       mentorId: mentorshipRequest.menteeId,
+       goal: mentorshipRequest.goal, 
+       message: mentorshipRequest.message,
+      requestId: mentorshipRequest.id 
+    })
     return NextResponse.json({message: 'success', data: mentorshipRequest});
   } catch (error) {
     console.error("ERROR:  ----------> ", error)

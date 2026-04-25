@@ -9,6 +9,7 @@ import { StatusRequestCard } from "#comp-hooks/cards/RequestStatusCard";
 import {useMentorshipRequests,} from "#comp-hooks/hooks/mentor";
 import { useSocketContext } from "#/libs_schemas/context/socket-context";
 import { formatRelativeTime } from "#utils-types/utils/datatime";
+import { useAuth } from "#/libs_schemas/context/auth-context";
 
 type RequestActionState =
   | "idle"
@@ -20,7 +21,8 @@ type RequestActionState =
 const FALLBACK_AVATAR = "https://i.pravatar.cc/150?u=mentor-request";
 
 export default function MentorRequestsPage() {
-  const { requests, history, isLoading, error, refresh, acceptRequest, declineRequest } =useMentorshipRequests();
+  const {user} = useAuth();
+  const { requests, history, isLoading, error, refresh, acceptRequest, declineRequest } = useMentorshipRequests();
   const {isOn, socket} = useSocketContext();
   const [actionState, setActionState] = useState<Record<string, RequestActionState>>({});
 
@@ -28,7 +30,7 @@ export default function MentorRequestsPage() {
     if (!isOn) {
       return;
     }
-    socket?.on("notification", () => {
+    socket?.on("notification", ({type,title, body: {goal, message}, requestIdg}) => {
       void refresh();
     });
     socket?. on("request_updated", () => {

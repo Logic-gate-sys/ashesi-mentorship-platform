@@ -16,7 +16,7 @@ export interface AuthedSocket extends Socket {
 
 export const initRequestNameSpace = (io: Server)=>{
   const nsp = io.of('/requests');
-   nsp.use(async(socket: AuthedSocket, next)=>{
+   nsp.use( async(socket: AuthedSocket, next)=>{
     try {
       const authToken = socket.handshake.auth?.token; // if auth token is sent without bearer
       const headerToken = socket.handshake.headers.authorization?.replace("Bearer ", "");
@@ -33,7 +33,14 @@ export const initRequestNameSpace = (io: Server)=>{
       // find user
       const user = await prisma.user.findUnique({
         where: { id: payload.id },
-        select: { id: true, email: true, role: true, isActive: true },
+        select: { 
+          id: true, 
+          email: true, 
+          role: true, 
+          isActive: true, 
+          menteeProfile:true, 
+          mentorProfile: true 
+        },
       });
 
       if (!user || !user.isActive) {
@@ -44,7 +51,7 @@ export const initRequestNameSpace = (io: Server)=>{
 
       // attach user to the socket object
       socket.user = {
-        id: user.id,
+        id: user.role ==='MENTEE'? user?.mentorProfile?.id : user?.mentorProfile?.id ,
         email: user.email,
         role: user.role,
       };
@@ -58,27 +65,24 @@ export const initRequestNameSpace = (io: Server)=>{
   })
   
   //on connection
-  nsp.on('connection', (socket:AuthedSocket)=>{
+  nsp.on('connection', (socket: AuthedSocket)=>{
      console.log(`[Socket] connected, UserId: ${socket.user?.id}`);
      if(socket.user?.id){
       socket.join(`user:${socket.user?.id}`)
      }
 
-    socket.on("request:received", (data: { mentorId?: string; body?: string; requestId?: string }) => {
+    socket.on("requets:sent", (data: { mentorId?: string, goal: string, message?: string, requestId?: string }) => {
         if (!data.mentorId || !io) return;
 
         nsp.to(`user:${data.mentorId}`).emit("notification", {
           type: "REQUEST_RECEIVED",
           title: "New Mentorship Request",
-          body: data.body,
+          body: {goal: data.goal, message: data.message},
           requestId: data.requestId,
         });
       },
     );
 
-    socket.on('availability:created', ({mentorId, slot, action})=>{
-
-    })
      // when mentor update availability: mentee should know
     socket.on("availability:updated", (mentorId: string) => {
       socket.join(`mentor:${mentorId}:availability`);
