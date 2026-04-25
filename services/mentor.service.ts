@@ -13,6 +13,7 @@ export async function getAllMentors(page: number, limit:number){
             email: true,
             mentorProfile: {
                 select: {
+                    id: true,
                     major: true,
                     graduationYear:true,
                     jobTitle: true,

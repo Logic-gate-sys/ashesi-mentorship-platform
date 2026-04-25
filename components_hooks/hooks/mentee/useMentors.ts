@@ -39,20 +39,20 @@ export function useMentors({page, limit}: QueryProps) {
             setError("Failed to fetch all mentors")
             return ; 
           }
+         
          const body = await response.json(); 
+        console.log('RESPONSE -->>   ', body.data)
          const{data}= body;
          const mentors: MentorType['mentor'][] = data.map((mnt: any)=>({
-            id: mnt.id,
+            id: mnt?.mentorProfile?.id,
             firstName: mnt.firstName,
             lastName: mnt.lastName,
             graduationYear: mnt?.mentorProfile?.graduationYear,
             company: mnt.mnt?.mentorProfile?.company,
             bio: mnt.mnt?.mentorProfile?.bio,
             skills: mnt.mnt?.mentorProfile?.skills
-         })
-            
-         )
-         // set mentors
+         }))
+       // update state
        setAvailableMentors(mentors)
         } catch(err){
          setError(err.message);

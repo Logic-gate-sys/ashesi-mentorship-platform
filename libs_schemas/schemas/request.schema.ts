@@ -4,7 +4,7 @@ export const createMentorshipRequestSchema = z.object({
   cycleId: z.string(),
   menteeId: z.string(),
   mentorId: z.string().uuid('Invalid alumni ID'),
-  goal: z .string() .min(20, 'Goal must be at least 20 characters').max(500, 'Goal must be less than 500 characters').trim(),
+  goal: z .string() .min(10, 'Goal must be at least 10 characters').max(500, 'Goal must be less than 500 characters').trim(),
   message: z.string().max(1000, 'Message must be less than 1000 characters').optional().transform((val) => val?.trim() || null),
 });
 

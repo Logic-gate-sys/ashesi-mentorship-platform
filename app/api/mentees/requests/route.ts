@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getIOInstance } from '#libs-schemas/socket/index.js';
+import { getIOInstance } from '#libs-schemas/socket/index';
 import { requireAuth, requirePermission } from '#/libs_schemas/middlewares/auth.middleware';
-import { createMentorshipRequestSchema } from '#libs-schemas/schemas/request.schema.js';
+import { createMentorshipRequestSchema } from '#libs-schemas/schemas/request.schema';
 import {sendMentorshipRequest, getMentorshipRequests} from '#services/mentorship-requests.service'
 
 const io = getIOInstance(); 
@@ -44,7 +44,7 @@ export async function POST( request: NextRequest) {
     }
     // extract request data 
     const body = await request.json();
-    const result = createMentorshipRequestSchema.safeParse(body); 
+    const result = createMentorshipRequestSchema.safeParse({...body, menteeId: user?.menteeProfile?.id}); 
     if(result.error){
       return NextResponse.json({
         message: "error",
@@ -57,13 +57,13 @@ export async function POST( request: NextRequest) {
     )
     }
     const mentorshipRequest = await sendMentorshipRequest(result.data); 
-    
     //emit socket 
     io.of('/requests').to(`user:${mentorshipRequest.mentorId}`).emit('requets:sent', {...mentorshipRequest})
     return NextResponse.json({message: 'success', data: mentorshipRequest});
   } catch (error) {
+    console.error("ERROR:  ----------> ", error)
     return NextResponse.json({
-      error: error instanceof Error ? error.message : 'Failed to process request'
+        error: error instanceof Error ? error.message : 'Failed to process request'
       },
       { status: 500 }
     );

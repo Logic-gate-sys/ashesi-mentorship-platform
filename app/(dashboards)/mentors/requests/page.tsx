@@ -6,10 +6,8 @@ import { PendingRequestCard } from "#comp-hooks/cards/PendingRequestCard";
 import { MentorshipGoalsCard } from "#comp-hooks/cards/MentorshipGoalCard";
 import { UpdatesCard } from "#comp-hooks/cards/RecentUpdatesCard";
 import { StatusRequestCard } from "#comp-hooks/cards/RequestStatusCard";
-import {
-  useMentorRealtime,
-  useMentorshipRequests,
-} from "#comp-hooks/hooks/mentor";
+import {useMentorshipRequests,} from "#comp-hooks/hooks/mentor";
+import { useSocketContext } from "#/libs_schemas/context/socket-context";
 import { formatRelativeTime } from "#utils-types/utils/datatime";
 
 type RequestActionState =
@@ -22,29 +20,22 @@ type RequestActionState =
 const FALLBACK_AVATAR = "https://i.pravatar.cc/150?u=mentor-request";
 
 export default function MentorRequestsPage() {
-  const { requests, history, isLoading, error, refresh, acceptRequest, declineRequest } =
-    ();
-  const { enabled, isConnected, on } = useMentorRealtime();
-
+  const { requests, history, isLoading, error, refresh, acceptRequest, declineRequest } =useMentorshipRequests();
+  const {isOn, socket} = useSocketContext();
   const [actionState, setActionState] = useState<Record<string, RequestActionState>>({});
 
   useEffect(() => {
-    if (!enabled) {
+    if (!isOn) {
       return;
     }
-
-    const unsubNotification = on("notification", () => {
+    socket?.on("notification", () => {
       void refresh();
     });
-    const unsubRequestUpdate = on("request_updated", () => {
+    socket?. on("request_updated", () => {
       void refresh();
     });
 
-    return () => {
-      unsubNotification();
-      unsubRequestUpdate();
-    };
-  }, [enabled, on, refresh]);
+  }, [isOn,socket,refresh]);
 
   const recentUpdates = useMemo(() => {
     const pendingUpdates = requests.slice(0, 2).map((request) => ({
@@ -127,8 +118,8 @@ export default function MentorRequestsPage() {
         </div>
 
         <div className="flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold bg-[#FDF1F2] text-[#6C1221]">
-          {enabled ? (
-            isConnected ? (
+          {isOn ? (
+            isOn ? (
               <>
                 <Wifi className="h-4 w-4" />
                 Realtime Connected

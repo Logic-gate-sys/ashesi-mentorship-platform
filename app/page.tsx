@@ -1,3 +1,4 @@
+'use client'
 import Link from 'next/link'
 import { Hero } from '#comp-hooks/Hero'
 import { CheckmarkIcon } from '#comp-hooks/ui/icons/'

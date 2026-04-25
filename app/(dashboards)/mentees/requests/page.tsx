@@ -8,6 +8,7 @@ import { useMenteeDashboard } from "#/components_hooks/hooks/mentee/useMenteeDas
 import { useSocketContext } from "#/libs_schemas/context/socket-context";
 import { useMentors } from "#/components_hooks/hooks/mentee/useMentors";
 import { MentorDetailCard } from "#/components_hooks/cards/MentorDetails";
+import { useMenteeRequests } from "#/components_hooks/hooks/mentee/useRequest";
 
 const FALLBACK_AVATAR = "https://i.pravatar.cc/150?u=mentor-request";
 
@@ -17,7 +18,7 @@ export default function MenteeRequestPage() {
   const {isOn,} = useSocketContext();
   const {availableMentors} = useMentors({page:1, limit:20}); 
   const [filtering, setFiltering] = useState<boolean>(false);
-  const [filter,setFilter] = useState<string>("")
+  const [filter,setFilter] = useState<string>("");
   
 
   const filteredMentors = filtering ? availableMentors?.filter((mnt) => 
@@ -100,7 +101,7 @@ export default function MenteeRequestPage() {
             <section id='mentors-flex' className="flex  flex-col md:grid grid-cols-3 gap-2">
               {availableMentors?.length? (
              filteredMentors?.map((mnt, idx)=>(
-              <MentorDetailCard key={mnt?.id} {...mnt} />
+              <MentorDetailCard key={mnt?.id} {...mnt}/>
              ))
             )
              :(<p className="text-sm text-gray-500">No available mentors yet.</p>)

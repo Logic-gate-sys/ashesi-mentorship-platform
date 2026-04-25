@@ -7,11 +7,11 @@ import { useState } from 'react';
 interface UseMentorshipRequestsReturn {
   isLoading: boolean;
   error: string | null;
-  sendRequest: (id: string)=> Promise<object>; 
+  sendRequest: (data:any )=> Promise<object>; 
   cancelRequest: (id: string, action?: 'cancel'|'remind')=>Promise<object>
 }
 
-export function useMentorshipRequests(): UseMentorshipRequestsReturn {
+export function useMenteeRequests(): UseMentorshipRequestsReturn {
   const { authorizedFetch } = useFetchApi();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +22,7 @@ export function useMentorshipRequests(): UseMentorshipRequestsReturn {
     try{
       const response = await authorizedFetch('/api/mentees/requests', {
         method: 'POST',
-        body: data
+        body:JSON.stringify(data)
       });
       if(!response.ok){
         setIsLoading(false);

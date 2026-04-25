@@ -62,16 +62,11 @@ export async function getPendingRequestsCount(userProfileId: string, user:'MENTE
 
 
 export async function sendMentorshipRequest(data: z.infer<typeof createMentorshipRequestSchema>){
-  try{
     return await prisma.mentorshipRequest.create({
       data: {
-        ...data
+         ...data,
       }
     })
-  }catch(err){
-    throw new Error('Failed to create mentorship request');
-  }
-
 }
 
 export async function getMentorshipRequestDetails(requestId: string) {
