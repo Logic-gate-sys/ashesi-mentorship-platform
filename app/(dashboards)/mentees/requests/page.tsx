@@ -1,27 +1,35 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect,useState} from "react";
 import { MegaphoneIcon, Wifi, WifiOff } from "lucide-react";
 import { PendingRequestCard } from "#comp-hooks/cards/PendingRequestCard";
 import { UpdatesCard } from "#comp-hooks/cards/RecentUpdatesCard";
 import { StatusRequestCard } from "#comp-hooks/cards/RequestStatusCard";
-import {useMentorshipRequests} from "#comp-hooks/hooks/mentor";
 import { useMenteeDashboard } from "#/components_hooks/hooks/mentee/useMenteeDashboard";
-import { useSocket } from "#/components_hooks/hooks/socket/useSocket";
-import { useAuth } from "#/libs_schemas/context/auth-context";
 import { useSocketContext } from "#/libs_schemas/context/socket-context";
+import { useMentors } from "#/components_hooks/hooks/mentee/useMentors";
+import { MentorDetailCard } from "#/components_hooks/cards/MentorDetails";
 
-type RequestActionState = 'cancel'| 'send'
 const FALLBACK_AVATAR = "https://i.pravatar.cc/150?u=mentor-request";
 
 
 export default function MenteeRequestPage() {
-  const { sendRequest } = useMentorshipRequests();
-  const {getAccessToken} = useAuth();
-  const {pendingRequests,requestHistory,recentUpdates,stats} = useMenteeDashboard();
-  const [formData, setFormData] = useState<FormData | null>(); 
-  const {isOn, socket} = useSocketContext();
+  const {pendingRequests,requestHistory,recentUpdates} = useMenteeDashboard();
+  const {isOn,} = useSocketContext();
+  const {availableMentors} = useMentors({page:1, limit:20}); 
+  const [filtering, setFiltering] = useState<boolean>(false);
+  const [filter,setFilter] = useState<string>("")
+  
 
+  const filteredMentors = filtering ? availableMentors?.filter((mnt) => 
+      mnt.firstName.toLowerCase().includes(filter.toLowerCase()) ||
+      mnt.lastName?.toLowerCase().includes(filter.toLowerCase())
+    ) : availableMentors;
 
+  const handleInputChange = (e:React.ChangeEvent<HTMLInputElement>) =>{
+        const text = e.target.value;
+        setFilter(text);
+        setFiltering(text.length > 0); // only filter when there's text
+  }
   //Page 
   return (
     <div className="text-accent flex flex-col items-start gap-5 pb-8">
@@ -53,6 +61,7 @@ export default function MenteeRequestPage() {
       <section className="w-full grid gap-4 md:grid-cols-[2.4fr_1fr]">
         <main className="flex flex-col gap-5">
           <section className="flex flex-col gap-4">
+
             {pendingRequests.length ? (
               pendingRequests.map((request) => {
                 return (
@@ -72,9 +81,10 @@ export default function MenteeRequestPage() {
               </div>
             )}
           </section>
-       <search className="max-w-[50%]">
+       <search id='search-bar' className="max-w-[50%]">
         <input
           type="text"
+          onChange={(e)=>handleInputChange(e)}
           placeholder="Start typing to reveal..."
           className=" px-5 py-3 pl-12 rounded-full bg-[#FAF8F8] border-2 border-[#D1D5DB] outline-none transition-all focus:border-[#923D41] focus:ring-2 focus:ring-[#923D41]/10 text-[#0A0909]"
           style={{ fontFamily: "'Quicksand', sans-serif" }}
@@ -85,7 +95,19 @@ export default function MenteeRequestPage() {
           </svg>
         </div>
      </search>
-
+          <section id='available-mentors'>
+            <h1>Available Mentors </h1>
+            <section id='mentors-flex' className="flex  flex-col md:grid grid-cols-3 gap-2">
+              {availableMentors?.length? (
+             filteredMentors?.map((mnt, idx)=>(
+              <MentorDetailCard key={mnt?.id} {...mnt} />
+             ))
+            )
+             :(<p className="text-sm text-gray-500">No available mentors yet.</p>)
+            }
+            </section>
+             
+          </section>
           <section className="mt-4 flex flex-col gap-3">
             <h2 className="text-xl font-semibold text-[#241919]">Recent Decisions</h2>
 

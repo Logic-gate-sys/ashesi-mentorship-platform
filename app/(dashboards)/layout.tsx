@@ -19,20 +19,20 @@ type NavItem = {
 const navLinks: Record<string, NavItem[]> = {
   mentor: [
     { label: "Home",                 icon: <HomeIcon />,     link: "/mentors" },
-    { label: "Mentorship Requests",  icon: <RequestIcon />,  link: "/mentors/requests" },
+    { label: "Requests",  icon: <RequestIcon />,  link: "/mentors/requests" },
     { label: "My Mentees",           icon: <MenteesIcon />,  link: "/mentors/mentees" },
     { label: "Messages",             icon: <MessagesIcon />, link: "/mentors/messages" },
     { label: "Meetings",             icon: <MeetingsIcon />, link: "/mentors/meetings" },
-    { label: "Profile Settings",     icon: <SettingsIcon />, link: "/mentors/settings" },
+    { label: "Settings",     icon: <SettingsIcon />, link: "/mentors/settings" },
     { label: "Feedbacks",            icon: <FeedbackIcon />, link: "/mentors/feedbacks" },
   ],
   mentee: [
     { label: "Home",                 icon: <HomeIcon />,     link: "/mentees" },
-    { label: "Mentorship Requests",  icon: <RequestIcon />,  link: "/mentees/requests" },
+    { label: "Requests",  icon: <RequestIcon />,  link: "/mentees/requests" },
     { label: "My Mentor(s)",         icon: <MenteesIcon />,  link: "/mentees/mentors" },
     { label: "Messages",             icon: <MessagesIcon />, link: "/mentees/messages" },
     { label: "Meetings",             icon: <MeetingsIcon />, link: "/mentees/meetings" },
-    { label: "Profile Settings",     icon: <SettingsIcon />, link: "/mentees/settings" },
+    { label: "Settings",     icon: <SettingsIcon />, link: "/mentees/settings" },
     { label: "Feedbacks",            icon: <FeedbackIcon />, link: "/mentees/feedbacks" },
   ],
   admin: [

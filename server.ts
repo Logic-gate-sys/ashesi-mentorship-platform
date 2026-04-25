@@ -6,7 +6,7 @@ import {env } from './env';
 
 
 const hostname = env.SOCKET_HOST ||"localhost";
-const port = env.SOCKET_PORT ||3000;
+const port = env.NEXT_PUBLIC_SOCKET_PORT ||3000;
 const dev =env.NODE_ENV !=='production';
 
 const app = next({ dev, hostname, port });

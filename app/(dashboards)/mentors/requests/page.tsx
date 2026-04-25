@@ -23,7 +23,7 @@ const FALLBACK_AVATAR = "https://i.pravatar.cc/150?u=mentor-request";
 
 export default function MentorRequestsPage() {
   const { requests, history, isLoading, error, refresh, acceptRequest, declineRequest } =
-    useMentorshipRequests();
+    ();
   const { enabled, isConnected, on } = useMentorRealtime();
 
   const [actionState, setActionState] = useState<Record<string, RequestActionState>>({});

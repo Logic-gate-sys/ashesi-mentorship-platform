@@ -6,7 +6,6 @@ import { User, Clock, MailIcon, type LucideIcon, MegaphoneIcon } from "lucide-re
 import Link from "next/link";
 import { PendingRequestCard, MentorAvailabilityCard, ActiveMCard, UpdatesCard, UpcomingEventsCard } from "#comp-hooks/cards";
 import { useMenteeDashboard } from "#comp-hooks/hooks/mentee/useMenteeDashboard";
-import {useMentorshipRequests} from '#comp-hooks/hooks/mentor/index'
 const statsIcons: LucideIcon[] = [User, MailIcon, Clock];
 import { useSocket } from "#comp-hooks/hooks/socket/useSocket";
 
@@ -14,7 +13,6 @@ import { useSocket } from "#comp-hooks/hooks/socket/useSocket";
 export default function MentorHomePage() {
   const { user , getAccessToken} = useAuth();
   const { stats, recentUpdates, pendingRequests, activeMentors, scheduleEvents, isLoading, error } = useMenteeDashboard();
-  const { sendRequest} = useMentorshipRequests();
 
   const [actionState, setActionState] = useState<Record<string, 'idle' | 'accepting' | 'declining' | 'accepted' | 'declined'>>({});
   

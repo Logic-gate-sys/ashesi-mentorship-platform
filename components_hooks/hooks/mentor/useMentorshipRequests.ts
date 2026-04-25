@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useFetchApi } from '../shared/useMentorApi';
-import { createMentorshipRequestSchema } from '#libs-schemas/schemas/request.schema';
 import {z} from 'zod'
 
 interface MentorshipRequest {
@@ -22,7 +21,6 @@ interface UseMentorshipRequestsReturn {
   isLoading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
-  sendRequest: (data: any)=> Promise<boolean>; 
   acceptRequest: (requestId: string) => Promise<boolean>;
   declineRequest: (requestId: string) => Promise<boolean>;
 }
@@ -61,25 +59,7 @@ export function useMentorshipRequests(): UseMentorshipRequestsReturn {
     refresh();
   }, [refresh]);
 
-  const sendRequest = async(data: Partial<z.infer<typeof createMentorshipRequestSchema>>):Promise<boolean> => {
-    try{
-      const response = await authorizedFetch('/api/mentees/requests', {
-        method: 'POST',
-        body: data
-      });
-      if(!response.ok){
-        throw new Error('Failed to send reqeust')
-      }
-      //if request succeds
-      const body = await response.json();
-      if(body.data) return true;
-      return false;
-    }catch(err){
-      setError(err instanceof Error ? err.message : 'Failed to send request to mentor');
-      return false;
-    }
-     
-  }
+ 
 
   const acceptRequest = async (requestId: string) => {
     try {
@@ -115,7 +95,7 @@ export function useMentorshipRequests(): UseMentorshipRequestsReturn {
     }
   };
   //return
-  return { requests, history, isLoading, error, refresh, acceptRequest, declineRequest , sendRequest};
+  return { requests, history, isLoading, error, refresh, acceptRequest, declineRequest };
 }
 
 

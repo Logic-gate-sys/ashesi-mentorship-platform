@@ -2,7 +2,7 @@
 import { MentorshipRequest , RequestStatus} from '#/prisma/generated/prisma/client';
 import { useCallback, useEffect, useState } from 'react';
 import { formatRelativeTime } from '#utils-types/utils/datatime';
-import { useFetchApi } from '#comp-hooks/hooks/shared/useMentorApi';
+import { useFetchApi } from '#/components_hooks/hooks/shared/useMentorApi';
 
 interface DashboardData {
   stats: Array<{ title: 'mentors' | 'sessions' | 'feedbacks';  statsNum: number }>;

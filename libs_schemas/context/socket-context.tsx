@@ -1,63 +1,66 @@
 'use client'
-import { createContext, useContext, ReactNode, useMemo } from 'react';
+import { createContext, useContext, ReactNode,useEffect, useRef,useState } from 'react';
 import {io, Socket} from 'socket.io-client';
-import { useEffect, useState} from 'react';
 import { useAuth } from './auth-context';
 
 
 const port = process.env.NEXT_PUBLIC_SOCKET_PORT || 3000;
-
-  
-
-
 interface SocketContextType {
-  socket: Socket | null;
+  socket: Socket | null ;
   isOn: boolean;
 }
-
-const SocketContext = createContext<SocketContextType | undefined>(undefined);
-
-export const SocketProvider = ({ children, namespace }: { 
+interface SocketProps{
   children: ReactNode; 
   namespace: string; 
-}) => {
-    const [socketInstance, setSocketInstance ] = useState<Socket | null>(null); 
-    const [isOn, setIsOn] =useState<boolean>(false); 
-    const {getAccessToken} =useAuth(); 
+}
+const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
+export const SocketProvider = ({ children, namespace }: SocketProps) => {
+    const [isOn, setIsOn] = useState<boolean>(false); 
+    const [socketInstance, setSocketInstance] = useState< Socket | null>(); 
+    const {getAccessToken} = useAuth(); 
+    const socketRef  = useRef<Socket |null>(null);
     //useEffect
-    useEffect(()=>{
-        const init =  async()=>{
-            const token = getAccessToken();
-            const socket = io(`http://localhost:${port}${namespace}`, { auth: {token},transports: ["websocket",]});
+    useEffect(() => {
+        const token = getAccessToken();
+        // socket 
+        const socket = io(`http://localhost:${port}${namespace}`, {
+           auth: {token},
+           transports: ["polling","websocket"],
+           path: "/soc/socket/io"
+          });
+
         // when connected
         socket.on("connect", ()=>{
-            console.log(`Socket connect to namespace: ${namespace}`)
+            console.log(`Socket connected to namespace:${namespace}`)
             setIsOn(true); 
-        })
+        });
+
         //when error occurs
-       socket.on("connection_error", (err)=>{
+       socket.on("connect_error", (err)=>{
             console.log(`Connection to namespace ${namespace} failed, try again`);
             setIsOn(false); 
         });
-       
-       //set state 
-        setSocketInstance(socket);
-     } 
-       // initialise 
-       init();
-      //cleanup function 
-       return ()=> {
-            if(socketInstance){
-                socketInstance.disconnect();
-                setSocketInstance(null);
-            }
-        } 
+        
+        socketRef.current = socket;
+        if(socketRef.current){
+          setSocketInstance( socketRef.current); 
+        }
+        // clean up 
+        return ()=>{
+         if (socket || socketRef.current) {
+             socket.disconnect();
+             setSocketInstance(null);
+             socketRef.current = null; 
+             console.log(`🔌 Disconnected from ${namespace}`);
+           }
+        }
 
-    },[socketInstance, namespace]);
+    },[getAccessToken, namespace]);
 
+    
   return (
-    <SocketContext.Provider value={{ socket: socketInstance, isOn }}>
+    <SocketContext.Provider value={{socket: socketInstance?? null, isOn }}>
       {children}
     </SocketContext.Provider>
   );

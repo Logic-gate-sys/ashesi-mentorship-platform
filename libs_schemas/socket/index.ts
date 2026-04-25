@@ -10,7 +10,11 @@ export const initSocketNameSpaces = (server: HttpServer) :Server =>{
    if(!io){
     // initialise singleton socket server
     io = new Server(server, {
-        path: 'api/socket/io',
+        cors:{
+            origin: "http://localhost:3000",
+            methods: ["POST", "GET", "UPDATE"]
+        }, 
+        path: '/soc/socket/io',
         addTrailingSlash: false,
         transports: ['websocket', 'polling']
     })
