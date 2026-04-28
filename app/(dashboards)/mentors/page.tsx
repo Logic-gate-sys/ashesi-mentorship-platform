@@ -78,17 +78,17 @@ export default function MentorHomePage() {
         </p>
       </section>
 
-      <section id="stats" className="w-full flex md:flex-row gap-4 p-2">
+      <section id="stats" className="grid w-full gap-4 p-2 sm:grid-cols-2 xl:grid-cols-3">
         {stats?.map((itm, idx) => (
           <QuickInfoCard key={idx} title={itm.title} statsNum={itm.statsNum} Icon={statsIcons[idx]} />
         ))}
       </section>
 
-      <section id="request-events" className="md:mt-6 w-full md:grid md:grid-cols-[2.5fr_1fr] gap-4">
-        <div id="main-area">
+      <section id="request-events" className="mt-2 grid w-full gap-6 xl:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)]">
+        <div id="main-area" className="flex min-w-0 flex-col gap-4">
           <h1 className="text-2xl font-bold">Mentorship Requests:</h1>
-          <section id="pending-reqs" className="w-full h-fit flex flex-col gap-4 overflow-y-auto">
-            <p className="ml-auto">
+          <section id="pending-reqs" className="flex flex-col gap-4">
+            <p className="ml-auto text-sm font-semibold text-[#6A0A1D] hover:underline">
               <Link href="/mentors/requests">View All Requests</Link>
             </p>
             {pendingRequests?.length ? (
@@ -118,9 +118,9 @@ export default function MentorHomePage() {
             )}
           </section>
 
-          <section id="active-m" className="mt-8">
+          <section id="active-m" className="mt-8 flex flex-col gap-4">
             <h1 className="text-2xl">Active Mentees</h1>
-            <div id="mentee-list" className="w-full grid grid-cols-3 gap-2">
+            <div id="mentee-list" className="grid w-full gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {activeMentees?.length ? (
                 activeMentees.map((m, idx) => (
                   <ActiveMCard
@@ -136,7 +136,7 @@ export default function MentorHomePage() {
           </section>
         </div>
 
-        <div id="side-area" className="w-full flex flex-col gap-3">
+        <div id="side-area" className="flex min-w-0 flex-col gap-3">
           <UpdatesCard updates={recentUpdates} title="Updates" Icon={MegaphoneIcon} />
           <UpcomingEventsCard events={scheduleEvents} />
           <MentorAvailabilityCard />

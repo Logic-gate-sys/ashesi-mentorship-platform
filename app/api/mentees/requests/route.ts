@@ -3,7 +3,6 @@ import { getIOInstance } from '#libs-schemas/socket/index';
 import { requireAuth, requirePermission } from '#/libs_schemas/middlewares/auth.middleware';
 import { createMentorshipRequestSchema } from '#libs-schemas/schemas/request.schema';
 import {sendMentorshipRequest, getMentorshipRequests} from '#services/mentorship-requests.service'
-import MentorRequestsPage from '#/app/(dashboards)/mentors/requests/page';
 
 const io = getIOInstance(); 
 
@@ -11,7 +10,9 @@ const io = getIOInstance();
 export async function GET(request: NextRequest){
   try {
     //authorise user 
-    const {user} = await requireAuth(request);
+    const authResult = await requireAuth(request);
+    if ('status' in authResult) return authResult;
+    const {user} = authResult;
     //authorise user 
     const isAllowed = requirePermission(user.id, 'mentorship_request', 'read');
     if(!isAllowed){
@@ -37,7 +38,9 @@ export async function GET(request: NextRequest){
 export async function POST( request: NextRequest) {
   try {
     //authorise user 
-    const {user} = await requireAuth(request);
+    const authResult = await requireAuth(request);
+    if ('status' in authResult) return authResult;
+    const {user} = authResult;
     //authorise user 
     const isAllowed = requirePermission(user.id, 'mentorship_request', 'create');
     if(!isAllowed){

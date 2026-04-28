@@ -7,7 +7,9 @@ import { getMentorshipRequests} from '#services/mentorship-requests.service';
 // fetch all mentorship requests send to a mentor
 export async function GET(request: NextRequest) {
   try {
-     const {user} = await requireAuth(request); 
+  const authResult = await requireAuth(request);
+  if ('status' in authResult) return authResult;
+  const {user} = authResult; 
      const isAllowed = requirePermission(user.id, 'mentorship_request', 'read');
         if(!isAllowed){
             return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});

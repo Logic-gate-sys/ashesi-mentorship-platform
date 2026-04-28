@@ -1,20 +1,35 @@
 
-import { NextRequest, NextResponse} from 'next/server';
+import { NextRequest } from 'next/server';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
-import { requirePermission, requireAuth } from '#/libs_schemas/middlewares/auth.middleware';
+import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
 import { getMenteeDashboardOverview } from '#services/mentee-metrics.service';
+import { prisma } from '#utils-types/utils/db';
 
 export async function GET(request: NextRequest) {
   try {
-    //authorise user 
-        const {user} = await requireAuth(request);
-        //authorise user 
-        const isAllowed = requirePermission(user.id,'user', 'read');
-        if(!isAllowed){
-            return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});
-        }
+    // Extract and validate user
+    const user = await extractUserFromRequest(request);
+
+    if (!user) {
+      return errorResponse('Unauthorized', { status: 401 });
+    }
+
+    if (user.role !== 'MENTEE') {
+      return errorResponse('Only mentees can access this endpoint', { status: 403 });
+    }
+
+    // Get mentee profile
+    const menteeProfile = await prisma.menteeProfile.findUnique({
+      where: { userId: user.id },
+      select: { id: true },
+    });
+
+    if (!menteeProfile) {
+      return errorResponse('Mentee profile not found', { status: 404 });
+    }
+
     // Fetch complete dashboard overview
-    const dashboard = await getMenteeDashboardOverview(user.menteeProfile.id);
+    const dashboard = await getMenteeDashboardOverview(menteeProfile.id);
     return successResponse(dashboard, 'Dashboard data retrieved successfully');
   } catch (error) {
     console.error('Error fetching dashboard data:', error);

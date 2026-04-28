@@ -9,7 +9,6 @@ import { StatusRequestCard } from "#comp-hooks/cards/RequestStatusCard";
 import {useMentorshipRequests,} from "#comp-hooks/hooks/mentor";
 import { useSocketContext } from "#/libs_schemas/context/socket-context";
 import { formatRelativeTime } from "#utils-types/utils/datatime";
-import { useAuth } from "#/libs_schemas/context/auth-context";
 
 type RequestActionState =
   | "idle"
@@ -21,7 +20,6 @@ type RequestActionState =
 const FALLBACK_AVATAR = "https://i.pravatar.cc/150?u=mentor-request";
 
 export default function MentorRequestsPage() {
-  const {user} = useAuth();
   const { requests, history, isLoading, error, refresh, acceptRequest, declineRequest } = useMentorshipRequests();
   const {isOn, socket} = useSocketContext();
   const [actionState, setActionState] = useState<Record<string, RequestActionState>>({});
@@ -30,10 +28,10 @@ export default function MentorRequestsPage() {
     if (!isOn) {
       return;
     }
-    socket?.on("notification", ({type,title, body: {goal, message}, requestIdg}) => {
+    socket?.on("notification", () => {
       void refresh();
     });
-    socket?. on("request_updated", () => {
+    socket?.on("request_updated", () => {
       void refresh();
     });
 
@@ -147,8 +145,8 @@ export default function MentorRequestsPage() {
         </div>
       ) : null}
 
-      <section className="w-full grid gap-4 md:grid-cols-[2.4fr_1fr]">
-        <main className="flex flex-col gap-5">
+      <section className="grid w-full gap-6 xl:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]">
+        <main className="flex min-w-0 flex-col gap-5">
           <section className="flex flex-col gap-4">
             {requests.length ? (
               requests.map((request) => {
@@ -198,7 +196,7 @@ export default function MentorRequestsPage() {
           </section>
         </main>
 
-        <aside className="flex flex-col gap-4">
+        <aside className="flex min-w-0 flex-col gap-4">
           <UpdatesCard updates={recentUpdates} title="Request Activity" Icon={MegaphoneIcon} />
           <MentorshipGoalsCard metrics={metrics} title="Request Goals" />
         </aside>

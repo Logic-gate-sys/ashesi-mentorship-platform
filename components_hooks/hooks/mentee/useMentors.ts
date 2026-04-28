@@ -1,19 +1,16 @@
 'use client';
-import { useFetchApi } from "../shared/useMentorApi";
-import { MentorProfile , User} from "#/prisma/generated/prisma/client";
-import {  useEffect, useState } from "react";
 
-interface MentorType{
-    mentor: {
-    id: string,
-    firstName: string,
-    lastName:string,
-    graduationYear: string,
-    company: string,
-    bio: string,
-    skills?: string[],
-    },
-    availableMentors: any[]; 
+import { useFetchApi } from "../shared/useMentorApi";
+import { useEffect, useState } from "react";
+
+export interface MentorSummary {
+  id: string;
+  firstName: string;
+  lastName: string;
+  graduationYear: string;
+  company: string;
+  bio: string;
+  skills: string[];
 }
 
 interface QueryProps{
@@ -24,7 +21,7 @@ export function useMentors({page, limit}: QueryProps) {
   const { authorizedFetch } = useFetchApi();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [availableMentors, setAvailableMentors] = useState<MentorType['mentor'] | null>();
+  const [availableMentors, setAvailableMentors] = useState<MentorSummary[]>([]);
 
   useEffect(()=>{
     const getAllMentors = async()=>{
@@ -41,28 +38,27 @@ export function useMentors({page, limit}: QueryProps) {
           }
          
          const body = await response.json(); 
-        console.log('RESPONSE -->>   ', body.data)
-         const{data}= body;
-         const mentors: MentorType['mentor'][] = data.map((mnt: any)=>({
-            id: mnt?.mentorProfile?.id,
-            firstName: mnt.firstName,
-            lastName: mnt.lastName,
-            graduationYear: mnt?.mentorProfile?.graduationYear,
-            company: mnt.mnt?.mentorProfile?.company,
-            bio: mnt.mnt?.mentorProfile?.bio,
-            skills: mnt.mnt?.mentorProfile?.skills
-         }))
-       // update state
+         const mentors = Array.isArray(body?.data)
+          ? body.data.map((mentor: any): MentorSummary => ({
+              id: mentor?.mentorProfile?.id ?? mentor?.id,
+              firstName: mentor?.firstName ?? "",
+              lastName: mentor?.lastName ?? "",
+              graduationYear: String(mentor?.mentorProfile?.graduationYear ?? ""),
+              company: mentor?.mentorProfile?.company ?? "",
+              bio: mentor?.mentorProfile?.bio ?? "",
+              skills: Array.isArray(mentor?.mentorProfile?.skills) ? mentor.mentorProfile.skills : [],
+            }))
+          : [];
        setAvailableMentors(mentors)
         } catch(err){
-         setError(err.message);
+         setError(err instanceof Error ? err.message : 'Failed to fetch all mentors');
           } finally {
           setIsLoading(false);
       } 
     }
     getAllMentors(); 
     //cleanup
-    return ()=>{setAvailableMentors(null)}
+    return ()=>{setAvailableMentors([])}
   }, [authorizedFetch, page, limit])
  
   

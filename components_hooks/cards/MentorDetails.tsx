@@ -64,7 +64,7 @@ export const MentorDetailCard = ({ requestSent, onCancelRequest, ...data }: Ment
 
   return (
     <>
-      <div className="max-w-md mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden transition-all duration-300">
+      <div className="w-full max-w-none overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300">
         {/* Header Section */}
         <div className="p-5 flex items-center justify-between">
           <div className="flex items-center space-x-4">

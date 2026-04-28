@@ -1,5 +1,4 @@
 import { Server, type Socket } from "socket.io";
-import { requirePermission } from "../abac";
 import { verifyJWT } from "#utils-types/utils/jwt";
 import { prisma } from "#utils-types/utils/db";
 
@@ -51,7 +50,7 @@ export const initRequestNameSpace = (io: Server)=>{
 
       // attach user to the socket object
       socket.user = {
-        id: user.role ==='MENTEE'? user?.mentorProfile?.id : user?.mentorProfile?.id ,
+        id: user.id,
         email: user.email,
         role: user.role,
       };
@@ -59,7 +58,7 @@ export const initRequestNameSpace = (io: Server)=>{
 
       //go to connection
       return next();
-    } catch (error) {
+    } catch {
       return next(new Error("Authentication failed"));
     }
   })

@@ -1,8 +1,12 @@
 import { notFound } from 'next/navigation';
 import { MentorView } from '#/components_hooks/components/MentorView';
 import { MenteeView } from '#/components_hooks/components/MenteeView';
+
+type UserDetailParams = {
+  params: Promise<{ id: string }>;
+};
 // Mock data fetcher - replace this with your actual database/API call
-async function getUserData(id) {
+async function getUserData(id: string) {
   // Simulate a database look-up
   // In a real app: const user = await db.user.findUnique({ where: { id } });
   
@@ -33,7 +37,7 @@ async function getUserData(id) {
   return users.find(u => u.id === id) || null;
 }
 
-export default async function UserDetailPage({ params }) {
+export default async function UserDetailPage({ params }: UserDetailParams) {
   const { id } = await params;
   const user = await getUserData(id);
 

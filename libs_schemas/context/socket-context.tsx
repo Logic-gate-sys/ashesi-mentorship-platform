@@ -39,7 +39,7 @@ export const SocketProvider = ({ children, namespace }: SocketProps) => {
         });
 
         //when error occurs
-       socket.on("connect_error", (err)=>{
+         socket.on("connect_error", ()=>{
             console.log(`Connection to namespace ${namespace} failed, try again`);
             setIsOn(false); 
         });
@@ -72,4 +72,9 @@ export const useSocketContext = () => {
   const context = useContext(SocketContext);
   if (!context) throw new Error("useSocketContext must be used within SocketProvider");
   return context;
+};
+
+// safe variant that returns null when not rendered inside a provider
+export const useSocketContextSafe = () => {
+  return useContext(SocketContext) ?? null;
 };

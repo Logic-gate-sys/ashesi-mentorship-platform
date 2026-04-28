@@ -14,7 +14,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const {user} = await requireAuth(request); 
+    const authResult = await requireAuth(request);
+    if ('status' in authResult) return authResult;
+    const {user} = authResult; 
     const isAllowed = requirePermission(user.id, 'mentorship_request', 'accept');
     if(!isAllowed){
       return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});
@@ -44,7 +46,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const {user} = await requireAuth(request); 
+    const authResult = await requireAuth(request);
+    if ('status' in authResult) return authResult;
+    const {user} = authResult; 
     const isAllowed = requirePermission(user.id, 'mentorship_request', 'accept');
     if(!isAllowed){
       return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});

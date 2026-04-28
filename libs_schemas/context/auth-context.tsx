@@ -23,6 +23,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  isInitialized: boolean;
   isAuthenticated: boolean;
   //methods
   login: (email: string, password: string) => Promise<void>;
@@ -48,14 +49,6 @@ export function AuthProvider({ children, config = defaultAuthConfig }: AuthProvi
   const [isInitialized, setIsInitialized] = useState(false);
   const isRefreshing = useRef(false);
   const refreshPromiseRef = useRef<Promise<string | null> | null>(null);
-
-  // Verify auth on mount by checking if refreshToken cookie exists
-  useEffect(() => {
-    if (isInitialized) return;
-    fetchCurrentUser().finally(() => {
-      setIsInitialized(true);
-    });
-  }, []);
 
   const getAccessToken = useCallback((): string | null => {
     if (typeof window === 'undefined') return null;
@@ -256,6 +249,14 @@ const login = useCallback(
       clearAuthData();
     }
   }, [getAccessToken, refreshAccessToken, clearAuthData, config]);
+
+  // Verify auth on mount by checking if refreshToken cookie exists
+  useEffect(() => {
+    if (isInitialized) return;
+    void fetchCurrentUser().finally(() => {
+      setIsInitialized(true);
+    });
+  }, [fetchCurrentUser, isInitialized]);
   
   const updateProfile = useCallback(
     async (data: any) => {
@@ -311,6 +312,7 @@ const login = useCallback(
   const value: AuthContextType = {
     user,
     isLoading,
+    isInitialized,
     isAuthenticated: !!user && !!getAccessToken(),
     login,
     registerStudent,

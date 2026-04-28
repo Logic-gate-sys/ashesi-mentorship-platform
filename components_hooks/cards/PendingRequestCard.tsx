@@ -1,4 +1,5 @@
 "use client";
+
 import Image from 'next/image';
 import { Check, Loader2 } from 'lucide-react';
 
@@ -36,17 +37,20 @@ export function PendingRequestCard({
 
   return (
     <div 
-      className={`w-full max-w-225 bg-[#FFF0F0] rounded-[20px] p-3 flex flex-col sm:flex-row items-center sm:items-start gap-2 shadow-sm`}
+      className="w-full max-w-none rounded-[20px] bg-[#FFF0F0] p-3 shadow-sm sm:p-4"
     >
-      <div className="relative w-25 h-25 sm:w-22 sm:h-22 shrink-0 rounded-[20px] overflow-hidden border">
-        <Image
-          src={studentAvatarUrl} 
-          alt={`${studentName}'s profile`}
-          fill
-          className="object-cover"
-        />
-      </div>
-      <div className="flex-1 flex flex-col gap-5 w-full text-center sm:text-left">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[20px] bg-white sm:h-24 sm:w-24">
+          {studentAvatarUrl ? (
+            <Image src={studentAvatarUrl} alt={studentName} fill className="object-cover" />
+          ) : (
+            <span className="flex h-full w-full items-center justify-center text-xl font-bold text-[#6A0A1D]">
+              {studentName.split(' ').map((namePart) => namePart[0]).join('')}
+            </span>
+          )}
+        </div>
+
+        <div className="flex-1 flex flex-col gap-5 w-full text-center sm:text-left">
         <div className="flex flex-col gap-1.5">
           <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
             <h1 className="text-xl font-bold text-[#241919]">
@@ -114,6 +118,7 @@ export function PendingRequestCard({
           </button>
         </div>
         
+        </div>
       </div>
     </div>
   );
