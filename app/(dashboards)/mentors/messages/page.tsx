@@ -42,6 +42,7 @@ export default function MentorMessagesPage() {
   } = useMentorMessages();
 
   const { socket, isOn } = useSocketContext();
+  const isConnected = socket?.connected ?? false;
 
   const [draft, setDraft] = useState("");
   const [sendSucceeded, setSendSucceeded] = useState(false);

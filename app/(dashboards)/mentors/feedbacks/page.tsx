@@ -41,18 +41,20 @@ export default function MentorFeedbackPage() {
   const { socket, isOn } = useSocketContext();
 
   useEffect(() => {
-    if (!enabled) {
+    if (!socket || !isOn) {
       return;
     }
 
-    const unsubNotification = on("notification", () => {
+    const handleNotification = () => {
       void refresh();
-    });
+    };
+
+    socket.on("notification", handleNotification);
 
     return () => {
-      unsubNotification();
+      socket.off("notification", handleNotification);
     };
-  }, [enabled, on, refresh]);
+  }, [socket, isOn, refresh]);
 
   const averageRatingDisplay = useMemo(() => {
     return metrics.averageRating ? metrics.averageRating.toFixed(1) : "0.0";

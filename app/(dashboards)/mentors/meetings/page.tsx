@@ -71,26 +71,30 @@ export default function MentorMeetingsPage() {
   const [sessionState, setSessionState] = useState<Record<string, SessionActionState>>({});
 
   useEffect(() => {
-    if (!enabled) {
+    if (!socket || !isOn) {
       return;
     }
 
-    const unsubNotification = on("notification", () => {
+    const handleNotification = () => {
       void refresh();
-    });
-    const unsubSession = on("session_updated", () => {
+    };
+    const handleSession = () => {
       void refresh();
-    });
-    const unsubAvailability = on("availability_updated", () => {
+    };
+    const handleAvailability = () => {
       void refresh();
-    });
+    };
+
+    socket.on("notification", handleNotification);
+    socket.on("session_updated", handleSession);
+    socket.on("availability_updated", handleAvailability);
 
     return () => {
-      unsubNotification();
-      unsubSession();
-      unsubAvailability();
+      socket.off("notification", handleNotification);
+      socket.off("session_updated", handleSession);
+      socket.off("availability_updated", handleAvailability);
     };
-  }, [enabled, on, refresh]);
+  }, [socket, isOn, refresh]);
 
   const upcomingSessions = useMemo(() => {
     return sessions.filter((session) => session.status === "SCHEDULED" || session.status === "RESCHEDULED");
