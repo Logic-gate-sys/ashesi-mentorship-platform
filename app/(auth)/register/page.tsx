@@ -22,7 +22,7 @@ export default function RegisterChoicePage() {
 
       {/* Student Registration Card */}
       <Link
-        href="/register/student"
+        href="/register/mentee"
         className="block mb-6 p-6 border-2 border-[#D1D5DB] rounded-lg hover:border-[#923D41] hover:bg-[#FAF8F8] transition-all group"
       >
         <div className="flex items-start gap-4">
@@ -41,7 +41,7 @@ export default function RegisterChoicePage() {
               className="text-lg font-bold text-[#181821] mb-2"
               style={{ fontFamily: "'Bree Serif', serif" }}
             >
-              Student
+              Mentee
             </h3>
             <p
               className="text-sm text-[#666]"
@@ -55,7 +55,7 @@ export default function RegisterChoicePage() {
 
       {/* Alumni Registration Card */}
       <Link
-        href="/register/alumni"
+        href="/register/mentor"
         className="block mb-8 p-6 border-2 border-[#D1D5DB] rounded-lg hover:border-[#923D41] hover:bg-[#FAF8F8] transition-all group"
       >
         <div className="flex items-start gap-4">

@@ -1,7 +1,14 @@
 import { z } from 'zod'
+import { env as loadEnv } from "custom-env";
 
-process.env.APP_STAGE = process.env.VITEST ? 'test' : (process.env.APP_STAGE || 'dev')
 
+process.env.APP_STAGE = process.env.VITEST ? 'test' : (process.env.APP_STAGE || 'dev');
+
+if(process.env.APP_STAGE==='dev'){
+  loadEnv()
+}else{
+  loadEnv('test')
+}
 export const envSchema = z.object({
   NODE_ENV: z.enum(['production', 'development', 'test']).default('development'),
   APP_STAGE: z.enum(['production', 'dev', 'test']).default('dev'),
@@ -9,6 +16,8 @@ export const envSchema = z.object({
   DATABASE_URL: z.string().url().regex(/^postgresql:\/\//, "DATABASE_URL must be a valid Postgres connection string"),
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
   JWT_EXPIRES_IN: z.string().default('7d'),
+  NEXT_PUBLIC_SOCKET_PORT:z.coerce.number().describe("Socket port number"),
+  SOCKET_HOST: z.string().describe("Host of the socket"),
   BCRYPT_ROUNDS: z.coerce.number().min(12).default(12),
   BECRYPT_ROTATE: z.coerce.number().min(10).max(12).default(10),
 })

@@ -15,8 +15,8 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-import { AuthProvider } from '@/app/ _libs_and_schemas/context/auth-context';
-import LoginPage from '@/app/(auth)/login/page';
+import { AuthProvider } from '#/libs_schemas/context/auth-context';
+import LoginPage from '#/app/(auth)/login/page';
 
 /**
  * Login Page - Minimal Essential Tests

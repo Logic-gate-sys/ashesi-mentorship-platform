@@ -192,7 +192,7 @@ export type SessionFeedbackGroupByOutputType = {
   _max: SessionFeedbackMaxAggregateOutputType | null
 }
 
-type GetSessionFeedbackGroupByPayload<T extends SessionFeedbackGroupByArgs> = Prisma.PrismaPromise<
+export type GetSessionFeedbackGroupByPayload<T extends SessionFeedbackGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SessionFeedbackGroupByOutputType, T['by']> &
       {

@@ -1,5 +1,0 @@
-export { FeatureCard } from './FeatureCard'
-export { StepCard } from './StepCard'
-export { MentorCard } from './MentorCard'
-export { StatCard } from './StatCard'
-export { TestimonialCard } from './TestimonialCard'

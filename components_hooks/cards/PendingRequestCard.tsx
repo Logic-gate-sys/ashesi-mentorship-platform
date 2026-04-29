@@ -1,0 +1,129 @@
+"use client";
+
+import Image from 'next/image';
+import { Check, Loader2 } from 'lucide-react';
+
+interface RequestProps {
+  id: string | number;
+  studentName: string;
+  studentAvatarUrl: string;
+  message: string;
+  majorAndYear?: string; // Example: (CS '26)
+  showActions?: boolean;
+  isAccepting?: boolean;
+  isDeclining?: boolean;
+  isAccepted?: boolean;
+  isDeclined?: boolean;
+  onAccept?: (id: string | number) => void;
+  onDecline?: (id: string | number) => void;
+}
+
+export function PendingRequestCard({
+  id,
+  studentName,
+  studentAvatarUrl,
+  majorAndYear,
+  message,
+  showActions = true,
+  isAccepting = false,
+  isDeclining = false,
+  isAccepted = false,
+  isDeclined = false,
+  onAccept,
+  onDecline,
+}: RequestProps) {
+  
+  const handleAccept = () => onAccept?.(id);
+  const handleDecline = () => onDecline?.(id);
+  const disableActions = isAccepting || isDeclining || isAccepted || isDeclined;
+
+  return (
+    <div 
+      className="w-full max-w-none rounded-[20px] bg-[#FFF0F0] p-3 shadow-sm sm:p-4"
+    >
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[20px] bg-white sm:h-24 sm:w-24">
+          {studentAvatarUrl ? (
+            <Image src={studentAvatarUrl} alt={studentName} fill className="object-cover" />
+          ) : (
+            <span className="flex h-full w-full items-center justify-center text-xl font-bold text-[#6A0A1D]">
+              {studentName?.split(' ').map((namePart) => namePart[0]).join('') || '?'}
+            </span>
+          )}
+        </div>
+
+        <div className="flex-1 flex flex-col gap-5 w-full text-center sm:text-left">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+            <h1 className="text-xl font-bold text-[#241919]">
+              {studentName}
+            </h1>
+            {majorAndYear && (
+              <span className="text-sm text-gray-500 font-medium">
+                ({majorAndYear})
+              </span>
+            )}
+          </div>
+          
+          <p className={`text-base font-normal accent-[#564242] opacity-90 leading-relaxed`}>
+            “{message}”
+          </p>
+        </div>
+
+        {showActions ? (
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <button
+              onClick={handleAccept}
+              disabled={disableActions}
+              className={`w-full sm:w-40 h-10 rounded-3xl text-lg font-bold transition-colors inline-flex items-center justify-center gap-2 ${
+                isAccepted
+                  ? 'bg-[#1B5E20] text-white'
+                  : 'bg-[#2E7D32] hover:bg-[#1B5E20] text-white'
+              } ${disableActions ? 'opacity-80 cursor-not-allowed' : ''}`}
+            >
+              {isAccepting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Processing
+                </>
+              ) : isAccepted ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  Accepted
+                </>
+              ) : (
+                'Accept'
+              )}
+            </button>
+
+            <button
+              onClick={handleDecline}
+              disabled={disableActions}
+              className={`w-full sm:w-40 h-10 rounded-3xl text-lg font-bold transition-colors inline-flex items-center justify-center gap-2 ${
+                isDeclined
+                  ? 'bg-[#6A0A1D] text-white'
+                  : 'hover:bg-[#6A0A1D]'
+              } ${disableActions ? 'opacity-80 cursor-not-allowed' : ''}`}
+            >
+              {isDeclining ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Processing
+                </>
+              ) : isDeclined ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  Declined
+                </>
+              ) : (
+                'Decline'
+              )}
+            </button>
+          </div>
+        ) : null}
+        
+        </div>
+      </div>
+    </div>
+  );
+}

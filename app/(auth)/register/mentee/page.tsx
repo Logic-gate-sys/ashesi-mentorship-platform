@@ -1,14 +1,14 @@
 'use client'
-import { StepIndicator } from '@/comp&hooks/ui/StepIndictor'
+import { StepIndicator } from '#comp-hooks/ui/StepIndictor'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useAuth } from '@/app/ _libs_and_schemas/context/auth-context'
-import { studentRegisterSchema, validateStrongPassword } from '@/app/ _libs_and_schemas/schemas/auth.schema'
-import { EyeIcon, ErrorIcon } from '@/comp&hooks/ui/icons'
-import { PasswordStrengthIndicator } from '@/comp&hooks/ui/reusable-ui/PasswordStrenght'
+import { useAuth } from '#/libs_schemas/context/auth-context'
+import { studentRegisterSchema, validateStrongPassword } from '#/libs_schemas/schemas/auth.schema'
+import { EyeIcon, ErrorIcon } from '#comp-hooks/ui/icons'
+import { PasswordStrengthIndicator } from '#comp-hooks/ui/reusable-ui/PasswordStrenght'
 
 type StudentRegisterInput = z.infer<typeof studentRegisterSchema>
 

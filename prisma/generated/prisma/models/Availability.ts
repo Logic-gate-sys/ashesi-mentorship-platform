@@ -158,7 +158,7 @@ export type AvailabilityGroupByOutputType = {
   _max: AvailabilityMaxAggregateOutputType | null
 }
 
-type GetAvailabilityGroupByPayload<T extends AvailabilityGroupByArgs> = Prisma.PrismaPromise<
+export type GetAvailabilityGroupByPayload<T extends AvailabilityGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AvailabilityGroupByOutputType, T['by']> &
       {

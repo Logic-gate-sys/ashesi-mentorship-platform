@@ -193,7 +193,7 @@ export type MentorshipCycleGroupByOutputType = {
   _max: MentorshipCycleMaxAggregateOutputType | null
 }
 
-type GetMentorshipCycleGroupByPayload<T extends MentorshipCycleGroupByArgs> = Prisma.PrismaPromise<
+export type GetMentorshipCycleGroupByPayload<T extends MentorshipCycleGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<MentorshipCycleGroupByOutputType, T['by']> &
       {

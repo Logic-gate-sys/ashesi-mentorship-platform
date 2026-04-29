@@ -217,6 +217,7 @@ export const MessageScalarFieldEnum = {
   type: 'type',
   body: 'body',
   fileUrl: 'fileUrl',
+  viewed: 'viewed',
   createdAt: 'createdAt',
   userId: 'userId',
   conversationId: 'conversationId'

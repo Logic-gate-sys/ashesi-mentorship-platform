@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/utils&types/utils/db'
-import { requirePermission } from '@/app/ _libs_and_schemas/middlewares/auth.middleware'
-import { updateProfileSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema'
-import { getPermittedFields } from '@/app/ _libs_and_schemas/abac/engine'
+import { prisma } from '#utils-types/utils/db'
+import { requireAuth, requirePermission } from '#/libs_schemas/middlewares/auth.middleware'
+import { updateProfileSchema } from '#/libs_schemas/schemas/auth.schema'
+import { getPermittedFields, getUserPermissions } from '#/libs_schemas/abac/engine'
 import { ZodError } from 'zod'
 
 /**
@@ -11,12 +11,20 @@ import { ZodError } from 'zod'
  */
 export async function PATCH(request: NextRequest) {
   try {
-    // Authenticate and get user
-    const authResult = await requirePermission(request, 'user_profile', 'update')
+    const authResult = await requireAuth(request)
     if (authResult instanceof NextResponse) {
       return authResult
     }
-    const { user, permissions } = authResult
+
+    const { user } = authResult
+
+    const permissionResult = await requirePermission(user.id, 'user_profile', 'update')
+    if (permissionResult instanceof NextResponse) {
+      return permissionResult
+    }
+
+    const permissions = await getUserPermissions(user.id)
+
     const body = await request.json()
     const result = updateProfileSchema.safeParse(body);
     if(!result.success){

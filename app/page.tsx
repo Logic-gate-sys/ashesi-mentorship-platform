@@ -1,8 +1,9 @@
+'use client'
 import Link from 'next/link'
-import { Hero } from '@/comp&hooks/Hero'
-import { CheckmarkIcon } from '@/comp&hooks/ui/icons/'
-import { FeatureCard, StepCard, MentorCard, StatCard, TestimonialCard } from '@/comp&hooks/cards'
-import { StepCardProps } from '@/utils&types/types/types'
+import { Hero } from '#comp-hooks/Hero'
+import { CheckmarkIcon } from '#comp-hooks/ui/icons/'
+import { FeatureCard, StepCard, MentorCard, StatCard, TestimonialCard } from '#comp-hooks/cards'
+import { StepCardProps } from '#utils-types/types/types'
 
 const features = [
   {
@@ -130,7 +131,7 @@ export default function HomePage() {
 
       <nav className="bg-white border-b border-border h-15 flex items-center justify-between px-10 sticky top-0 z-50">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 bg-primary rounded-[8px] flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 bg-primary rounded-md flex items-center justify-center shrink-0">
             <span className="font-display font-extrabold text-white text-base leading-none">A</span>
           </div>
           <div>
@@ -150,10 +151,10 @@ export default function HomePage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link href="/login" className="btn btn-ghost h-[38px] px-5 text-[14px] font-semibold">
+          <Link href="/login" className="btn btn-ghost h-9.5 px-5 text-[14px] font-semibold">
             Log in
           </Link>
-          <Link href="/register/mentee" className="btn btn-primary h-[38px] px-6 text-[14px] font-semibold">
+          <Link href="/register/mentee" className="btn btn-primary h-9.5 px-6 text-[14px] font-semibold">
             Get started
           </Link>
         </div>
@@ -163,7 +164,7 @@ export default function HomePage() {
 
       <section className="bg-white px-10 py-6 border-b border-border">
         <div className="max-w-250 mx-auto flex items-center gap-3.5 flex-wrap">
-          <span className="font-body text-[12px] font-bold text-text-sub uppercase tracking-[0.1em] mr-3 whitespace-nowrap">
+          <span className="font-body text-[12px] font-bold text-text-sub uppercase tracking-widest mr-3 whitespace-nowrap">
             Industries we serve
           </span>
           {industries.map(ind => (
@@ -229,16 +230,16 @@ export default function HomePage() {
           </div>
 
           {/* Inline sign-up prompt */}
-          <div className="mt-14 p-8 bg-primary rounded-[16px] border border-primary/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
+          <div className="mt-14 p-8 bg-primary rounded-2xl border border-primary/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
             <div>
               <p className="font-display font-bold text-[20px] text-white tracking-tight">Ready to get started?</p>
               <p className="font-body text-[15px] text-white/70 mt-1">Create your account and start your journey in just 2 minutes</p>
             </div>
             <div className="flex gap-3 shrink-0">
-              <Link href="/register/mentee" className="btn bg-white text-primary hover:bg-white/90 h-[42px] px-6 text-[14px] font-semibold rounded-[10px]">
+              <Link href="/register/mentee" className="btn bg-white text-primary hover:bg-white/90 h-10.5 px-6 text-[14px] font-semibold rounded-md">
                 Join as student
               </Link>
-              <Link href="/register/mentor" className="btn bg-white/15 border border-white/30 text-white hover:bg-white/25 h-[42px] px-6 text-[14px] font-semibold rounded-[10px]">
+              <Link href="/register/mentor" className="btn bg-white/15 border border-white/30 text-white hover:bg-white/25 h-10.5 px-6 text-[14px] font-semibold rounded-md">
                 Join as alumni
               </Link>
             </div>
@@ -247,17 +248,17 @@ export default function HomePage() {
       </section>
 
       <section id="mentors" className="px-10 py-28 bg-background">
-        <div className="max-w-[1000px] mx-auto">
+        <div className="max-w-250 mx-auto">
           <div className="flex items-end justify-between mb-16 flex-wrap gap-6">
             <div>
               <span className="font-body text-[13px] font-bold text-primary uppercase tracking-[0.12em]">
                 Featured mentors
               </span>
               <h2 className="font-display font-bold text-[48px] text-text tracking-tight mt-3 leading-tight">
-                Learn from Ashesi alumni who've made it
+                Learn from Ashesi alumni who&apos;ve made it
               </h2>
             </div>
-            <Link href="/register/mentee" className="btn btn-ghost h-[42px] px-5 text-[14px] font-semibold whitespace-nowrap">
+            <Link href="/register/mentee" className="btn btn-ghost h-10.5 px-5 text-[14px] font-semibold whitespace-nowrap">
               View all mentors →
             </Link>
           </div>
@@ -271,17 +272,15 @@ export default function HomePage() {
       </section>
 
       <section id="for-alumni" className="px-10 py-24 bg-primary relative overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-[400px] h-[400px] rounded-full border border-accent/12 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-accent/8 blur-[60px] pointer-events-none" />
-
-        <div className="max-w-[960px] mx-auto relative grid lg:grid-cols-2 gap-16 items-center">
+        <div className="absolute -top-24 -right-24 w-100 h-100 rounded-full border border-accent/12 pointer-events-none" />        <div className="absolute bottom-0 left-0 w-75 h-75 rounded-full bg-accent/8 blur-[60px] pointer-events-none" />
+        <div className="max-w-240 mx-auto relative grid lg:grid-cols-2 gap-16 items-center">
           <div>
 
             <h2 className="font-display font-extrabold text-white text-[48px] leading-[1.15] tracking-tight mb-6">
               Give back to the next generation
             </h2>
             <p className="font-body text-[18px] text-white/60 leading-relaxed mb-10">
-              Share your wins and your lessons. Even two meaningful conversations a month can reshape a student's future. Help someone find their path and stay connected to the Ashesi mission.
+              Share your wins and your lessons. Even two meaningful conversations a month can reshape a student&apos;s future. Help someone find their path and stay connected to the Ashesi mission.
             </p>
 
             <div className="flex flex-col gap-4 mb-12">
@@ -300,7 +299,7 @@ export default function HomePage() {
               ))}
             </div>
 
-            <Link href="/register/mentor" className="btn bg-white text-primary hover:bg-white/95 h-[48px] px-8 text-[15px] font-bold rounded-[12px] shadow-xl inline-flex items-center gap-2">
+            <Link href="/register/mentor" className="btn bg-white text-primary hover:bg-white/95 h-12 px-8 text-[15px] font-bold rounded-md shadow-xl inline-flex items-center gap-2">
               Start mentoring today →
             </Link>
           </div>
@@ -320,7 +319,7 @@ export default function HomePage() {
       </section>
 
       <section className="px-10 py-28 bg-white">
-        <div className="max-w-[1000px] mx-auto">
+        <div className="max-w-250 mx-auto">
           <div className="mb-16 text-center">
             <span className="font-body text-[13px] font-bold text-primary uppercase tracking-[0.12em]">
               Impact stories
@@ -339,26 +338,24 @@ export default function HomePage() {
       </section>
 
       <section className="px-10 py-32 bg-primary relative overflow-hidden">
-        <div className="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full border border-accent/15 pointer-events-none" />
-        <div className="absolute top-10 right-10 w-[350px] h-[350px] rounded-full bg-accent/15 blur-[80px] pointer-events-none" />
-
-        <div className="max-w-[700px] mx-auto text-center relative">
+        <div className="absolute -bottom-32 -left-32 w-125 h-125 rounded-full border border-accent/15 pointer-events-none" />        <div className="absolute top-10 right-10 w-87.5 h-87.5 rounded-full bg-accent/15 blur-[80px] pointer-events-none" />
+        <div className="max-w-175 mx-auto text-center relative">
           <h2 className="font-display font-extrabold text-white text-[clamp(36px,7vw,56px)] tracking-tight leading-[1.1] mb-6">
             Your journey starts now
           </h2>
           <p className="font-body text-[18px] text-white/60 leading-relaxed mb-12">
-            Whether you\'re seeking mentorship as a student or ready to give back as an alumnus, find your place in the Ashesi community today.
+            Whether you&apos;re seeking mentorship as a student or ready to give back as an alumnus, find your place in the Ashesi community today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/register/mentee"
-              className="btn bg-white text-primary hover:bg-white/95 h-[52px] px-10 text-[16px] font-bold rounded-[12px] shadow-xl"
+              className="btn bg-white text-primary hover:bg-white/95 h-13 px-10 text-[16px] font-bold rounded-md shadow-xl"
             >
               Sign up as student
             </Link>
             <Link
               href="/register/mentor"
-              className="btn h-[52px] px-10 text-[16px] font-bold bg-white/12 border-2 border-white/30 text-white hover:bg-white/20 transition-colors rounded-[12px]"
+              className="btn h-13 px-10 text-[16px] font-bold bg-white/12 border-2 border-white/30 text-white hover:bg-white/20 transition-colors rounded-md"
             >
               Become a mentor
             </Link>

@@ -31,6 +31,7 @@ export type MessageMinAggregateOutputType = {
   type: $Enums.MessageType | null
   body: string | null
   fileUrl: string | null
+  viewed: boolean | null
   createdAt: Date | null
   userId: string | null
   conversationId: string | null
@@ -43,6 +44,7 @@ export type MessageMaxAggregateOutputType = {
   type: $Enums.MessageType | null
   body: string | null
   fileUrl: string | null
+  viewed: boolean | null
   createdAt: Date | null
   userId: string | null
   conversationId: string | null
@@ -55,6 +57,7 @@ export type MessageCountAggregateOutputType = {
   type: number
   body: number
   fileUrl: number
+  viewed: number
   createdAt: number
   userId: number
   conversationId: number
@@ -69,6 +72,7 @@ export type MessageMinAggregateInputType = {
   type?: true
   body?: true
   fileUrl?: true
+  viewed?: true
   createdAt?: true
   userId?: true
   conversationId?: true
@@ -81,6 +85,7 @@ export type MessageMaxAggregateInputType = {
   type?: true
   body?: true
   fileUrl?: true
+  viewed?: true
   createdAt?: true
   userId?: true
   conversationId?: true
@@ -93,6 +98,7 @@ export type MessageCountAggregateInputType = {
   type?: true
   body?: true
   fileUrl?: true
+  viewed?: true
   createdAt?: true
   userId?: true
   conversationId?: true
@@ -178,6 +184,7 @@ export type MessageGroupByOutputType = {
   type: $Enums.MessageType
   body: string
   fileUrl: string | null
+  viewed: boolean | null
   createdAt: Date
   userId: string | null
   conversationId: string | null
@@ -186,7 +193,7 @@ export type MessageGroupByOutputType = {
   _max: MessageMaxAggregateOutputType | null
 }
 
-type GetMessageGroupByPayload<T extends MessageGroupByArgs> = Prisma.PrismaPromise<
+export type GetMessageGroupByPayload<T extends MessageGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<MessageGroupByOutputType, T['by']> &
       {
@@ -211,6 +218,7 @@ export type MessageWhereInput = {
   type?: Prisma.EnumMessageTypeFilter<"Message"> | $Enums.MessageType
   body?: Prisma.StringFilter<"Message"> | string
   fileUrl?: Prisma.StringNullableFilter<"Message"> | string | null
+  viewed?: Prisma.BoolNullableFilter<"Message"> | boolean | null
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
   userId?: Prisma.StringNullableFilter<"Message"> | string | null
   conversationId?: Prisma.StringNullableFilter<"Message"> | string | null
@@ -227,6 +235,7 @@ export type MessageOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   body?: Prisma.SortOrder
   fileUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  viewed?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   conversationId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -246,6 +255,7 @@ export type MessageWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.EnumMessageTypeFilter<"Message"> | $Enums.MessageType
   body?: Prisma.StringFilter<"Message"> | string
   fileUrl?: Prisma.StringNullableFilter<"Message"> | string | null
+  viewed?: Prisma.BoolNullableFilter<"Message"> | boolean | null
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
   userId?: Prisma.StringNullableFilter<"Message"> | string | null
   conversationId?: Prisma.StringNullableFilter<"Message"> | string | null
@@ -262,6 +272,7 @@ export type MessageOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   body?: Prisma.SortOrder
   fileUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  viewed?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   conversationId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -280,6 +291,7 @@ export type MessageScalarWhereWithAggregatesInput = {
   type?: Prisma.EnumMessageTypeWithAggregatesFilter<"Message"> | $Enums.MessageType
   body?: Prisma.StringWithAggregatesFilter<"Message"> | string
   fileUrl?: Prisma.StringNullableWithAggregatesFilter<"Message"> | string | null
+  viewed?: Prisma.BoolNullableWithAggregatesFilter<"Message"> | boolean | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Message"> | Date | string
   userId?: Prisma.StringNullableWithAggregatesFilter<"Message"> | string | null
   conversationId?: Prisma.StringNullableWithAggregatesFilter<"Message"> | string | null
@@ -290,6 +302,7 @@ export type MessageCreateInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   sender: Prisma.UserCreateNestedOneWithoutSentMessagesInput
   receiver: Prisma.UserCreateNestedOneWithoutReceivedMessagesInput
@@ -304,6 +317,7 @@ export type MessageUncheckedCreateInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   userId?: string | null
   conversationId?: string | null
@@ -314,6 +328,7 @@ export type MessageUpdateInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sender?: Prisma.UserUpdateOneRequiredWithoutSentMessagesNestedInput
   receiver?: Prisma.UserUpdateOneRequiredWithoutReceivedMessagesNestedInput
@@ -328,6 +343,7 @@ export type MessageUncheckedUpdateInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   conversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -340,6 +356,7 @@ export type MessageCreateManyInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   userId?: string | null
   conversationId?: string | null
@@ -350,6 +367,7 @@ export type MessageUpdateManyMutationInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -360,6 +378,7 @@ export type MessageUncheckedUpdateManyInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   conversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -382,6 +401,7 @@ export type MessageCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   body?: Prisma.SortOrder
   fileUrl?: Prisma.SortOrder
+  viewed?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   conversationId?: Prisma.SortOrder
@@ -394,6 +414,7 @@ export type MessageMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   body?: Prisma.SortOrder
   fileUrl?: Prisma.SortOrder
+  viewed?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   conversationId?: Prisma.SortOrder
@@ -406,6 +427,7 @@ export type MessageMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   body?: Prisma.SortOrder
   fileUrl?: Prisma.SortOrder
+  viewed?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   conversationId?: Prisma.SortOrder
@@ -583,11 +605,16 @@ export type EnumMessageTypeFieldUpdateOperationsInput = {
   set?: $Enums.MessageType
 }
 
+export type NullableBoolFieldUpdateOperationsInput = {
+  set?: boolean | null
+}
+
 export type MessageCreateWithoutSenderInput = {
   id?: string
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   receiver: Prisma.UserCreateNestedOneWithoutReceivedMessagesInput
   user?: Prisma.UserCreateNestedOneWithoutMessagesInput
@@ -600,6 +627,7 @@ export type MessageUncheckedCreateWithoutSenderInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   userId?: string | null
   conversationId?: string | null
@@ -620,6 +648,7 @@ export type MessageCreateWithoutReceiverInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   sender: Prisma.UserCreateNestedOneWithoutSentMessagesInput
   user?: Prisma.UserCreateNestedOneWithoutMessagesInput
@@ -632,6 +661,7 @@ export type MessageUncheckedCreateWithoutReceiverInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   userId?: string | null
   conversationId?: string | null
@@ -652,6 +682,7 @@ export type MessageCreateWithoutUserInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   sender: Prisma.UserCreateNestedOneWithoutSentMessagesInput
   receiver: Prisma.UserCreateNestedOneWithoutReceivedMessagesInput
@@ -665,6 +696,7 @@ export type MessageUncheckedCreateWithoutUserInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   conversationId?: string | null
 }
@@ -705,6 +737,7 @@ export type MessageScalarWhereInput = {
   type?: Prisma.EnumMessageTypeFilter<"Message"> | $Enums.MessageType
   body?: Prisma.StringFilter<"Message"> | string
   fileUrl?: Prisma.StringNullableFilter<"Message"> | string | null
+  viewed?: Prisma.BoolNullableFilter<"Message"> | boolean | null
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
   userId?: Prisma.StringNullableFilter<"Message"> | string | null
   conversationId?: Prisma.StringNullableFilter<"Message"> | string | null
@@ -747,6 +780,7 @@ export type MessageCreateWithoutConversationInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   sender: Prisma.UserCreateNestedOneWithoutSentMessagesInput
   receiver: Prisma.UserCreateNestedOneWithoutReceivedMessagesInput
@@ -760,6 +794,7 @@ export type MessageUncheckedCreateWithoutConversationInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   userId?: string | null
 }
@@ -796,6 +831,7 @@ export type MessageCreateManySenderInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   userId?: string | null
   conversationId?: string | null
@@ -807,6 +843,7 @@ export type MessageCreateManyReceiverInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   userId?: string | null
   conversationId?: string | null
@@ -819,6 +856,7 @@ export type MessageCreateManyUserInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   conversationId?: string | null
 }
@@ -828,6 +866,7 @@ export type MessageUpdateWithoutSenderInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   receiver?: Prisma.UserUpdateOneRequiredWithoutReceivedMessagesNestedInput
   user?: Prisma.UserUpdateOneWithoutMessagesNestedInput
@@ -840,6 +879,7 @@ export type MessageUncheckedUpdateWithoutSenderInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   conversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -851,6 +891,7 @@ export type MessageUncheckedUpdateManyWithoutSenderInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   conversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -861,6 +902,7 @@ export type MessageUpdateWithoutReceiverInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sender?: Prisma.UserUpdateOneRequiredWithoutSentMessagesNestedInput
   user?: Prisma.UserUpdateOneWithoutMessagesNestedInput
@@ -873,6 +915,7 @@ export type MessageUncheckedUpdateWithoutReceiverInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   conversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -884,6 +927,7 @@ export type MessageUncheckedUpdateManyWithoutReceiverInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   conversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -894,6 +938,7 @@ export type MessageUpdateWithoutUserInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sender?: Prisma.UserUpdateOneRequiredWithoutSentMessagesNestedInput
   receiver?: Prisma.UserUpdateOneRequiredWithoutReceivedMessagesNestedInput
@@ -907,6 +952,7 @@ export type MessageUncheckedUpdateWithoutUserInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -918,6 +964,7 @@ export type MessageUncheckedUpdateManyWithoutUserInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conversationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -929,6 +976,7 @@ export type MessageCreateManyConversationInput = {
   type?: $Enums.MessageType
   body: string
   fileUrl?: string | null
+  viewed?: boolean | null
   createdAt?: Date | string
   userId?: string | null
 }
@@ -938,6 +986,7 @@ export type MessageUpdateWithoutConversationInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sender?: Prisma.UserUpdateOneRequiredWithoutSentMessagesNestedInput
   receiver?: Prisma.UserUpdateOneRequiredWithoutReceivedMessagesNestedInput
@@ -951,6 +1000,7 @@ export type MessageUncheckedUpdateWithoutConversationInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -962,6 +1012,7 @@ export type MessageUncheckedUpdateManyWithoutConversationInput = {
   type?: Prisma.EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
   body?: Prisma.StringFieldUpdateOperationsInput | string
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -975,6 +1026,7 @@ export type MessageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   type?: boolean
   body?: boolean
   fileUrl?: boolean
+  viewed?: boolean
   createdAt?: boolean
   userId?: boolean
   conversationId?: boolean
@@ -991,6 +1043,7 @@ export type MessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   type?: boolean
   body?: boolean
   fileUrl?: boolean
+  viewed?: boolean
   createdAt?: boolean
   userId?: boolean
   conversationId?: boolean
@@ -1007,6 +1060,7 @@ export type MessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   type?: boolean
   body?: boolean
   fileUrl?: boolean
+  viewed?: boolean
   createdAt?: boolean
   userId?: boolean
   conversationId?: boolean
@@ -1023,12 +1077,13 @@ export type MessageSelectScalar = {
   type?: boolean
   body?: boolean
   fileUrl?: boolean
+  viewed?: boolean
   createdAt?: boolean
   userId?: boolean
   conversationId?: boolean
 }
 
-export type MessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "senderId" | "receiverId" | "type" | "body" | "fileUrl" | "createdAt" | "userId" | "conversationId", ExtArgs["result"]["message"]>
+export type MessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "senderId" | "receiverId" | "type" | "body" | "fileUrl" | "viewed" | "createdAt" | "userId" | "conversationId", ExtArgs["result"]["message"]>
 export type MessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sender?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   receiver?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1063,6 +1118,7 @@ export type $MessagePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     type: $Enums.MessageType
     body: string
     fileUrl: string | null
+    viewed: boolean | null
     createdAt: Date
     userId: string | null
     conversationId: string | null
@@ -1499,6 +1555,7 @@ export interface MessageFieldRefs {
   readonly type: Prisma.FieldRef<"Message", 'MessageType'>
   readonly body: Prisma.FieldRef<"Message", 'String'>
   readonly fileUrl: Prisma.FieldRef<"Message", 'String'>
+  readonly viewed: Prisma.FieldRef<"Message", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Message", 'DateTime'>
   readonly userId: Prisma.FieldRef<"Message", 'String'>
   readonly conversationId: Prisma.FieldRef<"Message", 'String'>

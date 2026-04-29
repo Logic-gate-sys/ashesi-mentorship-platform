@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/utils&types/utils/db';
-import { createJWT } from '@/utils&types/utils/jwt';
-import { hashPassword } from '@/app/_utils_and_types/utils/password';
-import { alumniRegisterSchema } from '@/app/ _libs_and_schemas/schemas/auth.schema';
-import { Role } from '@/prisma/generated/prisma/enums';
+import { prisma } from '#utils-types/utils/db';
+import { createJWT } from '#utils-types/utils/jwt';
+import { hashPassword } from '#utils-types/utils/password';
+import { alumniRegisterSchema } from '#/libs_schemas/schemas/auth.schema';
+import { Role } from '#/prisma/generated/prisma/enums';
 
 
 export async function POST(request: NextRequest) {

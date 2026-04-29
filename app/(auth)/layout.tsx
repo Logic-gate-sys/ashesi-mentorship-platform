@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import bgImage from '@/comp&hooks/images/login-bg.png';
+import bgImage from '#comp-hooks/images/login-bg.png';
 
 export default function AuthLayout({ children }: {children: ReactNode}) {
   return (

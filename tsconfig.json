@@ -18,11 +18,15 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
-      "@/*": ["./*"],
-      "@/comp&hooks/*":["./app/_components_and_hooks/*"],
-      "@/libs&schema/*":["./app/_libs_and_schemas/*"],
-      "@/utils&types/*":["./app/_utils_and_types/*"]
+      "#/*": ["./*"],
+      "#app/*":["app/*"],
+      "#services/*": ["services/*"],
+      "#comp-hooks/*": ["components_hooks/*"],
+      "#libs-schemas/*": ["libs_schemas/*"],
+      "#utils-types/*": ["utils_types/*"]
     }
   },
   "include": [

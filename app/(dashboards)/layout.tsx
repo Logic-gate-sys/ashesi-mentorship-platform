@@ -1,13 +1,15 @@
 "use client";
-import React from "react";
-import { useAuth } from "../ _libs_and_schemas/context/auth-context";
+import React, { useEffect } from "react";
+import { useAuth } from "../../libs_schemas/context/auth-context";
 import Link from "next/link";
 import { HomeIcon, RequestIcon,MessagesIcon,MenteesIcon, MeetingsIcon,SettingsIcon,FeedbackIcon, 
-  ManageIcon, UsersIcon, ReportsIcon
-} from "../_components_and_hooks/ui/icons/DashboardNavIcons";
-import AshesiLog from '@/comp&hooks/images/ashesi_logo.svg'
+ManageIcon, UsersIcon, ReportsIcon
+} from "#comp-hooks/ui/icons/DashboardNavIcons";
+import AshesiLog from '#comp-hooks/images/ashesi_logo.svg'
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { TopLeftProfile } from "../_components_and_hooks/ui/reusable-ui/DashboardTopStrip";
+import { TopLeftProfile } from "#comp-hooks/ui/reusable-ui/DashboardTopStrip";
+import {AshesiLogo} from '#comp-hooks/images/logo/app-logo'
 
 
 type NavItem = {
@@ -19,20 +21,20 @@ type NavItem = {
 const navLinks: Record<string, NavItem[]> = {
   mentor: [
     { label: "Home",                 icon: <HomeIcon />,     link: "/mentors" },
-    { label: "Mentorship Requests",  icon: <RequestIcon />,  link: "/mentors/requests" },
+    { label: "Requests",  icon: <RequestIcon />,  link: "/mentors/requests" },
     { label: "My Mentees",           icon: <MenteesIcon />,  link: "/mentors/mentees" },
     { label: "Messages",             icon: <MessagesIcon />, link: "/mentors/messages" },
     { label: "Meetings",             icon: <MeetingsIcon />, link: "/mentors/meetings" },
-    { label: "Profile Settings",     icon: <SettingsIcon />, link: "/mentors/settings" },
+    { label: "Settings",     icon: <SettingsIcon />, link: "/mentors/settings" },
     { label: "Feedbacks",            icon: <FeedbackIcon />, link: "/mentors/feedbacks" },
   ],
   mentee: [
     { label: "Home",                 icon: <HomeIcon />,     link: "/mentees" },
-    { label: "Mentorship Requests",  icon: <RequestIcon />,  link: "/mentees/requests" },
+    { label: "Requests",  icon: <RequestIcon />,  link: "/mentees/requests" },
     { label: "My Mentor(s)",         icon: <MenteesIcon />,  link: "/mentees/mentors" },
     { label: "Messages",             icon: <MessagesIcon />, link: "/mentees/messages" },
     { label: "Meetings",             icon: <MeetingsIcon />, link: "/mentees/meetings" },
-    { label: "Profile Settings",     icon: <SettingsIcon />, link: "/mentees/settings" },
+    { label: "Settings",     icon: <SettingsIcon />, link: "/mentees/settings" },
     { label: "Feedbacks",            icon: <FeedbackIcon />, link: "/mentees/feedbacks" },
   ],
   admin: [
@@ -47,73 +49,93 @@ const navLinks: Record<string, NavItem[]> = {
 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { user, isInitialized } = useAuth();
   const role = user?.role as keyof typeof navLinks | "mentor";
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isInitialized) {
+      return;
+    }
+    if (!user) {
+      router.replace('/access-denied');
+    }
+  }, [isInitialized, user, router]);
+
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FFF8F7] text-[#6A0A1D]">
+        <p className="text-sm font-medium">Checking session...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
   
   // Fall back to empty array if role is unrecognised or undefined
   const links: NavItem[] = (role && navLinks[role.toLowerCase()]) ? navLinks[role.toLowerCase()] : [];
 
   return (
-    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[1fr_6fr] bg-[#923D41] backdrop-blur-3xl
-            shadow-[inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.15)]
-            filter-[url('#noise')] text-[#f7f0f0]">
+    <div className="min-h-dvh bg-[#923D41] text-[#f7f0f0] flex flex-col md:flex-row lg:items-stretch">
+      <nav className="w-full border-b border-white/10 bg-[#923D41] px-4 py-2 sm:px-6 lg:sticky lg:top-0 lg:h-dvh lg:w-72.5  lg:px-6">
+        <div className="flex flex-col gap-2 lg:h-full">
+          <div className="flex items-center justify-between  lg:block lg:py-4">
+            <AshesiLogo className="w-full h-[60%] md:mb-4"/>
+            <hr className="text-[#F2DEDE] md:w-full h-2"/>
+              <div className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-sm lg:hidden">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/50 text-xs font-bold uppercase">
+                  {user?.firstName[0] ?? "U"}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-[#F2DEDE]">{user.firstName ?? "User"}</p>
+                  <p className="truncate text-xs capitalize text-[#F2DEDE]/70">{role ?? "—"}</p>
+                </div>
+              </div>
+          </div>
 
-      {/* Sidebar Navigation */}
-      <nav className="p-6 flex flex-col gap-8 ">
-        {/* Brand */}
-        <div className="py-4">
-          <Image src={AshesiLog} height={40} width={200} alt="ashesi-logo" className="text-[#6A0A1D]"/>
-        </div>
-        {/* Dynamic role-based nav links */}
-        <ul className="flex flex-col gap-1 font-medium">
-          {(
-            links.map((item) => (
+          <ul className="grid grid-cols-1 gap-2 text-sm font-medium sm:grid-cols-2 lg:flex lg:flex-col">
+            {links.map((item) => (
               <li key={item.label}>
                 <Link
                   href={item.link}
-                  className="flex items-center gap-3  text-[#F2DEDE] px-3 py-2.5 rounded-xl
-                             opacity-75 hover:opacity-100 hover:bg-[#4A0A0A] active:bg-[#4A0A0A] focus:bg-[#4A0A0A]
-                             transition-all duration-150 cursor-pointer"
+                  className="flex items-center gap-2 rounded-xl px-3 py-2 text-[#F2DEDE] opacity-80 transition-all duration-150 hover:bg-[#4A0A0A] hover:opacity-100 focus:bg-[#4A0A0A] active:bg-[#4A0A0A]"
                 >
                   {item.icon}
-                  <span>{item.label}</span>
+                  <span className="truncate">{item.label}</span>
                 </Link>
               </li>
-            ))
-          )}
-        </ul>
+            ))}
+          </ul>
 
-        {/* User badge at bottom */}
-        {user && (
-          <div className="mt-auto flex items-center gap-3 px-3 py-2 rounded-xl bg-white/10 text-[#F2DEDE]">
-            <div className="h-8 w-8 rounded-full bg-white/50 backdrop-blur-3xl flex items-center justify-center text-xs font-bold uppercase">
-              {user?.firstName[0] ?? "U"}
+          {user ? (
+            <div className="mt-auto hidden items-center gap-3 rounded-xl bg-white/10 px-3 py-2 text-[#F2DEDE] lg:flex">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/50 text-xs font-bold uppercase backdrop-blur-3xl">
+                {user?.firstName[0] ?? "U"}
+              </div>
+              <div className="min-w-0 text-sm leading-tight">
+                <p className="max-w-30 truncate font-semibold text-[#F2DEDE]">{user.firstName ?? "User"}</p>
+                <p className="truncate capitalize text-[#F2DEDE]/60">{role ?? "—"}</p>
+              </div>
             </div>
-            <div className="text-sm leading-tight">
-              <p className="font-semibold truncate max-w-30 text-[#F2DEDE]">{user.firstName ?? "User"}</p>
-              <p className="opacity-60 capitalize text-[#F2DEDE]">{role ?? "—"}</p>
-            </div>
-          </div>
-        )}
+          ) : null}
+        </div>
       </nav>
 
-      <main className="bg-[#FFF8F7] md:rounded-l-[70px] shadow-2xl overflow-hidden ">
-        <div className="w-full h-screen mx-auto md:px-12 overflow-y-auto bg-white  shadow-2xl">
-           <section className="sticky top-0 px-2 rounded-2xl bg-white/20 ackdrop-blur-3xl z-10 ">
-                <TopLeftProfile
-                 firstName={user?.firstName??""} 
-                 lastName={user?.lastName??""}
-                 profession={user?.profession??""} 
-                 avatarUrl={user?.avatarUrl??""}
-                 />
-              </section>
-          <div >
-            {children} 
-          </div>
-         
+      <main className="min-w-0 flex-1 bg-[#FFF8F7] lg:rounded-l-[120px] lg:shadow-2xl">
+        <div className="mx-auto min-h-dvh w-full overflow-y-auto bg-white px-4 py-4 sm:px-6 sm:py-6 lg:px-12 lg:py-8">
+          <section className="sticky top-0 z-10 mb-4 rounded-2xl bg-white/80 px-2 py-2 backdrop-blur-3xl sm:px-0">
+            <TopLeftProfile
+              firstName={user?.firstName ?? ""}
+              lastName={user?.lastName ?? ""}
+              profession={user?.profession ?? ""}
+              avatarUrl={user?.avatarUrl ?? ""}
+            />
+          </section>
+          <div className="min-w-0 pb-4">{children}</div>
         </div>
       </main>
-
     </div>
   );
 }

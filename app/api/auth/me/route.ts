@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/utils&types/utils/db';
-import { requireAuth } from '@/app/ _libs_and_schemas/abac';
+import { prisma } from '#utils-types/utils/db';
+import { requireAuth } from '#/libs_schemas/abac';
 
 //get user profile : details 
 export async function GET(request: NextRequest) {
