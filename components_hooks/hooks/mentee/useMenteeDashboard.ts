@@ -63,24 +63,22 @@ export function useMenteeDashboard(): DashboardData {
       setPendingRequests(
         pending.map((req: any) => ({
           id: req.id,
-          mentorName: req.mentorName,
-          graduationYear: req.graduationYear,
-          mentorAvatarUrl: req.mentorAvatarUrl,
-          message: req.message,
-          goal: req.goal
+          studentName: req.studentName,
+          majorAndYear: req.majorAndYear,
+          studentAvatarUrl: req.studentAvatarUrl,
+          message: req.message
         }))
       );
       //  past request 
       const history = Array.isArray(data?.requestHistory) ? data.requestHistory : [];
       setRequestHistory(
-        pending.map((req: any) => ({
+        history.map((req: any) => ({
           id: req.id,
-          mentorName: req.mentorName,
-          gaol: req.goal,
-          graduationYear: req.graduationYear,
-          mentorAvatarUrl: req.mentorAvatarUrl,
-          message: req.message,
+          studentName: req.studentName,
           goal: req.goal,
+          majorAndYear: req.majorAndYear,
+          studentAvatarUrl: req.studentAvatarUrl,
+          message: req.message,
           status: req.status
         }))
       );

@@ -5,7 +5,7 @@ import { getMentorAvailability, addAvailabilitySlot } from '#services/availabili
 import { prisma } from '#utils-types/utils/db';
 import { getIOInstance } from '#/libs_schemas/socket';
 
-const io = getIOInstance();
+// do not initialize socket at module import time; obtain lazily inside handlers
 
 
 
@@ -57,7 +57,12 @@ export async function POST(request: NextRequest) {
     const slot = await addAvailabilitySlot({mentorId: user.id,dayOfWeek,startTime,endTime});
 
     // everyone in the request/namespace can know if mentor is available
-    io.of('/requests').emit('availability:created', {mentorId: user.id,slot,action: 'created'});
+    try {
+      const io = getIOInstance();
+      io.of('/requests').emit('availability:created', { mentorId: user.id, slot, action: 'created' });
+    } catch (err) {
+      console.warn('Socket not initialised, skipping availability:created emit', err instanceof Error ? err.message : err);
+    }
 
     return successResponse(slot, 'Availability slot added successfully', 201);
   } catch (error) {

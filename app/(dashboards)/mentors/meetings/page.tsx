@@ -11,7 +11,8 @@ import {
   Trash2,
   Video,
 } from "lucide-react";
-import { useMentorMeetings, useMentorRealtime } from "#comp-hooks/hooks/mentor";
+import { useMentorMeetings } from "#comp-hooks/hooks/mentor";
+import { useSocketContext } from "#/libs_schemas/context/socket-context";
 
 const DAYS = [
   "MONDAY",
@@ -57,7 +58,7 @@ export default function MentorMeetingsPage() {
     completeSession,
   } = useMentorMeetings();
 
-  const { enabled, on } = useMentorRealtime();
+  const { socket, isOn } = useSocketContext();
 
   const [newSlot, setNewSlot] = useState({
     dayOfWeek: "MONDAY",

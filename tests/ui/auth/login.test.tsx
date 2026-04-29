@@ -16,7 +16,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 import { AuthProvider } from '#/libs_schemas/context/auth-context';
-import LoginPage from '#app/(auth)/login/page';
+import LoginPage from '#/app/(auth)/login/page';
 
 /**
  * Login Page - Minimal Essential Tests

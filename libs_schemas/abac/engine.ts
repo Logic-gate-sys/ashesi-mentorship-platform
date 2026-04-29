@@ -58,10 +58,10 @@ const builder = new PermissionBuilder()
       addAdminPermissions(builder)
       break
     case "MENTOR":
-      addMenteePermissions(builder, user)
+      addMentorPermissions(builder, user)
       break
     case "MENTEE":
-      addMentorPermissions(builder, user)
+      addMenteePermissions(builder, user)
       break
 
     default:

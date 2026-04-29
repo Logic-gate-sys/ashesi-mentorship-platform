@@ -7,25 +7,22 @@ import Link from "next/link";
 import { PendingRequestCard, MentorAvailabilityCard, ActiveMCard, UpdatesCard, UpcomingEventsCard } from "#comp-hooks/cards";
 import { useMentorDashboard, useMentorshipRequests } from "#comp-hooks/hooks/mentor";
 const statsIcons: LucideIcon[] = [User, MailIcon, Clock];
-import { useSocket } from "#comp-hooks/hooks/socket/useSocket";
+import { useSocketContext } from "#/libs_schemas/context/socket-context";
 
 
 export default function MentorHomePage() {
-  const { user , getAccessToken} = useAuth();
+  const { user } = useAuth();
   const { stats, recentUpdates, pendingRequests, activeMentees, scheduleEvents, isLoading, error } = useMentorDashboard();
-  const { acceptRequest, declineRequest, } = useMentorshipRequests();
-  const [actionState, setActionState] = useState<Record<string, 'idle' | 'accepting' | 'declining' | 'accepted' | 'declined'>>({});
+  const { acceptRequest, declineRequest } = useMentorshipRequests();
+  const [actionState, setActionState] = useState<Record<string, 'idle' | 'accepting' | 'declining' | 'accepted' | 'declined'>>({}); 
   
-  // token and socket
-  const token = getAccessToken();
-  const socket = useSocket("/request", token??"");
+  // socket context
+  const { socket } = useSocketContext();
   
-  useEffect(()=>{
-    // if no socket just return 
-    if(!socket) return ; 
-    //listen to the incomming request event 
-
-  }, [token, socket])
+  useEffect(() => {
+    if (!socket) return;
+    // Socket event listeners can be added here if needed
+  }, [socket])
 
   
   const requestState = useMemo(() => {

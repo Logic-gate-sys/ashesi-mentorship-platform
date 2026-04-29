@@ -16,8 +16,8 @@ vi.mock('next/navigation', () => ({
 }));
 
 import { AuthProvider } from '#/libs_schemas/context/auth-context';
-import StudentRegisterPage from '#app/(auth)/register/mentee/page';
-import AlumniRegisterPage from '#app/(auth)/register/mentor/page';
+import StudentRegisterPage from '#/app/(auth)/register/mentee/page';
+import AlumniRegisterPage from '#/app/(auth)/register/mentor/page';
 
 /**
  * Registration Pages - Minimal Essential Tests

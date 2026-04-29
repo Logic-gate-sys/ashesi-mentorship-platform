@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getIOInstance } from '#libs-schemas/socket/index';
-import { requireAuth, requirePermission } from '#/libs_schemas/middlewares/auth.middleware';
+import { requireAuth, checkPermission } from '#/libs_schemas/middlewares/auth.middleware';
 import { createMentorshipRequestSchema } from '#libs-schemas/schemas/request.schema';
 import {sendMentorshipRequest, getMentorshipRequests} from '#services/mentorship-requests.service'
 
-const io = getIOInstance(); 
+// do not init socket at module load; obtain lazily inside handlers
 
 // retrieve all mentee request in descending order limit by 10
 export async function GET(request: NextRequest){
@@ -12,11 +12,11 @@ export async function GET(request: NextRequest){
     //authorise user 
     const authResult = await requireAuth(request);
     if ('status' in authResult) return authResult;
-    const {user} = authResult;
+    const { user } = authResult;
     //authorise user 
-    const isAllowed = requirePermission(user.id, 'mentorship_request', 'read');
-    if(!isAllowed){
-        return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});
+    const isAllowed = await checkPermission(user.id, 'mentorship_request', 'read');
+    if (!isAllowed) {
+      return NextResponse.json({ error: 'Unauthorized', message: 'Have no right to access this resource' }, { status: 403 });
     }
     // retrieve all user request
     const mentorshipRequest = await getMentorshipRequests(user.id,"MENTEE"); 
@@ -40,11 +40,11 @@ export async function POST( request: NextRequest) {
     //authorise user 
     const authResult = await requireAuth(request);
     if ('status' in authResult) return authResult;
-    const {user} = authResult;
+    const { user } = authResult;
     //authorise user 
-    const isAllowed = requirePermission(user.id, 'mentorship_request', 'create');
-    if(!isAllowed){
-        return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});
+    const isAllowed = await checkPermission(user.id, 'mentorship_request', 'create');
+    if (!isAllowed) {
+      return NextResponse.json({ error: 'Unauthorized', message: 'Have no right to perform this action' }, { status: 403 });
     }
     // extract request data 
     const body = await request.json();
@@ -60,14 +60,19 @@ export async function POST( request: NextRequest) {
       {status: 400}
     )
     }
-    const mentorshipRequest = await sendMentorshipRequest(result.data); 
-    //emit socket 
-    io.of('/requests').to(`user:${mentorshipRequest.mentorId}`).emit('requets:sent', {
-       mentorId: mentorshipRequest.menteeId,
-       goal: mentorshipRequest.goal, 
-       message: mentorshipRequest.message,
-      requestId: mentorshipRequest.id 
-    })
+    const mentorshipRequest = await sendMentorshipRequest(result.data);
+    // emit socket (if initialised)
+    try {
+      const io = getIOInstance();
+      io.of('/requests').to(`user:${mentorshipRequest.mentorId}`).emit('request:sent', {
+        mentorId: mentorshipRequest.menteeId,
+        goal: mentorshipRequest.goal,
+        message: mentorshipRequest.message,
+        requestId: mentorshipRequest.id,
+      });
+    } catch (err) {
+      console.warn('Socket not initialised, skipping request:sent emit', err instanceof Error ? err.message : err);
+    }
     return NextResponse.json({message: 'success', data: mentorshipRequest});
   } catch (error) {
     console.error("ERROR:  ----------> ", error)

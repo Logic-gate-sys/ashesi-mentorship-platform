@@ -101,6 +101,7 @@ export async function getMentorshipRequests(userProfileId: string, user: 'MENTEE
       goal: true,
       message: true,
       status: true,
+      createdAt: true,
       mentee: {
         select: {
           yearGroup: true,

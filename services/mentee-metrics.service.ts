@@ -122,11 +122,11 @@ export async function getMenteeDashboardOverview(menteeProfileId: string): Promi
     pendingRequests: pendingRequests.map(req => ({
       id: req.id,
       mentorId: req.mentor?.user?.id,
-      mentorName: req.mentor?.user?.firstName
-        ? `${req.mentee.user.firstName} ${req.mentee.user.lastName}`
+      studentName: req.mentor?.user?.firstName
+        ? `${req.mentor.user.firstName} ${req.mentor.user.lastName}`
         : 'Unknown',
-      mentorAvatarUrl: req.mentor?.user?.avatarUrl,
-      graduationYear: req.mentor?.graduationYear ? `${req.mentor.major} '${(req.mentor.graduationYear % 100).toString().padStart(2, '0')}` : '',
+      studentAvatarUrl: req.mentor?.user?.avatarUrl || null,
+      majorAndYear: req.mentor?.graduationYear ? `${req.mentor.major} '${(req.mentor.graduationYear % 100).toString().padStart(2, '0')}` : '',
       message: req.message,
       goal: req.goal,
       status: req.status,
@@ -134,11 +134,11 @@ export async function getMenteeDashboardOverview(menteeProfileId: string): Promi
     requestHistory: requestHistory.map(req => ({
       id: req.id,
       mentorId: req.mentor?.user?.id,
-      mentorName: req.mentor?.user?.firstName
-        ? `${req.mentee.user.firstName} ${req.mentee.user.lastName}`
+      studentName: req.mentor?.user?.firstName
+        ? `${req.mentor.user.firstName} ${req.mentor.user.lastName}`
         : 'Unknown',
-      mentorAvatarUrl: req.mentor?.user?.avatarUrl,
-      graduationYear: req.mentor?.graduationYear ? `${req.mentor.major} '${(req.mentor.graduationYear % 100).toString().padStart(2, '0')}` : '',
+      studentAvatarUrl: req.mentor?.user?.avatarUrl || null,
+      majorAndYear: req.mentor?.graduationYear ? `${req.mentor.major} '${(req.mentor.graduationYear % 100).toString().padStart(2, '0')}` : '',
       message: req.message,
       goal: req.goal,
       status: req.status,

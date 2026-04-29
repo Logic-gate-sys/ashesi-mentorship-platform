@@ -14,8 +14,8 @@ export interface User {
   lastName: string;
   role: 'MENTEE' | 'MENTOR' | 'ADMIN';
   avatarUrl?: string;
-  mentorProfile?: any; 
-  menteeProfile?: any; 
+  mentorProfile?: { [key: string]: unknown } | null;
+  menteeProfile?: { [key: string]: unknown } | null;
 }
 
 
@@ -259,7 +259,9 @@ const login = useCallback(
   }, [fetchCurrentUser, isInitialized]);
   
   const updateProfile = useCallback(
-    async (data: any) => {
+    async (
+      data: z.infer<typeof updateStudentProfileSchema> | z.infer<typeof updateAlumniProfileSchema>,
+    ) => {
       setIsLoading(true);
       try {
         const accessToken = getAccessToken();

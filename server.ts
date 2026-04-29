@@ -15,7 +15,7 @@ app.prepare().then(() => {
   const httpServer = createServer(handler);
   //initialise socket
   initSocketNameSpaces(httpServer);
-  // if an error occurs
+
   httpServer.once("error", (err) => {
       console.error(err);
       process.exit(1);

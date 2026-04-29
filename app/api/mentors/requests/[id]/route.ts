@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
 import { getMentorshipRequestDetails,updateMentorshipRequestStatus,} from '#services/mentorship-requests.service';
-import { getIOInstance } from '#libs-schemas/socket/index.js';
-import { requireAuth, requirePermission } from '#/libs_schemas/middlewares/auth.middleware';
+import { getIOInstance } from '#libs-schemas/socket/index';
+import { requireAuth, checkPermission } from '#/libs_schemas/middlewares/auth.middleware';
 
 
 
-const io = getIOInstance();
+// Do not call getIOInstance at module init — obtain it lazily inside handlers
  
 // get deatils of one request
 export async function GET(
@@ -16,10 +16,20 @@ export async function GET(
   try {
     const authResult = await requireAuth(request);
     if ('status' in authResult) return authResult;
-    const {user} = authResult; 
-    const isAllowed = requirePermission(user.id, 'mentorship_request', 'accept');
-    if(!isAllowed){
-      return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});
+    const { user } = authResult;
+    const mentorProfile = user.mentorProfile;
+    if (!mentorProfile) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Mentor profile not found' },
+        { status: 403 },
+      );
+    }
+    const isAllowed = await checkPermission(user.id, 'mentorship_request', 'accept');
+    if (!isAllowed) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Do not have permission to access this resource' },
+        { status: 403 },
+      );
     }
     const {id } = await params; 
     const requestDetails  = await getMentorshipRequestDetails(id);
@@ -48,32 +58,53 @@ export async function POST(
   try {
     const authResult = await requireAuth(request);
     if ('status' in authResult) return authResult;
-    const {user} = authResult; 
-    const isAllowed = requirePermission(user.id, 'mentorship_request', 'accept');
-    if(!isAllowed){
-      return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});
+    const { user } = authResult;
+    const mentorProfile = user.mentorProfile;
+    if (!mentorProfile) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Mentor profile not found' },
+        { status: 403 },
+      );
+    }
+    const isAllowed = await checkPermission(user.id, 'mentorship_request', 'accept');
+    if (!isAllowed) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'Do not have permission to perform this action' },
+        { status: 403 },
+      );
     }
 
     // Check action from query param
     const action = request.nextUrl.searchParams.get('action');
     const { id } = await params;
+    const mentorProfileId = mentorProfile.id;
     // if accept
     if (action === 'accept') {
-      const result = await updateMentorshipRequestStatus(id, user.id, "ACCEPTED");
-      // emit request accepted --. shown to sender
-      io.of('/requests').to(`user:${user?.id}`).emit('request:accepted', {
-        mentorId: user.id,
-        firstName: user.firstName, 
-        lastName: user.lastName
-      })
+      const result = await updateMentorshipRequestStatus(id, mentorProfileId, "ACCEPTED");
+      // emit request accepted -- shown to sender (if socket initialized)
+      try {
+        const io = getIOInstance();
+        io.of('/requests').to(`user:${result.mentee.user.id}`).emit('request:accepted', {
+          mentorId: mentorProfileId,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        });
+      } catch (err) {
+        console.warn('Socket not initialised, skipping request:accepted emit', err instanceof Error ? err.message : err);
+      }
       return successResponse(result, 'Request accepted successfully', 200);
     } else if (action === 'decline') {
-      const result = await updateMentorshipRequestStatus(id, user.id, "DECLINED");
-       io.of('/requests').to(`user:${user?.id}`).emit('request:declined', {
-        mentorId: user.id, 
-        firstName: user.firstName, 
-        lastName: user.lastName
-      })
+      const result = await updateMentorshipRequestStatus(id, mentorProfileId, "DECLINED");
+       try {
+         const io = getIOInstance();
+         io.of('/requests').to(`user:${result.mentee.user.id}`).emit('request:declined', {
+           mentorId: mentorProfileId,
+           firstName: user.firstName,
+           lastName: user.lastName,
+         });
+       } catch (err) {
+         console.warn('Socket not initialised, skipping request:declined emit', err instanceof Error ? err.message : err);
+       }
       return successResponse(result, 'Request declined successfully', 200);
     } else {
       return errorResponse('Invalid action. Use ?action=accept or ?action=decline', { status: 400 });

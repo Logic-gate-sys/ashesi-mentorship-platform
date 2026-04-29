@@ -8,12 +8,12 @@ import { StatusRequestCard } from "#comp-hooks/cards/RequestStatusCard";
 import { MentorDetailCard } from "#comp-hooks/cards/MentorDetails";
 import { useMenteeDashboard } from "#/components_hooks/hooks/mentee/useMenteeDashboard";
 import { useMentors } from "#/components_hooks/hooks/mentee/useMentors";
-import { useSocketContextSafe } from "#/libs_schemas/context/socket-context";
+import { useSocketContext } from "#/libs_schemas/context/socket-context";
 
 export default function MenteeRequestPage() {
   const { pendingRequests, requestHistory, recentUpdates, refresh } = useMenteeDashboard();
   const { availableMentors, isLoading: mentorsLoading, error: mentorsError } = useMentors({ page: 1, limit: 20 });
-  const socketContext = useSocketContextSafe();
+  const socketContext = useSocketContext();
   const socket = socketContext?.socket ?? null;
   const isConnected = socket != null;
 
@@ -54,7 +54,7 @@ export default function MenteeRequestPage() {
   }, [availableMentors, normalizedFilter]);
 
   return (
-    <div className="flex flex-col gap-6 pb-8">
+    <div className="flex flex-col  gap-6">
       <section className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <h1 className="text-2xl font-bold text-[#241919] sm:text-3xl">Mentors</h1>
@@ -78,7 +78,7 @@ export default function MenteeRequestPage() {
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,3.8fr)_minmax(0,1fr)]">
         <main className="flex min-w-0 flex-col gap-6">
           <section className="rounded-3xl border border-[#6A0A1D]/10 bg-white p-4 shadow-sm sm:p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -98,6 +98,7 @@ export default function MenteeRequestPage() {
                     studentAvatarUrl={request.studentAvatarUrl ?? ""}
                     majorAndYear={request.majorAndYear}
                     message={request.message}
+                    showActions={false}
                   />
                 ))
               ) : (
@@ -122,7 +123,7 @@ export default function MenteeRequestPage() {
                   value={filter}
                   onChange={(event) => setFilter(event.target.value)}
                   placeholder="Search mentors"
-                  className="w-full rounded-full border border-gray-200 bg-[#FAF8F8] py-3 pl-11 pr-4 text-sm outline-none transition focus:border-[#923D41] focus:ring-2 focus:ring-[#923D41]/10"
+                  className="w-full text-gray-900 rounded-full border border-gray-200 bg-[#FAF8F8] py-3 pl-11 pr-4 text-sm outline-none transition focus:border-[#923D41] focus:ring-2 focus:ring-[#923D41]/10"
                 />
               </label>
             </div>

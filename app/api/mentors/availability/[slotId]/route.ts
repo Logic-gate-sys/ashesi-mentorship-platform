@@ -9,7 +9,7 @@ import { prisma } from '#utils-types/utils/db';
  * PATCH - Update availability slot
  */
 
-const io = getIOInstance(); 
+// obtain socket instance lazily inside handlers
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ slotId: string }> }
@@ -40,11 +40,17 @@ export async function PATCH(
       endTime,
     });
 
-    io.of().to().emit(`mentor:${mentorProfile.id}:availability`, 'availability_updated', {
-      mentorId: mentorProfile.id,
-      slot,
-      action: 'updated',
-    });
+    try {
+      const io = getIOInstance();
+      // namespace/room emit for mentor availability update
+      io.of('/requests').to(`mentor:${mentorProfile.id}`).emit('availability_updated', {
+        mentorId: mentorProfile.id,
+        slot,
+        action: 'updated',
+      });
+    } catch (err) {
+      console.warn('Socket not initialised, skipping availability_updated emit', err instanceof Error ? err.message : err);
+    }
 
     return successResponse(slot, 'Availability slot updated successfully');
   } catch (error) {

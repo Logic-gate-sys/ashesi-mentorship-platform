@@ -53,7 +53,7 @@ export function StatusRequestCard({
   return (
     <div 
       onClick={onClick}
-      className={`w-full p-5 rounded-[24px] flex flex-row items-center justify-between transition-all cursor-pointer hover:shadow-md ${style.container}`}
+      className={`w-full p-5 rounded-2xl flex flex-row items-center justify-between transition-all cursor-pointer hover:shadow-md ${style.container}`}
     >
       <div className="flex flex-row items-center gap-4">
         {/* AVATAR / INITIALS */}
@@ -62,7 +62,7 @@ export function StatusRequestCard({
             <Image src={avatarUrl} alt={studentName} fill className="object-cover" />
           ) : (
             <span className="text-xl font-bold text-[#6A0A1D]">
-              {studentName.split(' ').map(n => n[0]).join('')}
+              {studentName?.split(' ').map(n => n[0]).join('') || '?'}
             </span>
           )}
         </div>

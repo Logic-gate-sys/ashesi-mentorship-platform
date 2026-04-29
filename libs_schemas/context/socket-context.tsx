@@ -73,8 +73,3 @@ export const useSocketContext = () => {
   if (!context) throw new Error("useSocketContext must be used within SocketProvider");
   return context;
 };
-
-// safe variant that returns null when not rendered inside a provider
-export const useSocketContextSafe = () => {
-  return useContext(SocketContext) ?? null;
-};

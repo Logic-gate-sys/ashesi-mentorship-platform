@@ -3,7 +3,8 @@
 import { useEffect, useMemo } from "react";
 import Image from "next/image";
 import { RefreshCw, Star, Users, CalendarCheck2, MessageSquareText } from "lucide-react";
-import { useMentorFeedback, useMentorRealtime } from "#comp-hooks/hooks/mentor";
+import { useMentorFeedback } from "#comp-hooks/hooks/mentor";
+import { useSocketContext } from "#/libs_schemas/context/socket-context";
 
 const STAR_FILL = "#6A0A1D";
 
@@ -37,7 +38,7 @@ function RatingStars({ value }: { value: number }) {
 
 export default function MentorFeedbackPage() {
   const { feedback, metrics, topRatingCount, isLoading, error, refresh } = useMentorFeedback();
-  const { enabled, on } = useMentorRealtime();
+  const { socket, isOn } = useSocketContext();
 
   useEffect(() => {
     if (!enabled) {

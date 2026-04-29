@@ -70,7 +70,7 @@ export const initRequestNameSpace = (io: Server)=>{
       socket.join(`user:${socket.user?.id}`)
      }
 
-    socket.on("requets:sent", (data: { mentorId?: string, goal: string, message?: string, requestId?: string }) => {
+    socket.on("request:sent", (data: { mentorId?: string, goal: string, message?: string, requestId?: string }) => {
         if (!data.mentorId || !io) return;
 
         nsp.to(`user:${data.mentorId}`).emit("notification", {

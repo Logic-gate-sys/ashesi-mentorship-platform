@@ -5,8 +5,8 @@ import Image from "next/image";
 import { Send, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import {
   useMentorMessages,
-  useMentorRealtime,
 } from "#comp-hooks/hooks/mentor";
+import { useSocketContext } from "#/libs_schemas/context/socket-context";
 
 function formatChatTime(dateText: string) {
   const date = new Date(dateText);
@@ -41,29 +41,29 @@ export default function MentorMessagesPage() {
     sendMessage,
   } = useMentorMessages();
 
-  const { enabled, isConnected, on, emit } = useMentorRealtime();
+  const { socket, isOn } = useSocketContext();
 
   const [draft, setDraft] = useState("");
   const [sendSucceeded, setSendSucceeded] = useState(false);
 
   useEffect(() => {
-    if (!enabled || !selectedConversationId) {
+    if (!socket || !isOn || !selectedConversationId) {
       return;
     }
 
-    emit("join_conversation", selectedConversationId);
+    socket.emit("join_conversation", selectedConversationId);
 
     return () => {
-      emit("leave_conversation", selectedConversationId);
+      socket.emit("leave_conversation", selectedConversationId);
     };
-  }, [emit, enabled, selectedConversationId]);
+  }, [socket, isOn, selectedConversationId]);
 
   useEffect(() => {
-    if (!enabled) {
+    if (!socket || !isOn) {
       return;
     }
 
-    const unsubMessage = on("message_received", (payload) => {
+    socket.on("message_received", (payload) => {
       const conversationId = payload?.conversationId as string | undefined;
 
       if (conversationId && conversationId === selectedConversationId) {
@@ -73,15 +73,15 @@ export default function MentorMessagesPage() {
       void refresh();
     });
 
-    const unsubNotification = on("notification", () => {
+    socket.on("notification", () => {
       void refresh();
     });
 
     return () => {
-      unsubMessage();
-      unsubNotification();
+      socket.off("message_received", () => void refresh());
+      socket.off("notification", () => void refresh());
     };
-  }, [enabled, loadMessages, on, refresh, selectedConversationId]);
+  }, [socket, isOn, loadMessages, refresh, selectedConversationId]);
 
   const messageCountLabel = useMemo(() => {
     if (!selectedConversation) {

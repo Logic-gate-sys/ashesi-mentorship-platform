@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse} from 'next/server';
 import { errorResponse } from '#utils-types/utils/api-response';
-import { requirePermission, requireAuth } from '#/libs_schemas/middlewares/auth.middleware';
+import { checkPermission, requireAuth } from '#/libs_schemas/middlewares/auth.middleware';
 import {getCurrentMentorshipCycle} from '#services/mentorship-cycle.service'
 
 //get current mentorship cycle
@@ -9,9 +9,9 @@ export async function GET( req: NextRequest) {
     //authorise user 
         const {user} = await requireAuth(req);
         //authorise user 
-        const isAllowed = requirePermission(user.id,'user', 'read');
+        const isAllowed = await checkPermission(user.id,'user', 'read');
         if(!isAllowed){
-            return NextResponse.json({error:'Uauthorised', message: 'Have no right to send request'}, {status: 403});
+          return NextResponse.json({error:'Unauthorized', message: 'Have no right to access this resource'}, {status: 403});
         }
         // pagination deatils
         

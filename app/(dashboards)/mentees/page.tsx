@@ -7,14 +7,14 @@ import { QuickInfoCard } from "#comp-hooks/ui/reusable-ui/CickableStatCard";
 import { PendingRequestCard, UpdatesCard, UpcomingEventsCard } from "#comp-hooks/cards";
 import { useAuth } from "#/libs_schemas/context/auth-context";
 import { useMenteeDashboard } from "#comp-hooks/hooks/mentee/useMenteeDashboard";
-import { useSocketContextSafe } from "#/libs_schemas/context/socket-context";
+import { useSocketContext } from "#/libs_schemas/context/socket-context";
 
 const statsIcons: LucideIcon[] = [User, MailIcon, Clock];
 
 export default function MenteeHomePage() {
   const { user } = useAuth();
   const { stats, recentUpdates, pendingRequests, scheduleEvents, isLoading, error, refresh } = useMenteeDashboard();
-  const socketContext = useSocketContextSafe();
+  const socketContext = useSocketContext();
   const socket = socketContext?.socket ?? null;
 
   useEffect(() => {
@@ -90,6 +90,7 @@ export default function MenteeHomePage() {
                   studentAvatarUrl={request.studentAvatarUrl ?? ""}
                   majorAndYear={request.majorAndYear}
                   message={request.message}
+                  showActions={false}
                 />
               ))
             ) : (
