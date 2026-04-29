@@ -3,6 +3,7 @@ import { successResponse, errorResponse } from '#utils-types/utils/api-response'
 import { getMentorshipRequestDetails,updateMentorshipRequestStatus,} from '#services/mentorship-requests.service';
 import { getIOInstance } from '#libs-schemas/socket/index';
 import { requireAuth, checkPermission } from '#/libs_schemas/middlewares/auth.middleware';
+import { clearPermissionsCache } from '#/libs_schemas/abac/engine';
 
 
 
@@ -17,6 +18,10 @@ export async function GET(
     const authResult = await requireAuth(request);
     if ('status' in authResult) return authResult;
     const { user } = authResult;
+    
+    // Clear permission cache to ensure fresh permissions
+    clearPermissionsCache(user.id);
+    
     const mentorProfile = user.mentorProfile;
     if (!mentorProfile) {
       return NextResponse.json(
@@ -24,7 +29,7 @@ export async function GET(
         { status: 403 },
       );
     }
-    const isAllowed = await checkPermission(user.id, 'mentorship_request', 'accept');
+    const isAllowed = await checkPermission(user.id, 'mentorship_request', 'accept', { mentorId: mentorProfile.id });
     if (!isAllowed) {
       return NextResponse.json(
         { error: 'Unauthorized', message: 'Do not have permission to access this resource' },
@@ -59,6 +64,10 @@ export async function POST(
     const authResult = await requireAuth(request);
     if ('status' in authResult) return authResult;
     const { user } = authResult;
+    
+    // Clear permission cache to ensure fresh permissions
+    clearPermissionsCache(user.id);
+    
     const mentorProfile = user.mentorProfile;
     if (!mentorProfile) {
       return NextResponse.json(
@@ -66,7 +75,7 @@ export async function POST(
         { status: 403 },
       );
     }
-    const isAllowed = await checkPermission(user.id, 'mentorship_request', 'accept');
+    const isAllowed = await checkPermission(user.id, 'mentorship_request', 'accept', { mentorId: mentorProfile.id });
     if (!isAllowed) {
       return NextResponse.json(
         { error: 'Unauthorized', message: 'Do not have permission to perform this action' },

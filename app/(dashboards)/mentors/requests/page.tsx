@@ -107,29 +107,25 @@ export default function MentorRequestsPage() {
     return <p className="py-10 text-sm text-gray-500">Loading mentorship requests...</p>;
   }
 
+  const acceptedCount = history.filter((item) => item.status === "ACCEPTED").length;
+  const declinedCount = history.filter((item) => item.status === "DECLINED").length;
+
   return (
-    <div className="text-accent flex flex-col items-start gap-5 pb-8">
-      <section className="w-full flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Incoming Mentorship Requests</h1>
-          <p className="text-gray-500">
-            Review pending requests and track your most recent decisions.
+    <div className="flex flex-col gap-6 pb-8">
+      <section className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-[#241919] sm:text-3xl">Mentorship Requests</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500 sm:text-base">
+            Manage incoming requests, view your accepted mentees, and track your mentoring history.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold bg-[#FDF1F2] text-[#6C1221]">
+        <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold bg-[#FDF1F2] text-[#6C1221]">
           {isOn ? (
-            isOn ? (
-              <>
-                <Wifi className="h-4 w-4" />
-                Realtime Connected
-              </>
-            ) : (
-              <>
-                <WifiOff className="h-4 w-4" />
-                Realtime Reconnecting
-              </>
-            )
+            <>
+              <Wifi className="h-4 w-4" />
+              Realtime Connected
+            </>
           ) : (
             <>
               <WifiOff className="h-4 w-4" />
@@ -145,60 +141,118 @@ export default function MentorRequestsPage() {
         </div>
       ) : null}
 
-      <section className="grid w-full gap-6 xl:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]">
-        <main className="flex min-w-0 flex-col gap-5">
-          <section className="flex flex-col gap-4">
-            {requests.length ? (
-              requests.map((request) => {
-                const state = getState(request.id);
-
-                return (
-                  <PendingRequestCard
-                    key={request.id}
-                    id={request.id}
-                    studentName={request.studentName}
-                    studentAvatarUrl={request.studentAvatarUrl || FALLBACK_AVATAR}
-                    majorAndYear={request.majorAndYear}
-                    message={request.message}
-                    isAccepting={state === "accepting"}
-                    isDeclining={state === "declining"}
-                    isAccepted={state === "accepted"}
-                    isDeclined={state === "declined"}
-                    onAccept={() => void runAction(request.id, "accept")}
-                    onDecline={() => void runAction(request.id, "decline")}
-                  />
-                );
-              })
-            ) : (
-              <div className="rounded-2xl border border-dashed border-gray-200 p-6 text-sm text-gray-500">
-                No pending requests right now.
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]">
+        <main className="flex min-w-0 flex-col gap-6">
+          {/* Pending Requests Section */}
+          <section className="rounded-3xl border border-[#6A0A1D]/10 bg-white p-4 shadow-sm sm:p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-[#241919]">Pending Requests</h2>
+                <p className="text-sm text-gray-500">Review and respond to new mentorship requests.</p>
               </div>
-            )}
+              {requests.length > 0 && (
+                <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-[#6A0A1D] text-xs font-semibold text-white">
+                  {requests.length}
+                </span>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-4">
+              {requests.length ? (
+                requests.map((request) => {
+                  const state = getState(request.id);
+                  return (
+                    <PendingRequestCard
+                      key={request.id}
+                      id={request.id}
+                      studentName={request.studentName}
+                      studentAvatarUrl={request.studentAvatarUrl || FALLBACK_AVATAR}
+                      majorAndYear={request.majorAndYear}
+                      message={request.message}
+                      isAccepting={state === "accepting"}
+                      isDeclining={state === "declining"}
+                      isAccepted={state === "accepted"}
+                      isDeclined={state === "declined"}
+                      onAccept={() => void runAction(request.id, "accept")}
+                      onDecline={() => void runAction(request.id, "decline")}
+                    />
+                  );
+                })
+              ) : (
+                <div className="rounded-2xl border border-dashed border-gray-200 p-8 text-center">
+                  <p className="text-sm font-medium text-gray-600">No pending requests</p>
+                  <p className="text-xs text-gray-500 mt-1">New mentorship requests will appear here.</p>
+                </div>
+              )}
+            </div>
           </section>
 
-          <section className="mt-4 flex flex-col gap-3">
-            <h2 className="text-xl font-semibold text-[#241919]">Recent Decisions</h2>
+          {/* Accepted Mentees Section */}
+          {acceptedCount > 0 && (
+            <section className="rounded-3xl border border-[#6A0A1D]/10 bg-white p-4 shadow-sm sm:p-5">
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-[#241919]">Active Mentees</h2>
+                  <p className="text-sm text-gray-500">Mentors you have accepted and are currently working with.</p>
+                </div>
+                <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-emerald-600 text-xs font-semibold text-white">
+                  {acceptedCount}
+                </span>
+              </div>
+
+              <div className="grid gap-3">
+                {history
+                  .filter((item) => item.status === "ACCEPTED")
+                  .map((item) => (
+                    <StatusRequestCard
+                      key={item.id}
+                      studentName={item.studentName}
+                      majorAndYear={item.majorAndYear || "Program not specified"}
+                      focusArea={item.goal || item.message || "Career guidance"}
+                      status="CONNECTED"
+                      avatarUrl={item.studentAvatarUrl || FALLBACK_AVATAR}
+                    />
+                  ))}
+              </div>
+            </section>
+          )}
+
+          {/* Request History Section */}
+          <section className="rounded-3xl border border-[#6A0A1D]/10 bg-white p-4 shadow-sm sm:p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-[#241919]">Request History</h2>
+                <p className="text-sm text-gray-500">Your past responses and decisions.</p>
+              </div>
+              {history.length > 0 && (
+                <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gray-200 text-xs font-semibold text-gray-700">
+                  {history.length}
+                </span>
+              )}
+            </div>
 
             {history.length ? (
-              history.slice(0, 6).map((item) => (
-                <StatusRequestCard
-                  key={item.id}
-                  studentName={item.studentName}
-                  majorAndYear={item.majorAndYear || "Program not specified"}
-                  focusArea={item.goal || item.message || "Career guidance"}
-                  status={item.status === "ACCEPTED" ? "CONNECTED" : "DECLINED"}
-                  avatarUrl={item.studentAvatarUrl || FALLBACK_AVATAR}
-                />
-              ))
+              <div className="grid gap-3">
+                {history.slice(0, 10).map((item) => (
+                  <StatusRequestCard
+                    key={item.id}
+                    studentName={item.studentName}
+                    majorAndYear={item.majorAndYear || "Program not specified"}
+                    focusArea={item.goal || item.message || "Career guidance"}
+                    status={item.status === "ACCEPTED" ? "CONNECTED" : "DECLINED"}
+                    avatarUrl={item.studentAvatarUrl || FALLBACK_AVATAR}
+                  />
+                ))}
+              </div>
             ) : (
-              <p className="text-sm text-gray-500">No accepted or declined requests yet.</p>
+              <p className="text-sm text-gray-500">No request history yet.</p>
             )}
           </section>
         </main>
 
         <aside className="flex min-w-0 flex-col gap-4">
           <UpdatesCard updates={recentUpdates} title="Request Activity" Icon={MegaphoneIcon} />
-          <MentorshipGoalsCard metrics={metrics} title="Request Goals" />
+          <MentorshipGoalsCard metrics={metrics} title="Request Summary" />
         </aside>
       </section>
     </div>

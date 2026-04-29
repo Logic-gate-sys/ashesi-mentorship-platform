@@ -19,8 +19,10 @@ export async function getUserPermissions(userOrId: Pick<User, "id"> | string) {
   const userId = typeof userOrId === 'string' ? userOrId : userOrId.id
   
   if (PERMISSIONS_CACHE.has(userId)) {
+    console.log('[ABAC getUserPermissions] Using cached permissions for user:', userId);
     return PERMISSIONS_CACHE.get(userId)!
   }
+  console.log('[ABAC getUserPermissions] Building fresh permissions for user:', userId);
   const permissions = await getUserPermissionsInternal(userId)
   PERMISSIONS_CACHE.set(userId, permissions);
 
@@ -141,7 +143,10 @@ function addMentorPermissions(
   builder: PermissionBuilder,
   user: User & { menteeProfile: MenteeProfile | null; mentorProfile: MentorProfile | null },
 ) {
+  console.log('[ABAC addMentorPermissions] User:', user.id, 'Role:', user.role, 'HasMentorProfile:', !!user.mentorProfile, 'MentorProfileId:', user.mentorProfile?.id);
+  
   if (user.mentorProfile) {
+    console.log('[ABAC addMentorPermissions] Adding mentorship_request read permission for mentorId:', user.mentorProfile.id);
     builder
       .allow("mentorship_request", "read", { mentorId: user.mentorProfile.id })
       .allow("mentorship_request", "list", { mentorId: user.mentorProfile.id })
@@ -269,7 +274,7 @@ class PermissionBuilder {
         data?: Resources[Res]["condition"],
         field?: keyof Resources[Res]["data"],
       ) {
-        return permissions[resource].some(perm => {
+        const result = permissions[resource].some(perm => {
           if (perm.action !== action) return false
 
           const validData =
@@ -286,6 +291,13 @@ class PermissionBuilder {
 
           return validField
         })
+        
+        if (resource === 'mentorship_request' && action === 'read') {
+          console.log('[ABAC can] Checking permission - Resource:', resource, 'Action:', action, 'Data:', data, 'Result:', result);
+          console.log('[ABAC can] Available permissions:', permissions[resource].map(p => ({ action: p.action, condition: p.condition })));
+        }
+        
+        return result
       },
 
       pickPermittedFields<Res extends keyof Resources>(

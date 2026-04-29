@@ -5,9 +5,9 @@ import Link from "next/link";
 import { HomeIcon, RequestIcon,MessagesIcon,MenteesIcon, MeetingsIcon,SettingsIcon,FeedbackIcon, 
 ManageIcon, UsersIcon, ReportsIcon
 } from "#comp-hooks/ui/icons/DashboardNavIcons";
-import AshesiLog from '#comp-hooks/images/ashesi_logo.svg'
+// import AshesiLog from '#comp-hooks/images/ashesi_logo.svg'
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+// import Image from "next/image";
 import { TopLeftProfile } from "#comp-hooks/ui/reusable-ui/DashboardTopStrip";
 import {AshesiLogo} from '#comp-hooks/images/logo/app-logo'
 
@@ -20,22 +20,22 @@ type NavItem = {
 
 const navLinks: Record<string, NavItem[]> = {
   mentor: [
-    { label: "Home",                 icon: <HomeIcon />,     link: "/mentors" },
+    { label: "Home",      icon: <HomeIcon />,     link: "/mentors" },
     { label: "Requests",  icon: <RequestIcon />,  link: "/mentors/requests" },
-    { label: "My Mentees",           icon: <MenteesIcon />,  link: "/mentors/mentees" },
-    { label: "Messages",             icon: <MessagesIcon />, link: "/mentors/messages" },
-    { label: "Meetings",             icon: <MeetingsIcon />, link: "/mentors/meetings" },
-    { label: "Settings",     icon: <SettingsIcon />, link: "/mentors/settings" },
-    { label: "Feedbacks",            icon: <FeedbackIcon />, link: "/mentors/feedbacks" },
+    { label: "My Mentees",icon: <MenteesIcon />,  link: "/mentors/mentees" },
+    { label: "Messages",  icon: <MessagesIcon />, link: "/mentors/messages" },
+    { label: "Meetings",  icon: <MeetingsIcon />, link: "/mentors/meetings" },
+    { label: "Settings",  icon: <SettingsIcon />, link: "/mentors/settings" },
+    { label: "Feedbacks", icon: <FeedbackIcon />, link: "/mentors/feedbacks" },
   ],
   mentee: [
-    { label: "Home",                 icon: <HomeIcon />,     link: "/mentees" },
-    { label: "Requests",  icon: <RequestIcon />,  link: "/mentees/requests" },
-    { label: "My Mentor(s)",         icon: <MenteesIcon />,  link: "/mentees/mentors" },
-    { label: "Messages",             icon: <MessagesIcon />, link: "/mentees/messages" },
-    { label: "Meetings",             icon: <MeetingsIcon />, link: "/mentees/meetings" },
-    { label: "Settings",     icon: <SettingsIcon />, link: "/mentees/settings" },
-    { label: "Feedbacks",            icon: <FeedbackIcon />, link: "/mentees/feedbacks" },
+    { label: "Home",        icon: <HomeIcon />,     link: "/mentees" },
+    { label: "Requests",    icon: <RequestIcon />,  link: "/mentees/requests" },
+    { label: "My Mentor(s)",icon: <MenteesIcon />,  link: "/mentees/mentors" },
+    { label: "Messages",    icon: <MessagesIcon />, link: "/mentees/messages" },
+    { label: "Meetings",    icon: <MeetingsIcon />, link: "/mentees/meetings" },
+    { label: "Settings",    icon: <SettingsIcon />, link: "/mentees/settings" },
+    { label: "Feedbacks",   icon: <FeedbackIcon />, link: "/mentees/feedbacks" },
   ],
   admin: [
     { label: "Home",                  icon: <HomeIcon />,     link: "/admin" },

@@ -42,6 +42,7 @@ export default function MentorMessagesPage() {
   } = useMentorMessages();
 
   const { socket, isOn } = useSocketContext();
+  const isConnected = socket?.connected ?? false;
 
   const [draft, setDraft] = useState("");
   const [sendSucceeded, setSendSucceeded] = useState(false);
@@ -51,10 +52,10 @@ export default function MentorMessagesPage() {
       return;
     }
 
-    socket.emit("join_conversation", selectedConversationId);
+    socket.emit('join_conversation', selectedConversationId);
 
     return () => {
-      socket.emit("leave_conversation", selectedConversationId);
+      socket.emit('leave_conversation', selectedConversationId);
     };
   }, [socket, isOn, selectedConversationId]);
 
@@ -63,25 +64,36 @@ export default function MentorMessagesPage() {
       return;
     }
 
-    socket.on("message_received", (payload) => {
+    const handleMessageReceived = (payload: any) => {
       const conversationId = payload?.conversationId as string | undefined;
-
       if (conversationId && conversationId === selectedConversationId) {
         void loadMessages(conversationId);
       }
-
       void refresh();
-    });
+    };
 
-    socket.on("notification", () => {
+    const handleNotification = () => {
       void refresh();
-    });
+    };
+
+    const handleMessageSent = (payload: any) => {
+      const conversationId = payload?.conversationId as string | undefined;
+      if (conversationId && conversationId === selectedConversationId) {
+        void loadMessages(conversationId);
+      }
+      void refresh();
+    };
+
+    socket.on('message_received', handleMessageReceived);
+    socket.on('notification', handleNotification);
+    socket.on('message_sent', handleMessageSent);
 
     return () => {
-      socket.off("message_received", () => void refresh());
-      socket.off("notification", () => void refresh());
+      socket.off('message_received', handleMessageReceived);
+      socket.off('notification', handleNotification);
+      socket.off('message_sent', handleMessageSent);
     };
-  }, [socket, isOn, loadMessages, refresh, selectedConversationId]);
+  }, [socket, isOn, selectedConversationId, loadMessages, refresh]);
 
   const messageCountLabel = useMemo(() => {
     if (!selectedConversation) {
@@ -113,7 +125,7 @@ export default function MentorMessagesPage() {
 
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-2 rounded-full bg-[#FDF1F2] px-3 py-1 text-xs font-semibold text-[#6A0A1D]">
-            {enabled ? (
+            {isOn ? (
               isConnected ? (
                 <>
                   <Wifi className="h-4 w-4" />

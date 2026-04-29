@@ -70,7 +70,7 @@ export function StatusRequestCard({
         {/* TEXT CONTENT */}
         <div className="flex flex-col gap-0.5">
           <h3 className={`text-lg font-bold ${style.text}`}>
-            Student {studentName} ({majorAndYear})
+            {studentName} ({majorAndYear})
           </h3>
           <p className={`text-sm font-medium ${style.subtext}`}>
             {focusArea}

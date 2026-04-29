@@ -50,6 +50,7 @@ export function useMentorMentees() {
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load mentees');
+      console.error('[useMentorMentees] refresh error:', err);
     } finally {
       setIsLoading(false);
     }
