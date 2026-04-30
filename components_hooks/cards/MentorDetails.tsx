@@ -1,8 +1,7 @@
 'use client'
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, UserPlus, XCircle, X, Send, Target, MessageSquare, Calendar } from 'lucide-react';
+import { ChevronDown, ChevronUp, UserPlus, XCircle, X, Send, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
-import { useFetchApi } from '../hooks/shared/useMentorApi';
 import { useMentorshipCycle } from '#comp-hooks/hooks/shared/useMentorshipCycle';
 import {useMenteeRequests} from '#comp-hooks/hooks/mentee/useRequest'
 
@@ -14,7 +13,7 @@ interface MentorDetailProp {
   company: string;
   skills?: string[];
   bio: string;
-  onCancelRequest?: (requestId: string) => Promise<any>;
+  onCancelRequest?: (requestId: string) => Promise<unknown>;
   requestSent?: boolean;
 }
 
@@ -23,7 +22,7 @@ export const MentorDetailCard = ({ requestSent, onCancelRequest, ...data }: Ment
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {sendRequest } = useMenteeRequests(); 
-  const {getCurrentCycle, isLoading, error} = useMentorshipCycle(); 
+  const {getCurrentCycle} = useMentorshipCycle(); 
 
   // Structured fields for the request
   const [formData, setFormData] = useState({
@@ -50,7 +49,7 @@ export const MentorDetailCard = ({ requestSent, onCancelRequest, ...data }: Ment
     };
 
     // 4. Pass the object directly
-    const res = await sendRequest(payload);
+    await sendRequest(payload);
 
     setIsModalOpen(false);
     setFormData({ goal: '', message: '' });
@@ -64,19 +63,19 @@ export const MentorDetailCard = ({ requestSent, onCancelRequest, ...data }: Ment
 
   return (
     <>
-      <div className="max-w-md mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden transition-all duration-300">
+      <div className="w-full bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden transition-all duration-300">
         {/* Header Section */}
-        <div className="p-5 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center border-2 border-[#8B3A3A] font-bold text-[#8B3A3A]">
+        <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="shrink-0 w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center border-2 border-[#8B3A3A] font-bold text-[#8B3A3A]">
               {data.firstName[0]}{data.lastName[0]}
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">{data.firstName} {data.lastName}</h3>
-              <p className="text-sm text-gray-500">{data.company} • Class of {data.graduationYear}</p>
+            <div className="min-w-0">
+              <h3 className="text-lg font-bold text-gray-900 wrap-break-word">{data.firstName} {data.lastName}</h3>
+              <p className="text-sm text-gray-500 wrap-break-word">{data.company} • Class of {data.graduationYear}</p>
             </div>
           </div>
-          <button onClick={() => setIsExpanded(!isExpanded)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+          <button onClick={() => setIsExpanded(!isExpanded)} className="self-start p-2 hover:bg-gray-100 rounded-full transition-colors sm:self-center">
             {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </button>
         </div>
@@ -95,7 +94,7 @@ export const MentorDetailCard = ({ requestSent, onCancelRequest, ...data }: Ment
                 ))}
               </div>
 
-              <div className="flex flex-col space-y-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
                 <button
                   onClick={() => requestSent ? onCancelRequest?.(data.id) : setIsModalOpen(true)}
                   className={`w-full flex items-center justify-center space-x-2 py-2.5 rounded-xl font-semibold transition-all ${
@@ -104,7 +103,7 @@ export const MentorDetailCard = ({ requestSent, onCancelRequest, ...data }: Ment
                 >
                   {requestSent ? <><XCircle size={18} /> <span>Cancel Request</span></> : <><UserPlus size={18} /> <span>Send Request</span></>}
                 </button>
-                <Link href={`/user-details/${data.id}`} className="w-full text-center text-sm font-medium text-gray-500 hover:text-[#8B3A3A] transition-colors">
+                <Link href={`/user-details/${data.id}`} className="w-full text-center text-sm font-medium text-gray-500 hover:text-[#8B3A3A] transition-colors sm:whitespace-nowrap">
                   View More Details
                 </Link>
               </div>
