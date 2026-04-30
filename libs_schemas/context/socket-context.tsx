@@ -27,6 +27,8 @@ export const SocketProvider = ({ children, namespace }: SocketProps) => {
   const reconnectAttemptsRef = useRef<number>(0);
   const maxReconnectAttemptsRef = useRef<number>(10);
   const heartbeatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastErrorRef = useRef<string | null>(null);
 
   useEffect(() => {
     const token = getAccessToken();
@@ -42,9 +44,11 @@ export const SocketProvider = ({ children, namespace }: SocketProps) => {
           transports: ['websocket', 'polling'],
           path: '/soc/socket/io',
           reconnection: true,
-          reconnectionDelay: 1000,
-          reconnectionDelayMax: 5000,
+          reconnectionDelay: Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000),
+          reconnectionDelayMax: 30000,
           reconnectionAttempts: maxReconnectAttemptsRef.current,
+          ackTimeout: 10000,
+          timeout: 20000,
         });
 
         // Connection established
@@ -53,15 +57,31 @@ export const SocketProvider = ({ children, namespace }: SocketProps) => {
           setIsOn(true);
           setIsConnecting(false);
           reconnectAttemptsRef.current = 0;
+          lastErrorRef.current = null;
+          if (connectionTimeoutRef.current) {
+            clearTimeout(connectionTimeoutRef.current);
+            connectionTimeoutRef.current = null;
+          }
           setupHeartbeat(socket);
         });
 
-        // Connection error
+        // Connection error - with exponential backoff logging
         socket.on('connect_error', (error: Error | { message: string }) => {
           const message = error instanceof Error ? error.message : (error?.message || 'Unknown error');
-          console.warn(`[Socket] ⚠️ Connection error on ${namespace}:`, message);
+          lastErrorRef.current = message;
+          console.warn(`[Socket] ⚠️ Connection error on ${namespace} (attempt ${reconnectAttemptsRef.current + 1}/${maxReconnectAttemptsRef.current}):`, message);
           setIsOn(false);
           reconnectAttemptsRef.current += 1;
+          
+          // Set timeout to detect persistent failures
+          if (connectionTimeoutRef.current) {
+            clearTimeout(connectionTimeoutRef.current);
+          }
+          connectionTimeoutRef.current = setTimeout(() => {
+            if (!socket.connected) {
+              console.error(`[Socket] ❌ Failed to connect after ${reconnectAttemptsRef.current} attempts. Last error: ${lastErrorRef.current}`);
+            }
+          }, 5000);
         });
 
         // Disconnected
@@ -70,21 +90,25 @@ export const SocketProvider = ({ children, namespace }: SocketProps) => {
           setIsOn(false);
           if (heartbeatTimeoutRef.current) {
             clearTimeout(heartbeatTimeoutRef.current);
+            heartbeatTimeoutRef.current = null;
           }
           // Auto-reconnect on unexpected disconnects
-          if (reason === 'io server disconnect') {
-            socket.connect();
+          if (reason === 'io server disconnect' || reason === 'transport close') {
+            console.log(`[Socket] 🔄 Attempting automatic reconnection...`);
+            setTimeout(() => socket.connect(), 1000);
           }
         });
 
         // Connecting state
         socket.on('connect_attempt', () => {
+          console.debug(`[Socket] 🔗 Connection attempt ${reconnectAttemptsRef.current + 1}...`);
           setIsConnecting(true);
         });
 
         // Error event
         socket.on('error', (error: Error | { message: string }) => {
           const message = error instanceof Error ? error.message : (error?.message || 'Unknown error');
+          lastErrorRef.current = message;
           console.error(`[Socket] ❌ Socket error on ${namespace}:`, message);
         });
 
@@ -119,6 +143,11 @@ export const SocketProvider = ({ children, namespace }: SocketProps) => {
     return () => {
       if (heartbeatTimeoutRef.current) {
         clearTimeout(heartbeatTimeoutRef.current);
+        heartbeatTimeoutRef.current = null;
+      }
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+        connectionTimeoutRef.current = null;
       }
       if (socketRef.current) {
         socketRef.current.disconnect();

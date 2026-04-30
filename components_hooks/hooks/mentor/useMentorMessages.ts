@@ -20,6 +20,7 @@ export interface MentorMessage {
   text: string;
   createdAt: string;
   isMe: boolean;
+  isPending?: boolean;
 }
 
 export function useMentorMessages() {
@@ -37,6 +38,7 @@ export function useMentorMessages() {
   const pendingRefreshRef = useRef<boolean>(false);
   const messageLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const conversationLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const messageIdsRef = useRef<Set<string>>(new Set());
 
   const selectedConversation = useMemo(
     () => conversations.find((conversation) => conversation.id === selectedConversationId) || null,
@@ -105,10 +107,24 @@ export function useMentorMessages() {
             text: message.body,
             createdAt: message.createdAt,
             isMe: message.senderId === user?.id,
+            isPending: false,
           }))
-          .reverse();
+          .reverse()
+          .filter((msg: MentorMessage) => {
+            // Deduplicate: only add if not already seen
+            if (messageIdsRef.current.has(msg.id)) {
+              return false;
+            }
+            messageIdsRef.current.add(msg.id);
+            setLastMessageIdRef(msg.id);
+            return true;
+          });
 
-        setMessages(parsed);
+        setMessages((prevMessages) => {
+          // Merge optimistic messages with loaded messages
+          const optimisticMessages = prevMessages.filter((m) => m.isPending);
+          return [...parsed, ...optimisticMessages];
+        });
       } catch (err) {
         console.error('[useMentorMessages] loadMessages error:', err);
         throw err;
@@ -168,6 +184,22 @@ export function useMentorMessages() {
 
       try {
         setIsSending(true);
+        
+        // Generate optimistic message with temporary ID
+        const tempId = `temp-${Date.now()}`;
+        const optimisticMessage: MentorMessage = {
+          id: tempId,
+          senderId: user?.id || '',
+          receiverId: selectedConversation.participantId,
+          text: text.trim(),
+          createdAt: new Date().toISOString(),
+          isMe: true,
+          isPending: true,
+        };
+
+        // Add optimistic message immediately
+        setMessages((prev) => [...prev, optimisticMessage]);
+
         const response = await authorizedFetch(`/api/mentors/messages/${selectedConversation.id}`, {
           method: 'POST',
           body: JSON.stringify({
@@ -181,12 +213,15 @@ export function useMentorMessages() {
           throw new Error(`Failed to send message (${response.status})`);
         }
 
-        // Refresh messages after send succeeds
+        // Remove optimistic message and refresh
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
         await loadMessages(selectedConversation.id);
         await refreshConversations();
         setError(null);
         return true;
       } catch (err) {
+        // Remove optimistic message on error
+        setMessages((prev) => prev.filter((m) => m.id !== `temp-${Date.now()}`));
         const errorMsg = err instanceof Error ? err.message : 'Failed to send message';
         setError(errorMsg);
         console.error('[useMentorMessages] sendMessage error:', errorMsg);
@@ -195,7 +230,7 @@ export function useMentorMessages() {
         setIsSending(false);
       }
     },
-    [authorizedFetch, selectedConversation, loadMessages, refreshConversations]
+    [authorizedFetch, selectedConversation, loadMessages, refreshConversations, user?.id]
   );
 
   // Cleanup
@@ -203,10 +238,13 @@ export function useMentorMessages() {
     return () => {
       if (messageLoadTimeoutRef.current) {
         clearTimeout(messageLoadTimeoutRef.current);
+        messageLoadTimeoutRef.current = null;
       }
       if (conversationLoadTimeoutRef.current) {
         clearTimeout(conversationLoadTimeoutRef.current);
+        conversationLoadTimeoutRef.current = null;
       }
+      messageIdsRef.current.clear();
     };
   }, []);
 

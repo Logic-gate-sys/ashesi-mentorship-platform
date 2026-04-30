@@ -52,36 +52,31 @@ export default function MentorMessagesPage() {
       return;
     }
 
-    socket.emit('join_conversation', selectedConversationId);
+    // Join conversation room
+    socket.emit('join_conversation', selectedConversationId, (ack: any) => {
+      console.log('[Messages] Joined conversation:', selectedConversationId, ack);
+    });
 
-    return () => {
-      socket.emit('leave_conversation', selectedConversationId);
-    };
-  }, [socket, isOn, selectedConversationId]);
-
-  useEffect(() => {
-    if (!socket || !isOn) {
-      return;
-    }
-
+    // Listen for socket events specific to this conversation
     const handleMessageReceived = (payload: any) => {
       const conversationId = payload?.conversationId as string | undefined;
+      console.debug('[Messages] message_received:', conversationId);
       if (conversationId && conversationId === selectedConversationId) {
         void loadMessages(conversationId);
       }
-      void refresh();
     };
 
-    const handleNotification = () => {
+    const handleNotification = (payload: any) => {
+      console.debug('[Messages] notification received:', payload);
       void refresh();
     };
 
     const handleMessageSent = (payload: any) => {
       const conversationId = payload?.conversationId as string | undefined;
+      console.debug('[Messages] message_sent:', conversationId);
       if (conversationId && conversationId === selectedConversationId) {
         void loadMessages(conversationId);
       }
-      void refresh();
     };
 
     socket.on('message_received', handleMessageReceived);
@@ -92,6 +87,11 @@ export default function MentorMessagesPage() {
       socket.off('message_received', handleMessageReceived);
       socket.off('notification', handleNotification);
       socket.off('message_sent', handleMessageSent);
+      
+      // Leave conversation room on cleanup
+      socket.emit('leave_conversation', selectedConversationId, (ack: any) => {
+        console.log('[Messages] Left conversation:', selectedConversationId);
+      });
     };
   }, [socket, isOn, selectedConversationId, loadMessages, refresh]);
 

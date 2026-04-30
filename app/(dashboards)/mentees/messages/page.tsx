@@ -4,8 +4,8 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { Send, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import {
-  useMentorMessages,
-} from "#comp-hooks/hooks/mentor";
+  useMenteeMessages,
+} from "#comp-hooks/hooks/mentee/useMenteeMessages";
 import { useSocketContext } from "#/libs_schemas/context/socket-context";
 
 function formatChatTime(dateText: string) {
@@ -26,7 +26,7 @@ function formatChatTime(dateText: string) {
 
 const AVATAR_FALLBACK = "https://i.pravatar.cc/150?u=mentor-message";
 
-export default function MentorMessagesPage() {
+export default function MenteeMessagesPage() {
   const {
     conversations,
     selectedConversation,
@@ -39,7 +39,7 @@ export default function MentorMessagesPage() {
     refresh,
     loadMessages,
     sendMessage,
-  } = useMentorMessages();
+  } = useMenteeMessages();
 
   const { socket, isOn } = useSocketContext();
   const isConnected = socket?.connected ?? false;
@@ -52,36 +52,31 @@ export default function MentorMessagesPage() {
       return;
     }
 
-    socket.emit('join_conversation', selectedConversationId);
+    // Join conversation room
+    socket.emit('join_conversation', selectedConversationId, (ack: any) => {
+      console.log('[Messages] Joined conversation:', selectedConversationId, ack);
+    });
 
-    return () => {
-      socket.emit('leave_conversation', selectedConversationId);
-    };
-  }, [socket, isOn, selectedConversationId]);
-
-  useEffect(() => {
-    if (!socket || !isOn) {
-      return;
-    }
-
+    // Listen for socket events specific to this conversation
     const handleMessageReceived = (payload: any) => {
       const conversationId = payload?.conversationId as string | undefined;
+      console.debug('[Messages] message_received:', conversationId);
       if (conversationId && conversationId === selectedConversationId) {
         void loadMessages(conversationId);
       }
-      void refresh();
     };
 
-    const handleNotification = () => {
+    const handleNotification = (payload: any) => {
+      console.debug('[Messages] notification received:', payload);
       void refresh();
     };
 
     const handleMessageSent = (payload: any) => {
       const conversationId = payload?.conversationId as string | undefined;
+      console.debug('[Messages] message_sent:', conversationId);
       if (conversationId && conversationId === selectedConversationId) {
         void loadMessages(conversationId);
       }
-      void refresh();
     };
 
     socket.on('message_received', handleMessageReceived);
@@ -92,6 +87,11 @@ export default function MentorMessagesPage() {
       socket.off('message_received', handleMessageReceived);
       socket.off('notification', handleNotification);
       socket.off('message_sent', handleMessageSent);
+      
+      // Leave conversation room on cleanup
+      socket.emit('leave_conversation', selectedConversationId, (ack: any) => {
+        console.log('[Messages] Left conversation:', selectedConversationId);
+      });
     };
   }, [socket, isOn, selectedConversationId, loadMessages, refresh]);
 
