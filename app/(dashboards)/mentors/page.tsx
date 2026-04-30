@@ -1,139 +1,310 @@
 "use client";
+
 import { useEffect, useMemo, useState } from "react";
 import { QuickInfoCard } from "#comp-hooks/ui/reusable-ui/CickableStatCard";
 import { useAuth } from "#/libs_schemas/context/auth-context";
-import { User, Clock, MailIcon, type LucideIcon, MegaphoneIcon } from "lucide-react";
+import { User, Clock, MailIcon, type LucideIcon, MegaphoneIcon, Users, InboxIcon, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { PendingRequestCard, MentorAvailabilityCard, ActiveMCard, UpdatesCard, UpcomingEventsCard } from "#comp-hooks/cards";
+import {
+  PendingRequestCard,
+  MentorAvailabilityCard,
+  ActiveMCard,
+  UpdatesCard,
+  UpcomingEventsCard,
+} from "#comp-hooks/cards";
 import { useMentorDashboard, useMentorshipRequests } from "#comp-hooks/hooks/mentor";
-const statsIcons: LucideIcon[] = [User, MailIcon, Clock];
 import { useSocketContext } from "#/libs_schemas/context/socket-context";
 
+const statsIcons: LucideIcon[] = [User, MailIcon, Clock];
+
+// ── Skeleton primitives ────────────────────────────────────────────────────
+
+function Pulse({ w = "100%", h = "11px", rounded = "rounded-md", className = "" }: {
+  w?: string; h?: string; rounded?: string; className?: string;
+}) {
+  return (
+    <div className={`animate-pulse bg-gray-100 ${rounded} ${className}`} style={{ width: w, height: h }} />
+  );
+}
+
+function SkeletonStatCard() {
+  return (
+    <div className="rounded-2xl border border-[#6A0A1D]/10 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between mb-3">
+        <Pulse w="55%" h="13px" />
+        <div className="h-8 w-8 animate-pulse rounded-xl bg-gray-100" />
+      </div>
+      <Pulse w="35%" h="22px" />
+    </div>
+  );
+}
+
+function SkeletonRequestCard() {
+  return (
+    <div className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+      <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-gray-200" />
+      <div className="flex flex-1 flex-col gap-2 pt-0.5">
+        <Pulse w="45%" h="12px" />
+        <Pulse w="30%" h="10px" />
+        <Pulse w="80%" h="10px" />
+      </div>
+      <div className="flex shrink-0 flex-col gap-1.5">
+        <div className="h-8 w-16 animate-pulse rounded-lg bg-gray-200" />
+        <div className="h-8 w-16 animate-pulse rounded-lg bg-gray-100" />
+      </div>
+    </div>
+  );
+}
+
+function SkeletonMenteeCard() {
+  return (
+    <div className="rounded-2xl border border-[#6A0A1D]/10 bg-white p-4 shadow-sm">
+      <div className="flex items-center gap-3 mb-2">
+        <div className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-gray-200" />
+        <div className="flex flex-col gap-1.5 flex-1">
+          <Pulse w="55%" h="12px" />
+          <Pulse w="40%" h="10px" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SkeletonSidebar() {
+  return (
+    <>
+      <div className="rounded-2xl border border-[#6A0A1D]/10 bg-white p-4 shadow-sm">
+        <Pulse w="100px" h="13px" className="mb-3" />
+        <div className="flex flex-col gap-2.5">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex items-center gap-2">
+              <div className="h-2 w-2 animate-pulse rounded-full bg-gray-200" />
+              <Pulse w={`${55 + i * 10}%`} h="10px" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="rounded-2xl border border-[#6A0A1D]/10 bg-white p-4 shadow-sm">
+        <Pulse w="120px" h="13px" className="mb-3" />
+        <div className="flex flex-col gap-2">
+          {[0, 1].map((i) => <Pulse key={i} w="100%" h="44px" rounded="rounded-xl" />)}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Empty states ───────────────────────────────────────────────────────────
+
+function EmptyRequests() {
+  return (
+    <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-gray-200 py-10 text-center">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FDF1F2]">
+        <InboxIcon className="h-4 w-4 text-[#6C1221]" />
+      </div>
+      <p className="text-sm font-medium text-gray-500">No pending requests</p>
+      <p className="text-xs text-gray-400">New requests from students will appear here.</p>
+    </div>
+  );
+}
+
+function EmptyMentees() {
+  return (
+    <div className="col-span-full flex flex-col items-center gap-2 rounded-xl border border-dashed border-gray-200 py-10 text-center">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FDF1F2]">
+        <Users className="h-4 w-4 text-[#6C1221]" />
+      </div>
+      <p className="text-sm font-medium text-gray-500">No active mentees yet</p>
+      <p className="text-xs text-gray-400">Accepted requests will show up here.</p>
+    </div>
+  );
+}
+
+// ── Page ───────────────────────────────────────────────────────────────────
 
 export default function MentorHomePage() {
   const { user } = useAuth();
-  const { stats, recentUpdates, pendingRequests, activeMentees, scheduleEvents, isLoading, error } = useMentorDashboard();
+  const { stats, recentUpdates, pendingRequests, activeMentees, scheduleEvents, isLoading, error } =
+    useMentorDashboard();
   const { acceptRequest, declineRequest } = useMentorshipRequests();
-  const [actionState, setActionState] = useState<Record<string, 'idle' | 'accepting' | 'declining' | 'accepted' | 'declined'>>({}); 
-  
-  // socket context
   const { socket } = useSocketContext();
-  
+
+  const [actionState, setActionState] = useState<
+    Record<string, "idle" | "accepting" | "declining" | "accepted" | "declined">
+  >({});
+
   useEffect(() => {
     if (!socket) return;
     // Socket event listeners can be added here if needed
-  }, [socket])
+  }, [socket]);
 
-  
-  const requestState = useMemo(() => {
-    return (id: string) => actionState[id] || 'idle';
-  }, [actionState]);
+  const requestState = useMemo(
+    () => (id: string) => actionState[id] ?? "idle",
+    [actionState]
+  );
 
-  const markDone = (id: string, state: 'accepted' | 'declined') => {
+  const markDone = (id: string, state: "accepted" | "declined") => {
     setActionState((prev) => ({ ...prev, [id]: state }));
-    window.setTimeout(() => {
-      setActionState((prev) => ({ ...prev, [id]: 'idle' }));
-    }, 1500);
+    window.setTimeout(() => setActionState((prev) => ({ ...prev, [id]: "idle" })), 1500);
   };
 
   const handleAccept = async (id: string) => {
-    setActionState((prev) => ({ ...prev, [id]: 'accepting' }));
+    setActionState((prev) => ({ ...prev, [id]: "accepting" }));
     await acceptRequest(id);
-    markDone(id, 'accepted');
+    markDone(id, "accepted");
   };
 
   const handleDecline = async (id: string) => {
-    setActionState((prev) => ({ ...prev, [id]: 'declining' }));
+    setActionState((prev) => ({ ...prev, [id]: "declining" }));
     await declineRequest(id);
-    markDone(id, 'declined');
+    markDone(id, "declined");
   };
 
+  // ── Loading skeleton ─────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">Loading dashboard...</p>
+      <div className="flex flex-col items-start gap-4">
+        {/* Welcome shimmer */}
+        <section className="w-full flex flex-col gap-2">
+          <Pulse w="260px" h="28px" rounded="rounded-lg" />
+          <Pulse w="200px" h="13px" />
+        </section>
+
+        {/* Stat cards */}
+        <section className="grid w-full gap-4 p-2 sm:grid-cols-2 xl:grid-cols-3">
+          <SkeletonStatCard />
+          <SkeletonStatCard />
+          <SkeletonStatCard />
+        </section>
+
+        {/* Main + sidebar */}
+        <section className="mt-2 grid w-full gap-6 xl:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)]">
+          <div className="flex flex-col gap-4">
+            <Pulse w="180px" h="20px" rounded="rounded-lg" />
+            <SkeletonRequestCard />
+            <SkeletonRequestCard />
+            <div className="mt-6 flex flex-col gap-4">
+              <Pulse w="140px" h="18px" rounded="rounded-lg" />
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <SkeletonMenteeCard />
+                <SkeletonMenteeCard />
+                <SkeletonMenteeCard />
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3">
+            <SkeletonSidebar />
+          </div>
+        </section>
       </div>
     );
   }
 
+  // ── Error state ──────────────────────────────────────────────────────────
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-red-500">Error: {error}</p>
+      <div className="flex flex-col items-center justify-center gap-3 py-24 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+          <AlertCircle className="h-5 w-5 text-red-500" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-[#241919]">Something went wrong</p>
+          <p className="mt-0.5 text-xs text-gray-400">{error}</p>
+        </div>
       </div>
     );
   }
 
+  // ── Page ─────────────────────────────────────────────────────────────────
   return (
-    <div id="mentor-dash-home" className="text-accent flex flex-col items-start gap-4">
-      <section id="welcome-sec" className="w-full flex flex-col items-start justify-center">
-        <h1 className="text-3xl font-bold tracking-tight text-accent">
-          Welcome Back, {user?.firstName}!
+    <div className="flex flex-col items-start gap-4">
+      {/* ── Welcome ───────────────────────────────────────────────────── */}
+      <section className="w-full flex flex-col items-start">
+        <h1 className="text-3xl font-bold tracking-tight text-[#241919]">
+          Welcome back, {user?.firstName}!
         </h1>
-        <p className="text-gray-500 font-medium">
-          Ready to guide the next generation of scholars!
+        <p className="text-sm text-gray-500 font-medium mt-0.5">
+          Ready to guide the next generation of scholars.
         </p>
       </section>
 
-      <section id="stats" className="grid w-full gap-4 p-2 sm:grid-cols-2 xl:grid-cols-3">
+      {/* ── Stats ─────────────────────────────────────────────────────── */}
+      <section className="grid w-full gap-4 p-2 sm:grid-cols-2 xl:grid-cols-3">
         {stats?.map((itm, idx) => (
           <QuickInfoCard key={idx} title={itm.title} statsNum={itm.statsNum} Icon={statsIcons[idx]} />
         ))}
       </section>
 
-      <section id="request-events" className="mt-2 grid w-full gap-6 xl:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)]">
-        <div id="main-area" className="flex min-w-0 flex-col gap-4">
-          <h1 className="text-2xl font-bold">Mentorship Requests:</h1>
-          <section id="pending-reqs" className="flex flex-col gap-4">
-            <p className="ml-auto text-sm font-semibold text-[#6A0A1D] hover:underline">
-              <Link href="/mentors/requests">View All Requests</Link>
-            </p>
+      {/* ── Main + sidebar ────────────────────────────────────────────── */}
+      <section className="mt-2 grid w-full gap-6 xl:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)]">
+        {/* Left column */}
+        <div className="flex min-w-0 flex-col gap-6">
+
+          {/* Pending requests */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-[#241919]">Mentorship Requests</h2>
+              <Link
+                href="/mentors/requests"
+                className="text-xs font-semibold text-[#6A0A1D] hover:underline"
+              >
+                View all
+              </Link>
+            </div>
             {pendingRequests?.length ? (
-              pendingRequests.slice(0, 3).map((req, idx) => (
-                (() => {
+              <div className="flex flex-col gap-3">
+                {pendingRequests.slice(0, 3).map((req) => {
                   const state = requestState(req.id);
                   return (
-                <PendingRequestCard
-                  key={idx}
-                  id={req.id}
-                  studentName={req.studentName}
-                  studentAvatarUrl={req.studentAvatarUrl || 'https://i.pravatar.cc/150?u=student'}
-                  majorAndYear={req.majorAndYear}
-                  message={req.message}
-                  isAccepting={state === 'accepting'}
-                  isDeclining={state === 'declining'}
-                  isAccepted={state === 'accepted'}
-                  isDeclined={state === 'declined'}
-                  onAccept={() => handleAccept(req.id)}
-                  onDecline={() => handleDecline(req.id)}
-                />
+                    <PendingRequestCard
+                      key={req.id}
+                      id={req.id}
+                      studentName={req.studentName}
+                      studentAvatarUrl={req.studentAvatarUrl || "https://i.pravatar.cc/150?u=student"}
+                      majorAndYear={req.majorAndYear}
+                      message={req.message}
+                      isAccepting={state === "accepting"}
+                      isDeclining={state === "declining"}
+                      isAccepted={state === "accepted"}
+                      isDeclined={state === "declined"}
+                      onAccept={() => void handleAccept(req.id)}
+                      onDecline={() => void handleDecline(req.id)}
+                    />
                   );
-                })()
-              ))
+                })}
+              </div>
             ) : (
-              <p className="text-sm text-gray-500">No pending requests right now.</p>
+              <EmptyRequests />
             )}
-          </section>
+          </div>
 
-          <section id="active-m" className="mt-8 flex flex-col gap-4">
-            <h1 className="text-2xl">Active Mentees</h1>
-            <div id="mentee-list" className="grid w-full gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {/* Active mentees */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-[#241919]">Active Mentees</h2>
+              {activeMentees?.length ? (
+                <Link
+                  href="/mentors/mentees"
+                  className="text-xs font-semibold text-[#6A0A1D] hover:underline"
+                >
+                  View all
+                </Link>
+              ) : null}
+            </div>
+            <div className="grid w-full gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {activeMentees?.length ? (
                 activeMentees.map((m, idx) => (
-                  <ActiveMCard
-                    key={idx}
-                    mName={m.name}
-                    mTitle={m.title}
-                  />
+                  <ActiveMCard key={idx} mName={m.name} mTitle={m.title} />
                 ))
               ) : (
-                <p className="text-sm text-gray-500">No active mentees yet.</p>
+                <EmptyMentees />
               )}
             </div>
-          </section>
+          </div>
         </div>
 
-        <div id="side-area" className="flex min-w-0 flex-col gap-3">
+        {/* Right sidebar */}
+        <div className="flex min-w-0 flex-col gap-3 xl:sticky xl:top-4 xl:self-start">
           <UpdatesCard updates={recentUpdates} title="Updates" Icon={MegaphoneIcon} />
           <UpcomingEventsCard events={scheduleEvents} />
           <MentorAvailabilityCard />
