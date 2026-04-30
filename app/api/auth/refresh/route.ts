@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyJWT , createJWT} from '#utils-types/utils/jwt';
-import { prisma } from '#utils-types/utils/db';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,26 +21,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
-    }
-
-    // Create new access token (15 minutes)
+    // Re-issue the access token directly from the verified refresh-token claims.
+    // This avoids a database round-trip on refresh and prevents transient DB timeouts
+    // from breaking session renewal.
     const accessToken = await createJWT(
       {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        id: decoded.id,
+        email: decoded.email,
+        role: decoded.role,
+        firstName: decoded.firstName,
+        lastName: decoded.lastName,
       },
       '15m'
     );

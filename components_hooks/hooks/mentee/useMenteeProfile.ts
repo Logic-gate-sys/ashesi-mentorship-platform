@@ -35,7 +35,7 @@ type SaveMenteeProfileInput = {
     bio?: string | null;
     linkedin?: string | null;
   };
-};
+} | FormData;
 
 export function useMenteeProfile() {
   const { user } = useAuth();

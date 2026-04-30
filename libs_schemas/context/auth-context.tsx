@@ -27,8 +27,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   //methods
   login: (email: string, password: string) => Promise<void>;
-  registerStudent: (data: z.infer<typeof studentRegisterSchema>) => Promise<void>;
-  registerAlumni: (data: z.infer<typeof alumniRegisterSchema>) => Promise<void>;
+  registerStudent: (data: z.infer<typeof studentRegisterSchema> | FormData) => Promise<void>;
+  registerAlumni: (data: z.infer<typeof alumniRegisterSchema> | FormData) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (data: z.infer< typeof updateStudentProfileSchema | typeof updateAlumniProfileSchema >) => Promise<void>;
   fetchCurrentUser: () => Promise<void>;
@@ -141,13 +141,14 @@ const login = useCallback(
   );
 
   const registerStudent = useCallback(
-    async (data: z.infer<typeof studentRegisterSchema>) => {
+    async (data: z.infer<typeof studentRegisterSchema> | FormData) => {
       setIsLoading(true);
       try {
+        const isFormData = data instanceof FormData;
         const response = await fetch('/api/auth/register/student', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
+          headers: isFormData ? undefined : { 'Content-Type': 'application/json' },
+          body: isFormData ? data : JSON.stringify(data),
           credentials: 'include', // Receive refreshToken cookie
         });
 
@@ -167,13 +168,14 @@ const login = useCallback(
   );
 
   const registerAlumni = useCallback(
-    async (data: z.infer<typeof alumniRegisterSchema>) => {
+    async (data: z.infer<typeof alumniRegisterSchema> | FormData) => {
       setIsLoading(true);
       try {
+        const isFormData = data instanceof FormData;
         const response = await fetch('/api/auth/register/alumni', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
+          headers: isFormData ? undefined : { 'Content-Type': 'application/json' },
+          body: isFormData ? data : JSON.stringify(data),
           credentials: 'include', // Receive refreshToken cookie
         });
 

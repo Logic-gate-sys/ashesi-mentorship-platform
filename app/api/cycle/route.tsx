@@ -7,7 +7,11 @@ import {getCurrentMentorshipCycle} from '#services/mentorship-cycle.service'
 export async function GET( req: NextRequest) {
   try {
     //authorise user 
-        const {user} = await requireAuth(req);
+        const authResult = await requireAuth(req);
+        if (authResult instanceof NextResponse) {
+          return authResult;
+        }
+        const { user } = authResult;
         //authorise user 
         const isAllowed = await checkPermission(user.id,'user', 'read');
         if(!isAllowed){

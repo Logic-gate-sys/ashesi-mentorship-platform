@@ -29,7 +29,7 @@ export interface MentorProfileData {
 type MentorProfileUpdatePayload = {
   user?: Partial<MentorProfileData['user']>;
   mentorProfile?: Partial<MentorProfileData['mentorProfile']>;
-};
+} | FormData;
 
 export function useMentorProfile() {
   const { authorizedFetch } = useFetchApi();

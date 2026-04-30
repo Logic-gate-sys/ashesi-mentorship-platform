@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '#utils-types/utils/db';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
 import { getMentorshipRequestDetails,updateMentorshipRequestStatus,} from '#services/mentorship-requests.service';
 import { getIOInstance } from '#libs-schemas/socket/index';
 import { requireAuth, checkPermission } from '#/libs_schemas/middlewares/auth.middleware';
 import { clearPermissionsCache } from '#/libs_schemas/abac/engine';
+import {
+  CacheTTL,
+  buildCacheKey,
+  getFromTTLCache,
+  invalidateCacheByTags,
+  setTTLCache,
+} from '#/libs_schemas/caches/cacheEngine';
 
 
 
@@ -29,21 +37,55 @@ export async function GET(
         { status: 403 },
       );
     }
-    const isAllowed = await checkPermission(user.id, 'mentorship_request', 'accept', { mentorId: mentorProfile.id });
+    const {id } = await params; 
+    const requestRecord = await prisma.mentorshipRequest.findUnique({
+      where: { id },
+      select: {
+        mentorId: true,
+        menteeId: true,
+        createdAt: true,
+        status: true,
+      },
+    });
+
+    if (!requestRecord) {
+      return errorResponse('Request not found', { status: 404 });
+    }
+
+    const isAllowed = await checkPermission(user.id, 'mentorship_request', 'accept', requestRecord);
     if (!isAllowed) {
       return NextResponse.json(
         { error: 'Unauthorized', message: 'Do not have permission to access this resource' },
         { status: 403 },
       );
     }
-    const {id } = await params; 
+    const cacheKey = buildCacheKey('mentor-request-detail', id);
+    const cached = getFromTTLCache<{
+      success: true;
+      data: Awaited<ReturnType<typeof getMentorshipRequestDetails>>;
+    }>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached, { status: 200 });
+    }
+
     const requestDetails  = await getMentorshipRequestDetails(id);
-    return NextResponse.json({
+    const responseData = {
       success: true,
       data: requestDetails,
-    },
-    {status: 200}
-  )
+    };
+
+    setTTLCache(cacheKey, responseData, {
+      ttl: CacheTTL.SHORT,
+      tags: [
+        `user:${user.id}`,
+        `mentor-profile:${mentorProfile.id}`,
+        `mentee-profile:${requestRecord.menteeId}`,
+        `mentorship-request:${id}`,
+        'mentor:requests',
+      ],
+    });
+
+    return NextResponse.json(responseData, {status: 200});
   } catch (error) {
     console.error('Error fetching request:', error);
     return errorResponse(
@@ -75,21 +117,47 @@ export async function POST(
         { status: 403 },
       );
     }
-    const isAllowed = await checkPermission(user.id, 'mentorship_request', 'accept', { mentorId: mentorProfile.id });
+    // Check action from query param
+    const action = request.nextUrl.searchParams.get('action');
+    const { id } = await params;
+    const requestRecord = await prisma.mentorshipRequest.findUnique({
+      where: { id },
+      select: {
+        mentorId: true,
+        menteeId: true,
+        createdAt: true,
+        status: true,
+      },
+    });
+
+    if (!requestRecord) {
+      return errorResponse('Request not found', { status: 404 });
+    }
+
+    const isAllowed = await checkPermission(user.id, 'mentorship_request', 'accept', requestRecord);
     if (!isAllowed) {
       return NextResponse.json(
         { error: 'Unauthorized', message: 'Do not have permission to perform this action' },
         { status: 403 },
       );
     }
-
-    // Check action from query param
-    const action = request.nextUrl.searchParams.get('action');
-    const { id } = await params;
     const mentorProfileId = mentorProfile.id;
     // if accept
     if (action === 'accept') {
       const result = await updateMentorshipRequestStatus(id, mentorProfileId, "ACCEPTED");
+      invalidateCacheByTags([
+        `user:${user.id}`,
+        `user:${result.mentee.user.id}`,
+        `mentor-profile:${mentorProfileId}`,
+        `mentee-profile:${result.menteeId}`,
+        `mentorship-request:${id}`,
+        'mentor:requests',
+        'mentee:requests',
+        'mentor:dashboard',
+        'mentee:dashboard',
+        'mentor:connected-mentees',
+        'mentee:connected-mentors',
+      ]);
       // emit request accepted -- shown to sender (if socket initialized)
       try {
         const io = getIOInstance();
@@ -104,6 +172,17 @@ export async function POST(
       return successResponse(result, 'Request accepted successfully', 200);
     } else if (action === 'decline') {
       const result = await updateMentorshipRequestStatus(id, mentorProfileId, "DECLINED");
+      invalidateCacheByTags([
+        `user:${user.id}`,
+        `user:${result.mentee.user.id}`,
+        `mentor-profile:${mentorProfileId}`,
+        `mentee-profile:${result.menteeId}`,
+        `mentorship-request:${id}`,
+        'mentor:requests',
+        'mentee:requests',
+        'mentor:dashboard',
+        'mentee:dashboard',
+      ]);
        try {
          const io = getIOInstance();
          io.of('/requests').to(`user:${result.mentee.user.id}`).emit('request:declined', {

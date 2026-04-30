@@ -8,6 +8,7 @@ import { successResponse, errorResponse } from '#utils-types/utils/api-response'
 import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
 import { getMentorFeedback, getMentorAverageRating } from '#services/feedback.service';
 import { prisma } from '#utils-types/utils/db';
+import { CacheTTL, buildCacheKey, getFromTTLCache, setTTLCache } from '#/libs_schemas/caches/cacheEngine';
 
 /**
  * GET - List feedback
@@ -28,17 +29,34 @@ export async function GET(request: NextRequest) {
       return errorResponse('Mentor profile not found', { status: 404 });
     }
 
+    const cacheKey = buildCacheKey('mentor-feedback', mentorProfile.id);
+    const cached = getFromTTLCache<{
+      feedback: Awaited<ReturnType<typeof getMentorFeedback>>;
+      stats: Awaited<ReturnType<typeof getMentorAverageRating>>;
+      count: number;
+    }>(cacheKey);
+    if (cached) {
+      return successResponse(cached, 'Feedback retrieved successfully');
+    }
+
     const [feedback, stats] = await Promise.all([
       getMentorFeedback(mentorProfile.id),
       getMentorAverageRating(mentorProfile.id),
     ]);
 
+    const responseData = {
+      feedback,
+      stats,
+      count: feedback.length,
+    };
+
+    setTTLCache(cacheKey, responseData, {
+      ttl: CacheTTL.MEDIUM,
+      tags: [`user:${user.id}`, `mentor-profile:${mentorProfile.id}`, 'mentor:feedback'],
+    });
+
     return successResponse(
-      {
-        feedback,
-        stats,
-        count: feedback.length,
-      },
+      responseData,
       'Feedback retrieved successfully'
     );
   } catch (error) {

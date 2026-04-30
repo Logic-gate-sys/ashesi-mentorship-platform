@@ -157,7 +157,7 @@ export const MentorDetailCard = ({ requestSent, onCancelRequest, ...data }: Ment
                   placeholder="e.g. Code Review, Career Advice, Web3 Roadmap"
                   value={formData.goal}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#8B3A3A]/10 focus:border-[#8B3A3A] outline-none transition-all"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#8B3A3A]/10 focus:border-[#8B3A3A] outline-none transition-all"
                 />
               </div>
 
@@ -172,7 +172,7 @@ export const MentorDetailCard = ({ requestSent, onCancelRequest, ...data }: Ment
                   placeholder="Tell them a bit about yourself and why you're reaching out..."
                   value={formData.message}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#8B3A3A]/10 focus:border-[#8B3A3A] outline-none resize-none transition-all"
+                  className="w-full text-gray-700 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#8B3A3A]/10 focus:border-[#8B3A3A] outline-none resize-none transition-all"
                 />
               </div>
             </div>

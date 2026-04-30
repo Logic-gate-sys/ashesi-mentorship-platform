@@ -4,6 +4,7 @@ import { successResponse, errorResponse } from '#utils-types/utils/api-response'
 import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
 import { updateAvailabilitySlot, deleteAvailabilitySlot,} from '#services/availability.service';
 import { prisma } from '#utils-types/utils/db';
+import { invalidateCacheByTags } from '#/libs_schemas/caches/cacheEngine';
 
 /**
  * PATCH - Update availability slot
@@ -39,6 +40,13 @@ export async function PATCH(
       startTime,
       endTime,
     });
+
+    invalidateCacheByTags([
+      `user:${user.id}`,
+      `mentor-profile:${mentorProfile.id}`,
+      'mentor:availability',
+      'mentor:profile',
+    ]);
 
     try {
       const io = getIOInstance();
@@ -87,6 +95,13 @@ export async function DELETE(
     }
 
     await deleteAvailabilitySlot(slotId, mentorProfile.id);
+
+    invalidateCacheByTags([
+      `user:${user.id}`,
+      `mentor-profile:${mentorProfile.id}`,
+      'mentor:availability',
+      'mentor:profile',
+    ]);
 
     return successResponse(null, 'Availability slot deleted successfully');
   } catch (error) {

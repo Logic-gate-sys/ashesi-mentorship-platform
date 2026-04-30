@@ -25,6 +25,16 @@ const validateStrongPassword = (password: string) => {
   };
 };
 
+const cloudinaryHeadshotUrlSchema = z
+  .string()
+  .trim()
+  .min(1, 'Professional headshot photo is required')
+  .url('Headshot URL must be a valid URL')
+  .refine(
+    (url) => /^https:\/\/res\.cloudinary\.com\/.+\/image\/upload\//i.test(url),
+    'Please provide a valid Cloudinary image URL for your professional headshot'
+  );
+
 
 export const studentRegisterSchema = z
   .object({
@@ -46,6 +56,7 @@ export const studentRegisterSchema = z
       .min(1, "Email is required")
       .email("Invalid email format")
       .regex(/@ashesi\.edu\.gh$/i, "Must use your @ashesi.edu.gh email address"),
+    avatarUrl: cloudinaryHeadshotUrlSchema,
     
     // Step 2: Profile
     major: z.string().min(1, "Major is required").max(100).trim(),
@@ -113,6 +124,7 @@ export const alumniRegisterSchema = z
       .min(1, "Email is required")
       .email("Invalid email format")
       .regex(/@ashesi\.edu\.gh$/i, "Must use your @ashesi.edu.gh email address"),
+    avatarUrl: cloudinaryHeadshotUrlSchema,
     password: z
       .string()
       .min(1, "Password is required")
@@ -154,7 +166,7 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export const updateProfileSchema = z.object({
   firstName: z.string().min(2).max(64).trim().optional(),
   lastName: z.string().min(2).max(64).trim().optional(),
-  avatarUrl: z.string().url().optional(),
+  avatarUrl: cloudinaryHeadshotUrlSchema.optional(),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

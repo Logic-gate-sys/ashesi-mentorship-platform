@@ -11,11 +11,9 @@ export async function clearDatabase() {
     await prisma.session.deleteMany();
     await prisma.mentorshipRequest.deleteMany();
     await prisma.conversation.deleteMany();
-    await prisma.conversationParticipant.deleteMany();
-    await prisma.notification.deleteMany();
     await prisma.availability.deleteMany();
-    await prisma.mentorProfileProfile.deleteMany();
-    await prisma.menteeProfileProfile.deleteMany();
+    await prisma.menteeProfile.deleteMany();
+    await prisma.mentorProfile.deleteMany();
     await prisma.user.deleteMany();
   } catch (error) {
     console.error('Error clearing database:', error);

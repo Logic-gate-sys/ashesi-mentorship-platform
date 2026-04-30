@@ -5,3 +5,4 @@ export { useMentorMessages } from './useMentorMessages';
 export { useMentorMeetings } from './useMentorMeetings';
 export { useMentorFeedback } from './useMentorFeedback';
 export { useMentorProfile } from './useMentorProfile';
+export { useMentorConnectedMentees } from './useMentorConnectedMentees';

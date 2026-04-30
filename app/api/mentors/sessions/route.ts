@@ -12,6 +12,13 @@ import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middlewa
 import { getMentorSessions, createSession, getUpcomingMentorSessions } from '#services/sessions.service';
 import { prisma } from '#utils-types/utils/db';
 import { SessionStatus } from '#/prisma/generated/prisma/client';
+import {
+  CacheTTL,
+  buildCacheKey,
+  getFromTTLCache,
+  invalidateCacheByTags,
+  setTTLCache,
+} from '#/libs_schemas/caches/cacheEngine';
 
 /**
  * GET - List sessions with optional filters
@@ -36,21 +43,35 @@ export async function GET(request: NextRequest) {
     const filter = url.searchParams.get('filter');
     const status = url.searchParams.get('status') as SessionStatus | null;
 
+    const cacheKey = buildCacheKey('mentor-sessions', mentorProfile.id, filter || 'all', status || 'all');
+    const cached = getFromTTLCache<{
+      sessions: Awaited<ReturnType<typeof getMentorSessions>>;
+      count: number;
+      filters: { filter: string; status: string };
+    }>(cacheKey);
+    if (cached) {
+      return successResponse(cached, 'Sessions retrieved successfully');
+    }
+
     let sessions;
     if (filter === 'upcoming') {
-      sessions = await getUpcomingMentorSessions(mentorProfile.id);
+      sessions = await getUpcomingMentorSessions(mentorProfile.id, 'MENTOR');
     } else {
       sessions = await getMentorSessions(mentorProfile.id, status || undefined);
     }
 
-    return successResponse(
-      {
-        sessions,
-        count: sessions.length,
-        filters: { filter: filter || 'all', status: status || 'all' },
-      },
-      'Sessions retrieved successfully'
-    );
+    const responseData = {
+      sessions,
+      count: sessions.length,
+      filters: { filter: filter || 'all', status: status || 'all' },
+    };
+
+    setTTLCache(cacheKey, responseData, {
+      ttl: CacheTTL.SHORT,
+      tags: [`user:${user.id}`, `mentor-profile:${mentorProfile.id}`, 'mentor:sessions'],
+    });
+
+    return successResponse(responseData, 'Sessions retrieved successfully');
   } catch (error) {
     console.error('Error fetching sessions:', error);
     return errorResponse(
@@ -97,6 +118,15 @@ export async function POST(request: NextRequest) {
       notes,
       meetingUrl,
     });
+
+    invalidateCacheByTags([
+      `user:${user.id}`,
+      `mentor-profile:${mentorProfile.id}`,
+      `mentee-profile:${menteeId}`,
+      'mentor:sessions',
+      'mentor:dashboard',
+      'mentee:dashboard',
+    ]);
 
     return successResponse(session, 'Session created successfully', 201);
   } catch (error) {

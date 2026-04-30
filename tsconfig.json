@@ -19,7 +19,6 @@
       }
     ],
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
     "paths": {
       "#/*": ["./*"],
       "#app/*":["app/*"],
@@ -38,5 +37,5 @@
     "**/*.mts",
     "app/globals.css"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "tests"]
 }

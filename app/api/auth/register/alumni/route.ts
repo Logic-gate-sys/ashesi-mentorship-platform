@@ -4,11 +4,50 @@ import { createJWT } from '#utils-types/utils/jwt';
 import { hashPassword } from '#utils-types/utils/password';
 import { alumniRegisterSchema } from '#/libs_schemas/schemas/auth.schema';
 import { Role } from '#/prisma/generated/prisma/enums';
+import { uploadMedia } from '#/libs_schemas/media_upload/cloudinary';
 
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const contentType = request.headers.get('content-type') || '';
+    let body: unknown;
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      const avatar = formData.get('avatar');
+
+      if (!(avatar instanceof File) || avatar.size === 0) {
+        return NextResponse.json(
+          { error: 'Professional headshot photo is required' },
+          { status: 400 }
+        );
+      }
+
+      const uploadedAvatarUrl = await uploadMedia(avatar);
+      if (!uploadedAvatarUrl) {
+        return NextResponse.json(
+          { error: 'Failed to upload professional headshot' },
+          { status: 400 }
+        );
+      }
+
+      body = {
+        firstName: formData.get('firstName'),
+        lastName: formData.get('lastName'),
+        email: formData.get('email'),
+        avatarUrl: uploadedAvatarUrl,
+        password: formData.get('password'),
+        confirm: formData.get('confirm'),
+        graduationYear: Number(formData.get('graduationYear')),
+        major: formData.get('major'),
+        company: formData.get('company'),
+        jobTitle: formData.get('jobTitle'),
+        industry: formData.get('industry'),
+      };
+    } else {
+      body = await request.json();
+    }
+
     // Validate request body
     const result = alumniRegisterSchema.safeParse(body);
     if(!result.success){
@@ -43,6 +82,7 @@ export async function POST(request: NextRequest) {
         role:Role.MENTOR,
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
+        avatarUrl: validatedData.avatarUrl,
         mentorProfile: {
           create: {
             graduationYear: validatedData.graduationYear,

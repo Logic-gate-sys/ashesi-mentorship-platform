@@ -7,6 +7,7 @@ import { prisma } from '#utils-types/utils/db';
 import {getMentorSessions,getUpcomingMentorSessions,getUserSessionStats} from './sessions.service';
 import { getMentorshipRequests, getPendingRequestsCount } from './mentorship-requests.service';
 import { getMentorFeedback, } from './feedback.service';
+import { retryAsync } from '#/libs_schemas/caches/cacheEngine';
 
 export interface MenteeMetrics {
   totalMentors: number;
@@ -47,22 +48,30 @@ export interface DashboardOverview {
 
 
 export async function getMenteeMetrics(menteeProfileId: string): Promise<MenteeMetrics> {
-  const [activeMentors,totalAcceptedRequests,sessionStats,pendingRequests] = await Promise.all([
-    //all distinct mentees
-    prisma.mentorshipRequest.findMany({
-      where: { menteeId: menteeProfileId, status: 'ACCEPTED' },
-      distinct: ['mentorId'],
-      select: { mentorId: true },
-    }),
-     // all accepted requests
-    prisma.mentorshipRequest.count({
-      where: {menteeId: menteeProfileId,status: 'ACCEPTED' },
-    }),
+  // Execute queries sequentially to avoid exhausting the remote DB connection pool
+  // 1) distinct active mentors
+  const activeMentors = await retryAsync(() => prisma.mentorshipRequest.findMany({
+    where: { menteeId: menteeProfileId, status: 'ACCEPTED' },
+    distinct: ['mentorId'],
+    select: { mentorId: true },
+  }), { attempts: 2, baseDelayMs: 150 });
 
-    //
-    getUserSessionStats(menteeProfileId, 'MENTEE'),
-    getPendingRequestsCount(menteeProfileId, "MENTEE"),
-  ]);
+  // 2) total accepted requests
+  const totalAcceptedRequests = await retryAsync(() => prisma.mentorshipRequest.count({
+    where: { menteeId: menteeProfileId, status: 'ACCEPTED' },
+  }), { attempts: 2, baseDelayMs: 150 });
+
+  // 3) session stats
+  const sessionStats = await retryAsync(
+    () => getUserSessionStats(menteeProfileId, 'MENTEE'),
+    { attempts: 2, baseDelayMs: 150 }
+  );
+
+  // 4) pending requests count
+  const pendingRequests = await retryAsync(
+    () => getPendingRequestsCount(menteeProfileId, 'MENTEE'),
+    { attempts: 2, baseDelayMs: 150 }
+  );
 
   return {
     totalMentors: totalAcceptedRequests,
@@ -77,7 +86,7 @@ export async function getMenteeMetrics(menteeProfileId: string): Promise<MenteeM
 
 export async function getMenteeDashboardOverview(menteeProfileId: string): Promise<DashboardOverview> {
   // Fetch mentor profile
-  const mentee = await prisma.menteeProfile.findUnique({
+  const mentee = await retryAsync(() => prisma.menteeProfile.findUnique({
     where: { id: menteeProfileId },
     include: {
       user: {
@@ -90,7 +99,7 @@ export async function getMenteeDashboardOverview(menteeProfileId: string): Promi
         },
       },
     },
-  });
+  }), { attempts: 2, baseDelayMs: 150 });
   //if no mentor
   if (!mentee) {
     throw new Error('Mentor profile not found');
@@ -98,10 +107,19 @@ export async function getMenteeDashboardOverview(menteeProfileId: string): Promi
   // Fetch metrics
   const metrics = await getMenteeMetrics(menteeProfileId);
   // Fetch pending requests
-  const pendingRequests = await getMentorshipRequests(menteeProfileId,"MENTEE", 'PENDING');
-  const requestHistory = await getMentorshipRequests(menteeProfileId, "MENTEE")
+  const pendingRequests = await retryAsync(
+    () => getMentorshipRequests(menteeProfileId, 'MENTEE', 'PENDING'),
+    { attempts: 2, baseDelayMs: 150 }
+  );
+  const requestHistory = await retryAsync(
+    () => getMentorshipRequests(menteeProfileId, 'MENTEE'),
+    { attempts: 2, baseDelayMs: 150 }
+  );
   // Fetch active mentees
-  const acceptedRequests = await getMentorshipRequests(menteeProfileId, "MENTEE", 'ACCEPTED');
+  const acceptedRequests = await retryAsync(
+    () => getMentorshipRequests(menteeProfileId, 'MENTEE', 'ACCEPTED'),
+    { attempts: 2, baseDelayMs: 150 }
+  );
   const activeMentors = acceptedRequests.map(req => ({
     id: req.id,
     mentorId: req.mentor?.user.id,
@@ -112,9 +130,15 @@ export async function getMenteeDashboardOverview(menteeProfileId: string): Promi
     status: 'active' as const,
   }));
   // Fetch upcoming sessions
-  const upcomingSessions = await getUpcomingMentorSessions(menteeProfileId, "MENTEE");
+  const upcomingSessions = await retryAsync(
+    () => getUpcomingMentorSessions(menteeProfileId, 'MENTEE'),
+    { attempts: 2, baseDelayMs: 150 }
+  );
   // Fetch recent activities
-  const recentActivities = await getMenteeRecentActivities(menteeProfileId, 6);
+  const recentActivities = await retryAsync(
+    () => getMenteeRecentActivities(menteeProfileId, 6),
+    { attempts: 2, baseDelayMs: 150 }
+  );
 
   return {
     mentee: mentee,

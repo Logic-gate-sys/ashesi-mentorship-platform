@@ -4,6 +4,13 @@ import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middlewa
 import { getMentorAvailability, addAvailabilitySlot } from '#services/availability.service';
 import { prisma } from '#utils-types/utils/db';
 import { getIOInstance } from '#/libs_schemas/socket';
+import {
+  CacheTTL,
+  buildCacheKey,
+  getFromTTLCache,
+  invalidateCacheByTags,
+  setTTLCache,
+} from '#/libs_schemas/caches/cacheEngine';
 
 // do not initialize socket at module import time; obtain lazily inside handlers
 
@@ -20,12 +27,28 @@ export async function GET(request: NextRequest) {
       return errorResponse('Mentor profile not found', { status: 404 });
     }
 
+    const cacheKey = buildCacheKey('mentor-availability', user.mentorProfile.id);
+    const cached = getFromTTLCache<{
+      availability: Awaited<ReturnType<typeof getMentorAvailability>>;
+      count: number;
+    }>(cacheKey);
+    if (cached) {
+      return successResponse(cached, 'Availability slots retrieved successfully');
+    }
+
     const availability = await getMentorAvailability(user.id);
+    const responseData = {
+      availability,
+      count: availability.length,
+    };
+
+    setTTLCache(cacheKey, responseData, {
+      ttl: CacheTTL.MEDIUM,
+      tags: [`user:${user.id}`, `mentor-profile:${user.mentorProfile.id}`, 'mentor:availability'],
+    });
+
     return successResponse(
-      {
-        availability,
-        count: availability.length,
-      },
+      responseData,
       'Availability slots retrieved successfully'
     );
   } catch (error) {
@@ -55,6 +78,13 @@ export async function POST(request: NextRequest) {
 
     // creates mentor availability slot
     const slot = await addAvailabilitySlot({mentorId: user.id,dayOfWeek,startTime,endTime});
+
+    invalidateCacheByTags([
+      `user:${user.id}`,
+      `mentor-profile:${user.mentorProfile.id}`,
+      'mentor:availability',
+      'mentor:profile',
+    ]);
 
     // everyone in the request/namespace can know if mentor is available
     try {

@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '#utils-types/utils/db';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
 import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
+import { CacheTTL, buildCacheKey, getFromTTLCache, setTTLCache } from '#/libs_schemas/caches/cacheEngine';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,6 +18,27 @@ export async function GET(request: NextRequest) {
 
     if (!menteeProfile) {
       return errorResponse('Mentee profile not found', { status: 404 });
+    }
+
+    const cacheKey = buildCacheKey('mentee-feedback', menteeProfile.id);
+    const cached = getFromTTLCache<{
+      feedback: Array<{
+        id: string;
+        rating: number;
+        comment: string | null;
+        createdAt: Date;
+        mentorName: string;
+        mentorAvatar: string;
+        topic: string;
+      }>;
+      metrics: {
+        totalSessions: number;
+        averageRating: number;
+        totalFeedbackGiven: number;
+      };
+    }>(cacheKey);
+    if (cached) {
+      return successResponse(cached, 'Feedback retrieved successfully');
     }
 
     // Get all feedback given by this mentee
@@ -65,10 +87,13 @@ export async function GET(request: NextRequest) {
       totalFeedbackGiven: feedback.length,
     };
 
-    return successResponse(
-      { feedback: mapped, metrics },
-      'Feedback retrieved successfully'
-    );
+    const responseData = { feedback: mapped, metrics };
+    setTTLCache(cacheKey, responseData, {
+      ttl: CacheTTL.MEDIUM,
+      tags: [`user:${user.id}`, `mentee-profile:${menteeProfile.id}`, 'mentee:feedback'],
+    });
+
+    return successResponse(responseData, 'Feedback retrieved successfully');
   } catch (error) {
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to retrieve feedback',

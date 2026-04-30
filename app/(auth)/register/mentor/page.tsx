@@ -1,17 +1,43 @@
 "use client";
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input, Button } from "#comp-hooks/ui/_index";
-import { alumniRegisterSchema } from "#/libs_schemas/schemas/auth.schema";
 import { validateStrongPassword } from "#/libs_schemas/schemas/auth.schema";
 import { useAuth } from "#/libs_schemas/context/auth-context";
 import { EyeIcon, ErrorIcon } from "#comp-hooks/ui/icons";
 import { PasswordStrengthIndicator } from "#comp-hooks/ui/reusable-ui/PasswordStrenght";
 
-type AlumniRegisterInput = z.infer<typeof alumniRegisterSchema>;
+const alumniRegisterClientSchema = z
+  .object({
+    firstName: z.string().min(1, "First name is required").max(64).trim(),
+    lastName: z.string().min(1, "Last name is required").max(64).trim(),
+    email: z
+      .string()
+      .min(1, "Email is required")
+      .email("Invalid email format")
+      .regex(/@ashesi\.edu\.gh$/i, "Must use your @ashesi.edu.gh email address"),
+    password: z
+      .string()
+      .min(1, "Password is required")
+      .max(72)
+      .refine((pwd) => validateStrongPassword(pwd).isValid, "Password is too weak"),
+    confirm: z.string().min(1, "Please confirm your password"),
+    graduationYear: z.coerce.number().int().min(2002),
+    major: z.string().min(1, "Major is required").max(100).trim(),
+    company: z.string().min(1, "Company name is required").max(100).trim(),
+    jobTitle: z.string().min(1, "Job title is required").max(100).trim(),
+    industry: z.enum(["TECHNOLOGY", "FINANCE", "CONSULTING", "HEALTHCARE", "EDUCATION", "ENGINEERING", "OTHER"]),
+    avatarUrl: z.string().optional(),
+  })
+  .refine((data) => data.password === data.confirm, {
+    message: "Passwords don't match",
+    path: ["confirm"],
+  });
+
+type AlumniRegisterInput = z.infer<typeof alumniRegisterClientSchema>;
 
 const MAJORS = [
   "Computer Science",
@@ -122,13 +148,14 @@ export default function AlumniRegisterPage() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
-  const {register, handleSubmit, trigger, watch, formState: { errors },} = useForm<AlumniRegisterInput>({
-    resolver: zodResolver(alumniRegisterSchema),
+  const { register, handleSubmit, trigger, control, formState: { errors }, } = useForm<AlumniRegisterInput>({
+    resolver: zodResolver(alumniRegisterClientSchema),
     mode: "onTouched",
   });
 
-  const password = watch("password");
+  const password = useWatch({ control, name: "password" });
 
   // Password strength
   const passwordStrength = useMemo(() => {
@@ -155,7 +182,26 @@ export default function AlumniRegisterPage() {
   const onSubmit = async (data: AlumniRegisterInput) => {
     setServerError(null);
     try {
-      await registerAlumni(data);
+      if (!avatarFile) {
+        setServerError('Professional headshot photo is required');
+        setStep(2);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('firstName', data.firstName);
+      formData.append('lastName', data.lastName);
+      formData.append('email', data.email);
+      formData.append('password', data.password);
+      formData.append('confirm', data.confirm);
+      formData.append('graduationYear', String(data.graduationYear));
+      formData.append('major', data.major);
+      formData.append('company', data.company);
+      formData.append('jobTitle', data.jobTitle);
+      formData.append('industry', data.industry);
+      formData.append('avatar', avatarFile);
+
+      await registerAlumni(formData);
       clearSessionStorage();
     } catch (error) {
       setServerError(error instanceof Error ? error.message : 'Registration failed');
@@ -197,7 +243,7 @@ export default function AlumniRegisterPage() {
 
       {/* Server error */}
       {serverError && (
-        <div className="mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-[8px] flex items-start gap-2.5">
+        <div className="mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-base flex items-start gap-2.5">
           <svg
             className="shrink-0 mt-0.5"
             width="14"
@@ -329,6 +375,25 @@ export default function AlumniRegisterPage() {
                 </option>
               ))}
             </SelectField>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="avatarFile" className="font-body text-[13px] font-semibold text-text">
+                Professional headshot photo
+              </label>
+              <input
+                id="avatarFile"
+                type="file"
+                accept="image/*"
+                onChange={(event) => {
+                  const file = event.target.files?.[0] ?? null;
+                  setAvatarFile(file);
+                }}
+                className="w-full h-11 bg-surface border border-border rounded-base font-body text-[14px] text-text px-3 outline-none transition-all duration-150"
+              />
+              {!avatarFile ? (
+                <p className="font-body text-[12px] text-red-500">Professional headshot photo is required</p>
+              ) : null}
+            </div>
 
             {/* What mentoring means — context card */}
             <div className="bg-tag-purple/6 border border-tag-purple/15 rounded-[10px] px-4 py-3.5">

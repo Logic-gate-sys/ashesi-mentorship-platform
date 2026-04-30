@@ -73,21 +73,27 @@ export async function getMentorshipRequestDetails(requestId: string) {
    return await prisma.mentorshipRequest.findMany({
      where: { id: requestId },
      include: {
-       id: true,
-       mentor:{
+       mentor: {
          select: {
-         id: true,
-         firstName: true,
-         lastName: true,
-         profession: true,
-         graduationYear: true,
-         }
+           id: true,
+           graduationYear: true,
+           major: true,
+           company: true,
+           jobTitle: true,
+           industry: true,
+           user: {
+             select: {
+               id: true,
+               firstName: true,
+               lastName: true,
+               avatarUrl: true,
+               email: true,
+             },
+           },
+         },
        },
-       message: true,
-       status: true,
        sessions: true,
-       resolvedAt: true,
-       createdAt: true   }
+     },
    });
  }
 export async function getMentorshipRequests(userProfileId: string, user: 'MENTEE'|'MENTOR',status?: RequestStatus, ) {

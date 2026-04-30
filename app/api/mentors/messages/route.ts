@@ -7,6 +7,13 @@ import { NextRequest } from 'next/server';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
 import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
 import { getUserConversations, getOrCreateConversation } from '#services/messages.service';
+import {
+  CacheTTL,
+  buildCacheKey,
+  getFromTTLCache,
+  invalidateCacheByTags,
+  setTTLCache,
+} from '#/libs_schemas/caches/cacheEngine';
 
 /**
  * GET - List conversations
@@ -22,14 +29,31 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(url.searchParams.get('limit') || '50', 10);
     const offset = parseInt(url.searchParams.get('offset') || '0', 10);
 
+    const cacheKey = buildCacheKey('mentor-conversations', user.id, limit, offset);
+    const cached = getFromTTLCache<{
+      conversations: Awaited<ReturnType<typeof getUserConversations>>;
+      count: number;
+      pagination: { limit: number; offset: number };
+    }>(cacheKey);
+    if (cached) {
+      return successResponse(cached, 'Conversations retrieved successfully');
+    }
+
     const conversations = await getUserConversations(user.id, limit, offset);
 
+    const responseData = {
+      conversations,
+      count: conversations.length,
+      pagination: { limit, offset },
+    };
+
+    setTTLCache(cacheKey, responseData, {
+      ttl: CacheTTL.SHORT,
+      tags: [`user:${user.id}`, 'mentor:messages', `conversations:${user.id}`],
+    });
+
     return successResponse(
-      {
-        conversations,
-        count: conversations.length,
-        pagination: { limit, offset },
-      },
+      responseData,
       'Conversations retrieved successfully'
     );
   } catch (error) {
@@ -59,6 +83,15 @@ export async function POST(request: NextRequest) {
     }
 
     const conversation = await getOrCreateConversation(user.id, participantId);
+
+    invalidateCacheByTags([
+      `user:${user.id}`,
+      `user:${participantId}`,
+      `conversations:${user.id}`,
+      `conversations:${participantId}`,
+      'mentor:messages',
+      'mentee:messages',
+    ]);
 
     return successResponse(
       { conversation },

@@ -31,6 +31,7 @@ export default function MenteeSettingsPage() {
   const { profile, isLoading, isSaving, saveSuccess, error, refresh, saveProfile } = useMenteeProfile();
 
   const [formState, setFormState] = useState<ProfileFormState>(EMPTY_FORM);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!profile) {
@@ -61,20 +62,17 @@ export default function MenteeSettingsPage() {
       .map((item) => item.trim())
       .filter(Boolean);
 
-    await saveProfile({
-      user: {
-        firstName: formState.firstName,
-        lastName: formState.lastName,
-        avatarUrl: formState.avatarUrl || null,
-      },
-      menteeProfile: {
-        yearGroup: formState.yearGroup,
-        major: formState.major,
-        bio: formState.bio || null,
-        linkedin: formState.linkedin || null,
-        interests: parsedInterests,
-      },
-    });
+    const payload = new FormData();
+    payload.append("firstName", formState.firstName);
+    payload.append("lastName", formState.lastName);
+    payload.append("yearGroup", formState.yearGroup);
+    payload.append("major", formState.major);
+    if (formState.bio) payload.append("bio", formState.bio);
+    if (formState.linkedin) payload.append("linkedin", formState.linkedin);
+    payload.append("interests", JSON.stringify(parsedInterests));
+    if (avatarFile) payload.append("avatar", avatarFile);
+
+    await saveProfile(payload);
   };
 
   return (
@@ -119,15 +117,17 @@ export default function MenteeSettingsPage() {
 
           <div className="mt-5 space-y-3 border-t pt-4">
             <label className="flex flex-col gap-1 text-sm text-gray-600">
-              Avatar URL
+              Professional headshot photo
               <input
-                value={formState.avatarUrl}
-                onChange={(event) =>
-                  setFormState((prev) => ({ ...prev, avatarUrl: event.target.value }))
-                }
+                type="file"
+                accept="image/*"
+                onChange={(event) => {
+                  const file = event.target.files?.[0] ?? null;
+                  setAvatarFile(file);
+                }}
                 className="rounded-xl border border-gray-200 px-3 py-2 outline-none focus:border-[#6A0A1D]/30"
-                placeholder="https://..."
               />
+              <p className="text-xs text-gray-500">Leave empty to keep current photo</p>
             </label>
           </div>
         </aside>

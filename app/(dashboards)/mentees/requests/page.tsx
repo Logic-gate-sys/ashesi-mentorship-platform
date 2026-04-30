@@ -123,7 +123,7 @@ export default function MenteeRequestPage() {
                   value={filter}
                   onChange={(event) => setFilter(event.target.value)}
                   placeholder="Search mentors"
-                  className="w-full text-gray-900 rounded-full border border-gray-200 bg-[#FAF8F8] py-3 pl-11 pr-4 text-sm outline-none transition focus:border-[#923D41] focus:ring-2 focus:ring-[#923D41]/10"
+                  className="w-full text-gray-800 rounded-full border border-gray-200 bg-[#FAF8F8] py-3 pl-11 pr-4 text-sm outline-none transition focus:border-[#923D41] focus:ring-2 focus:ring-[#923D41]/10"
                 />
               </label>
             </div>

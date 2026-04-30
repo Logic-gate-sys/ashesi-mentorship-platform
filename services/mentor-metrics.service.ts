@@ -7,6 +7,7 @@ import { prisma } from '#utils-types/utils/db';
 import {getMentorSessions,getUpcomingMentorSessions,getUserSessionStats} from './sessions.service';
 import { getMentorshipRequests, getPendingRequestsCount } from './mentorship-requests.service';
 import { getMentorFeedback, getMentorAverageRating } from './feedback.service';
+import { retryAsync } from '#/libs_schemas/caches/cacheEngine';
 
 export interface MentorMetrics {
   totalMentees: number;
@@ -54,21 +55,30 @@ export interface DashboardOverview {
  * Get comprehensive metrics for a mentor
  */
 export async function getMentorMetrics(mentorProfileId: string): Promise<MentorMetrics> {
-  const [activeMentees,totalAcceptedRequests,sessionStats,pendingRequests,ratingData] = await Promise.all([
-    //all distinct mentees
-    prisma.mentorshipRequest.findMany({
-      where: { mentorId: mentorProfileId, status: 'ACCEPTED' },
-      distinct: ['menteeId'],
-      select: { menteeId: true },
-    }),
-     // all accepted requests
-    prisma.mentorshipRequest.count({
-      where: {mentorId: mentorProfileId,status: 'ACCEPTED' },
-    }),
-    getUserSessionStats(mentorProfileId, 'MENTOR'),
-    getPendingRequestsCount(mentorProfileId, 'MENTOR'),
-    getMentorAverageRating(mentorProfileId),
-  ]);
+  const activeMentees = await retryAsync(() => prisma.mentorshipRequest.findMany({
+    where: { mentorId: mentorProfileId, status: 'ACCEPTED' },
+    distinct: ['menteeId'],
+    select: { menteeId: true },
+  }), { attempts: 2, baseDelayMs: 150 });
+
+  const totalAcceptedRequests = await retryAsync(() => prisma.mentorshipRequest.count({
+    where: { mentorId: mentorProfileId, status: 'ACCEPTED' },
+  }), { attempts: 2, baseDelayMs: 150 });
+
+  const sessionStats = await retryAsync(
+    () => getUserSessionStats(mentorProfileId, 'MENTOR'),
+    { attempts: 2, baseDelayMs: 150 }
+  );
+
+  const pendingRequests = await retryAsync(
+    () => getPendingRequestsCount(mentorProfileId, 'MENTOR'),
+    { attempts: 2, baseDelayMs: 150 }
+  );
+
+  const ratingData = await retryAsync(
+    () => getMentorAverageRating(mentorProfileId),
+    { attempts: 2, baseDelayMs: 150 }
+  );
 
   return {
     totalMentees: totalAcceptedRequests,
@@ -84,7 +94,7 @@ export async function getMentorMetrics(mentorProfileId: string): Promise<MentorM
 
 export async function getMentorDashboardOverview(mentorProfileId: string): Promise<DashboardOverview> {
   // Fetch mentor profile
-  const mentor = await prisma.mentorProfile.findUnique({
+  const mentor = await retryAsync(() => prisma.mentorProfile.findUnique({
     where: { id: mentorProfileId },
     include: {
       user: {
@@ -97,7 +107,7 @@ export async function getMentorDashboardOverview(mentorProfileId: string): Promi
         },
       },
     },
-  });
+  }), { attempts: 2, baseDelayMs: 150 });
   //if no mentor
   if (!mentor) {
     throw new Error('Mentor profile not found');
@@ -105,9 +115,15 @@ export async function getMentorDashboardOverview(mentorProfileId: string): Promi
   // Fetch metrics
   const metrics = await getMentorMetrics(mentorProfileId);
   // Fetch pending requests
-  const pendingRequests = await getMentorshipRequests(mentorProfileId,"MENTOR", 'PENDING');
+  const pendingRequests = await retryAsync(
+    () => getMentorshipRequests(mentorProfileId, 'MENTOR', 'PENDING'),
+    { attempts: 2, baseDelayMs: 150 }
+  );
   // Fetch active mentees
-  const acceptedRequests = await getMentorshipRequests(mentorProfileId,"MENTOR",'ACCEPTED');
+  const acceptedRequests = await retryAsync(
+    () => getMentorshipRequests(mentorProfileId, 'MENTOR', 'ACCEPTED'),
+    { attempts: 2, baseDelayMs: 150 }
+  );
   const activeMentees = acceptedRequests.map(req => ({
     id: req.id,
     studentId: req.mentee?.user.id,
@@ -118,9 +134,15 @@ export async function getMentorDashboardOverview(mentorProfileId: string): Promi
     status: 'active' as const,
   }));
   // Fetch upcoming sessions
-  const upcomingSessions = await getUpcomingMentorSessions(mentorProfileId, "MENTOR");
+  const upcomingSessions = await retryAsync(
+    () => getUpcomingMentorSessions(mentorProfileId, 'MENTOR'),
+    { attempts: 2, baseDelayMs: 150 }
+  );
   // Fetch recent activities
-  const recentActivities = await getMentorRecentActivities(mentorProfileId, 6);
+  const recentActivities = await retryAsync(
+    () => getMentorRecentActivities(mentorProfileId, 6),
+    { attempts: 2, baseDelayMs: 150 }
+  );
 
   return {
     mentor,

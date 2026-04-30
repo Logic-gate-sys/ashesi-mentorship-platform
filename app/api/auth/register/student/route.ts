@@ -4,12 +4,62 @@ import { createJWT } from '#utils-types/utils/jwt'
 import { hashPassword } from '#utils-types/utils/password'
 import { studentRegisterSchema } from '#/libs_schemas/schemas/auth.schema'
 import { Role } from '#/prisma/generated/prisma/enums'
+import { uploadMedia } from '#/libs_schemas/media_upload/cloudinary'
 
 
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const contentType = request.headers.get('content-type') || '';
+    let body: unknown;
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      const avatar = formData.get('avatar');
+
+      if (!(avatar instanceof File) || avatar.size === 0) {
+        return NextResponse.json(
+          { error: 'Professional headshot photo is required' },
+          { status: 400 }
+        );
+      }
+
+      const uploadedAvatarUrl = await uploadMedia(avatar);
+      if (!uploadedAvatarUrl) {
+        return NextResponse.json(
+          { error: 'Failed to upload professional headshot' },
+          { status: 400 }
+        );
+      }
+
+      let interests: string[] = [];
+      const interestsRaw = formData.get('interests');
+      if (typeof interestsRaw === 'string' && interestsRaw.trim()) {
+        try {
+          const parsed = JSON.parse(interestsRaw);
+          interests = Array.isArray(parsed) ? parsed.filter((item) => typeof item === 'string') : [];
+        } catch {
+          interests = [];
+        }
+      }
+
+      body = {
+        firstName: formData.get('firstName'),
+        lastName: formData.get('lastName'),
+        email: formData.get('email'),
+        avatarUrl: uploadedAvatarUrl,
+        major: formData.get('major'),
+        year: formData.get('year'),
+        password: formData.get('password'),
+        confirm: formData.get('confirm'),
+        interests,
+        bio: formData.get('bio') || undefined,
+        linkedin: formData.get('linkedin') || undefined,
+      };
+    } else {
+      body = await request.json()
+    }
+
     const result = studentRegisterSchema.safeParse(body)
    // if response fails
     if (!result.success) {
@@ -42,6 +92,7 @@ export async function POST(request: NextRequest) {
         role: Role.MENTEE,
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
+        avatarUrl: validatedData.avatarUrl,
         menteeProfile: {
           create: {
             yearGroup: validatedData.year,

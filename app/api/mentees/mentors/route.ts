@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '#utils-types/utils/db';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
 import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
+import { CacheTTL, buildCacheKey, getFromTTLCache, setTTLCache } from '#/libs_schemas/caches/cacheEngine';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,6 +18,23 @@ export async function GET(request: NextRequest) {
 
     if (!menteeProfile) {
       return errorResponse('Mentee profile not found', { status: 404 });
+    }
+
+    const cacheKey = buildCacheKey('mentee-connected-mentors', menteeProfile.id);
+    const cached = getFromTTLCache<{ mentors: Array<{
+      id: string;
+      userId: string;
+      firstName: string;
+      lastName: string;
+      avatarUrl: string;
+      company: string;
+      jobTitle: string;
+      industry: string;
+      bio: string;
+      skills: string[];
+    }>; count: number }>(cacheKey);
+    if (cached) {
+      return successResponse(cached, 'Connected mentors retrieved successfully');
     }
 
     // Get all accepted mentorship requests with mentor details
@@ -54,10 +72,13 @@ export async function GET(request: NextRequest) {
       skills: Array.isArray(req.mentor.skills) ? req.mentor.skills : [],
     }));
 
-    return successResponse(
-      { mentors, count: mentors.length },
-      'Connected mentors retrieved successfully'
-    );
+    const responseData = { mentors, count: mentors.length };
+    setTTLCache(cacheKey, responseData, {
+      ttl: CacheTTL.MEDIUM,
+      tags: [`user:${user.id}`, `mentee-profile:${menteeProfile.id}`, 'mentee:connected-mentors'],
+    });
+
+    return successResponse(responseData, 'Connected mentors retrieved successfully');
   } catch (error) {
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to retrieve mentors',

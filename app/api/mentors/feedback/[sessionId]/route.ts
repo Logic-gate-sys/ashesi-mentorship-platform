@@ -21,6 +21,13 @@ import {
   updateSessionFeedback,
   deleteSessionFeedback,
 } from '#services/feedback.service';
+import {
+  CacheTTL,
+  buildCacheKey,
+  getFromTTLCache,
+  invalidateCacheByTags,
+  setTTLCache,
+} from '#/libs_schemas/caches/cacheEngine';
 
 /**
  * GET - Get feedback for a session
@@ -37,11 +44,22 @@ export async function GET(
 
     const { sessionId } = await params;
 
+    const cacheKey = buildCacheKey('session-feedback', sessionId);
+    const cached = getFromTTLCache<Awaited<ReturnType<typeof getSessionFeedback>>>(cacheKey);
+    if (cached) {
+      return successResponse(cached, 'Feedback retrieved successfully');
+    }
+
     const feedback = await getSessionFeedback(sessionId);
 
     if (!feedback) {
       return errorResponse('Feedback not found', { status: 404 });
     }
+
+    setTTLCache(cacheKey, feedback, {
+      ttl: CacheTTL.SHORT,
+      tags: [`session:${sessionId}`, `user:${user.id}`, 'mentor:feedback', 'mentee:feedback'],
+    });
 
     return successResponse(feedback, 'Feedback retrieved successfully');
   } catch (error) {
@@ -81,6 +99,15 @@ export async function POST(
       comment,
     });
 
+    invalidateCacheByTags([
+      `session:${sessionId}`,
+      `user:${user.id}`,
+      'mentor:feedback',
+      'mentee:feedback',
+      'mentor:dashboard',
+      'mentee:dashboard',
+    ]);
+
     return successResponse(feedback, 'Feedback created successfully', 201);
   } catch (error) {
     console.error('Error creating feedback:', error);
@@ -114,6 +141,15 @@ export async function PATCH(
       comment,
     });
 
+    invalidateCacheByTags([
+      `session:${sessionId}`,
+      `user:${user.id}`,
+      'mentor:feedback',
+      'mentee:feedback',
+      'mentor:dashboard',
+      'mentee:dashboard',
+    ]);
+
     return successResponse(feedback, 'Feedback updated successfully');
   } catch (error) {
     console.error('Error updating feedback:', error);
@@ -140,6 +176,15 @@ export async function DELETE(
     const { sessionId } = await params;
 
     await deleteSessionFeedback(sessionId);
+
+    invalidateCacheByTags([
+      `session:${sessionId}`,
+      `user:${user.id}`,
+      'mentor:feedback',
+      'mentee:feedback',
+      'mentor:dashboard',
+      'mentee:dashboard',
+    ]);
 
     return successResponse(null, 'Feedback deleted successfully');
   } catch (error) {

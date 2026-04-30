@@ -2,12 +2,55 @@ import { NextRequest } from 'next/server';
 import { prisma } from '#utils-types/utils/db';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
 import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
+import { z } from 'zod';
+import { uploadMedia } from '#/libs_schemas/media_upload/cloudinary';
+import {
+  CacheTTL,
+  buildCacheKey,
+  getFromTTLCache,
+  invalidateCacheByTags,
+  setTTLCache,
+} from '#/libs_schemas/caches/cacheEngine';
+
+const cloudinaryHeadshotUrlSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .url()
+  .refine((url) => /^https:\/\/res\.cloudinary\.com\/.+\/image\/upload\//i.test(url));
 
 export async function GET(request: NextRequest) {
   try {
     const user = await extractUserFromRequest(request);
     if (!user || user.role !== 'MENTOR') {
       return errorResponse('Unauthorized', { status: 401 });
+    }
+
+    const cacheKey = buildCacheKey('mentor-profile', user.id);
+    const cached = getFromTTLCache<{
+      user: {
+        id: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+        avatarUrl: string | null;
+      };
+      mentorProfile: {
+        id: string;
+        graduationYear: number;
+        major: string;
+        company: string;
+        jobTitle: string;
+        industry: string;
+        bio: string | null;
+        linkedin: string | null;
+        skills: string[];
+        isAvailable: boolean;
+        maxMentees: number;
+      };
+    }>(cacheKey);
+    if (cached) {
+      return successResponse(cached, 'Mentor profile retrieved successfully');
     }
 
     const profile = await prisma.mentorProfile.findUnique({
@@ -29,25 +72,29 @@ export async function GET(request: NextRequest) {
       return errorResponse('Mentor profile not found', { status: 404 });
     }
 
-    return successResponse(
-      {
-        user: profile.user,
-        mentorProfile: {
-          id: profile.id,
-          graduationYear: profile.graduationYear,
-          major: profile.major,
-          company: profile.company,
-          jobTitle: profile.jobTitle,
-          industry: profile.industry,
-          bio: profile.bio,
-          linkedin: profile.linkedin,
-          skills: profile.skills,
-          isAvailable: profile.isAvailable,
-          maxMentees: profile.maxMentees,
-        },
+    const responseData = {
+      user: profile.user,
+      mentorProfile: {
+        id: profile.id,
+        graduationYear: profile.graduationYear,
+        major: profile.major,
+        company: profile.company,
+        jobTitle: profile.jobTitle,
+        industry: profile.industry,
+        bio: profile.bio,
+        linkedin: profile.linkedin,
+        skills: profile.skills,
+        isAvailable: profile.isAvailable,
+        maxMentees: profile.maxMentees,
       },
-      'Mentor profile retrieved successfully'
-    );
+    };
+
+    setTTLCache(cacheKey, responseData, {
+      ttl: CacheTTL.MEDIUM,
+      tags: [`user:${user.id}`, `mentor-profile:${profile.id}`, 'mentor:profile'],
+    });
+
+    return successResponse(responseData, 'Mentor profile retrieved successfully');
   } catch (error) {
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to retrieve mentor profile',
@@ -63,15 +110,96 @@ export async function PATCH(request: NextRequest) {
       return errorResponse('Unauthorized', { status: 401 });
     }
 
-    const body = await request.json();
+    const contentType = request.headers.get('content-type') || '';
+    let body: {
+      user?: {
+        firstName?: string | null;
+        lastName?: string | null;
+        avatarUrl?: string | null;
+      };
+      mentorProfile?: {
+        graduationYear?: number | string | null;
+        major?: string | null;
+        company?: string | null;
+        jobTitle?: string | null;
+        industry?: string | null;
+        bio?: string | null;
+        linkedin?: string | null;
+        skills?: unknown;
+        isAvailable?: boolean | null;
+        maxMentees?: number | string | null;
+      };
+    } = {};
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      const getTextValue = (key: string): string | undefined => {
+        const value = formData.get(key);
+        return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+      };
+      const avatar = formData.get('avatar');
+      let avatarUrl: string | undefined;
+
+      if (avatar instanceof File && avatar.size > 0) {
+        const uploadedAvatarUrl = await uploadMedia(avatar);
+        if (!uploadedAvatarUrl) {
+          return errorResponse('Failed to upload professional headshot', { status: 400 });
+        }
+        avatarUrl = uploadedAvatarUrl;
+      }
+
+      let skills: string[] | undefined;
+      const skillsRaw = formData.get('skills');
+      if (typeof skillsRaw === 'string' && skillsRaw.trim()) {
+        try {
+          const parsed = JSON.parse(skillsRaw);
+          skills = Array.isArray(parsed) ? parsed.filter((item) => typeof item === 'string') : undefined;
+        } catch {
+          skills = undefined;
+        }
+      }
+
+      const graduationYearRaw = formData.get('graduationYear');
+      const maxMenteesRaw = formData.get('maxMentees');
+      const isAvailableRaw = formData.get('isAvailable');
+
+      body = {
+        user: {
+          firstName: getTextValue('firstName'),
+          lastName: getTextValue('lastName'),
+          avatarUrl,
+        },
+        mentorProfile: {
+          graduationYear: typeof graduationYearRaw === 'string' && graduationYearRaw ? Number(graduationYearRaw) : undefined,
+          major: getTextValue('major'),
+          company: getTextValue('company'),
+          jobTitle: getTextValue('jobTitle'),
+          industry: getTextValue('industry'),
+          bio: getTextValue('bio'),
+          linkedin: getTextValue('linkedin'),
+          skills,
+          isAvailable: typeof isAvailableRaw === 'string' ? isAvailableRaw === 'true' : undefined,
+          maxMentees: typeof maxMenteesRaw === 'string' && maxMenteesRaw ? Number(maxMenteesRaw) : undefined,
+        },
+      };
+    } else {
+      body = await request.json();
+    }
 
     const userUpdates: Record<string, unknown> = {};
     const mentorUpdates: Record<string, unknown> = {};
 
     if (typeof body?.user?.firstName === 'string') userUpdates.firstName = body.user.firstName;
     if (typeof body?.user?.lastName === 'string') userUpdates.lastName = body.user.lastName;
-    if (typeof body?.user?.avatarUrl === 'string' || body?.user?.avatarUrl === null) {
-      userUpdates.avatarUrl = body.user.avatarUrl;
+    if (body?.user?.avatarUrl === null) {
+      return errorResponse('Professional headshot photo is required for profile picture', { status: 400 });
+    }
+    if (typeof body?.user?.avatarUrl === 'string') {
+      const avatarValidation = cloudinaryHeadshotUrlSchema.safeParse(body.user.avatarUrl);
+      if (!avatarValidation.success) {
+        return errorResponse('Avatar must be a valid Cloudinary image URL', { status: 400 });
+      }
+      userUpdates.avatarUrl = avatarValidation.data;
     }
 
     if (typeof body?.mentorProfile?.graduationYear === 'number') {
@@ -133,6 +261,19 @@ export async function PATCH(request: NextRequest) {
     if (!updated) {
       return errorResponse('Mentor profile not found', { status: 404 });
     }
+
+    invalidateCacheByTags([
+      `user:${user.id}`,
+      `mentor-profile:${updated.id}`,
+      'mentor:profile',
+      'mentor:dashboard',
+      'mentor:requests',
+      'mentor:messages',
+      'mentor:availability',
+      'mentor:feedback',
+      'mentors:list',
+      'mentee:connected-mentors',
+    ]);
 
     return successResponse(
       {

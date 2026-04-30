@@ -4,6 +4,7 @@ import { successResponse, errorResponse } from '#utils-types/utils/api-response'
 import { requirePermission, extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
 import { getMentorDashboardOverview } from '#services/mentor-metrics.service';
 import { prisma } from '#utils-types/utils/db';
+import { CacheTTL, buildCacheKey, getFromTTLCache, setTTLCache } from '#/libs_schemas/caches/cacheEngine';
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,8 +29,22 @@ export async function GET(request: NextRequest) {
       return errorResponse('Mentor profile not found', { status: 404 });
     }
 
+    const cacheKey = buildCacheKey('mentor-dashboard', mentorProfile.id);
+    const cached = getFromTTLCache<Awaited<ReturnType<typeof getMentorDashboardOverview>>>(cacheKey);
+    if (cached) {
+      return successResponse(cached, 'Dashboard data retrieved successfully');
+    }
+
     // Fetch complete dashboard overview
     const dashboard = await getMentorDashboardOverview(mentorProfile.id);
+    setTTLCache(cacheKey, dashboard, {
+      ttl: CacheTTL.SHORT,
+      tags: [
+        `user:${user.id}`,
+        `mentor-profile:${mentorProfile.id}`,
+        'mentor:dashboard',
+      ],
+    });
     return successResponse(dashboard, 'Dashboard data retrieved successfully');
   } catch (error) {
     console.error('Error fetching dashboard data:', error);

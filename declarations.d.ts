@@ -8,7 +8,15 @@ declare module "custom-env" {
     path?: string;
     env?: string;
     encoding?: string;
+    defaultEnvFallback?: boolean;
   }
   
-  export function config(options?: CustomEnvOptions): void;
+  export function env(
+    envname?: string | boolean,
+    dir?: string | null,
+    encoding?: string | null,
+    defaultEnvFallback?: boolean
+  ): unknown;
+
+  export function config(options?: CustomEnvOptions): unknown;
 }

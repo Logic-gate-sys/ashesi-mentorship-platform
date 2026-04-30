@@ -50,7 +50,6 @@ export default function MenteeMessagesPage() {
     mentors,
     isLoading: mentorsLoading,
     error: mentorsError,
-    refresh: refreshMentors,
   } = useMenteeConnectedMentors();
 
   const [draft, setDraft] = useState("");
@@ -78,26 +77,28 @@ export default function MenteeMessagesPage() {
     }
 
     // Join conversation room
-    socket.emit('join_conversation', selectedConversationId, (ack: any) => {
-      console.log('[Messages] Joined conversation:', selectedConversationId, ack);
-    });
+    socket.emit('conversation:joined', selectedConversationId);
 
     // Listen for socket events specific to this conversation
-    const handleMessageReceived = (payload: any) => {
-      const conversationId = payload?.conversationId as string | undefined;
+    const handleMessageReceived = (payload: { conversationId?: string } | unknown) => {
+      const conversationId = typeof payload === 'object' && payload !== null
+        ? (payload as { conversationId?: string }).conversationId
+        : undefined;
       console.debug('[Messages] message_received:', conversationId);
       if (conversationId && conversationId === selectedConversationId) {
         void loadMessages(conversationId);
       }
     };
 
-    const handleNotification = (payload: any) => {
+    const handleNotification = (payload: unknown) => {
       console.debug('[Messages] notification received:', payload);
       void refresh();
     };
 
-    const handleMessageSent = (payload: any) => {
-      const conversationId = payload?.conversationId as string | undefined;
+    const handleMessageSent = (payload: { conversationId?: string } | unknown) => {
+      const conversationId = typeof payload === 'object' && payload !== null
+        ? (payload as { conversationId?: string }).conversationId
+        : undefined;
       console.debug('[Messages] message_sent:', conversationId);
       if (conversationId && conversationId === selectedConversationId) {
         void loadMessages(conversationId);
@@ -114,9 +115,7 @@ export default function MenteeMessagesPage() {
       socket.off('message_sent', handleMessageSent);
       
       // Leave conversation room on cleanup
-      socket.emit('leave_conversation', selectedConversationId, (ack: any) => {
-        console.log('[Messages] Left conversation:', selectedConversationId);
-      });
+      socket.emit('conversation:left', selectedConversationId);
     };
   }, [socket, isOn, selectedConversationId, loadMessages, refresh]);
 

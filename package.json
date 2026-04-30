@@ -17,9 +17,11 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@isaacs/ttlcache": "^2.1.4",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "@vitest/browser-playwright": "^4.1.2",
+    "cloudinary": "^2.10.0",
     "custom-env": "^2.0.6",
     "date-fns": "^4.1.0",
     "dotenv": "^17.3.1",
@@ -30,6 +32,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.72.0",
+    "redis": "^5.12.1",
     "socket.io": "^4.8.3",
     "zod": "^3.22.4"
   },

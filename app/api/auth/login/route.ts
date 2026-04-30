@@ -82,8 +82,9 @@ export async function POST(request: NextRequest) {
     // return response
     return response  
   } catch (err) {
+    const details = err instanceof Error ? err.message : 'Unknown error';
     return NextResponse.json(
-      { errors: { message: 'Login failed', details:err?.message } },
+      { errors: { message: 'Login failed', details } },
       { status: 500 }
     );
   }

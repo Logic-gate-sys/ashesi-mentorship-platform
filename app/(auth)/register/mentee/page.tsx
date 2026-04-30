@@ -10,7 +10,34 @@ import { studentRegisterSchema, validateStrongPassword } from '#/libs_schemas/sc
 import { EyeIcon, ErrorIcon } from '#comp-hooks/ui/icons'
 import { PasswordStrengthIndicator } from '#comp-hooks/ui/reusable-ui/PasswordStrenght'
 
-type StudentRegisterInput = z.infer<typeof studentRegisterSchema>
+const studentRegisterClientSchema = z
+  .object({
+    firstName: z.string().min(1, "First name is required").max(64).trim(),
+    lastName: z.string().min(1, "Last name is required").max(64).trim(),
+    email: z
+      .string()
+      .min(1, "Email is required")
+      .email("Invalid email format")
+      .regex(/@ashesi\.edu\.gh$/i, "Must use your @ashesi.edu.gh email address"),
+    major: z.string().min(1, "Major is required").max(100).trim(),
+    year: z.coerce.number().int().min(1).max(4),
+    password: z
+      .string()
+      .min(1, "Password is required")
+      .max(72)
+      .refine((pwd) => validateStrongPassword(pwd).isValid, "Password is too weak"),
+    confirm: z.string().min(1, "Please confirm your password"),
+    interests: z.array(z.string()).min(1, "Add at least one interest").max(10),
+    bio: z.string().optional(),
+    linkedin: z.string().optional(),
+    avatarUrl: z.string().optional(),
+  })
+  .refine((data) => data.password === data.confirm, {
+    message: "Passwords don't match",
+    path: ["confirm"],
+  });
+
+type StudentRegisterInput = z.infer<typeof studentRegisterClientSchema>
 
 const MAJORS = [
   'Computer Science',
@@ -49,14 +76,16 @@ export default function StudentRegisterPage() {
   const [interestInput, setInterestInput] = useState('')
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false)
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
 
   const { register, handleSubmit, trigger, watch, setValue, formState: { errors } } = useForm({
-    resolver: zodResolver(studentRegisterSchema),
+    resolver: zodResolver(studentRegisterClientSchema),
     mode: 'onTouched',
     defaultValues: {
       firstName: '',
       lastName: '',
       email: '',
+      avatarUrl: '',
       major: '',
       year: 1,
       password: '',
@@ -104,8 +133,8 @@ export default function StudentRegisterPage() {
 
   // Step 2 validation
   const isStep2Valid = useMemo(() => {
-    return major?.length > 0 && year && !errors.major && !errors.year
-  }, [major, year, errors])
+    return major?.length > 0 && year && !!avatarFile && !errors.major && !errors.year
+  }, [major, year, avatarFile, errors])
 
   // Step 3 validation
   const isStep3Valid = passwordStrength.isValid && password === confirm && !errors.password && !errors.confirm
@@ -173,18 +202,26 @@ export default function StudentRegisterPage() {
     }
 
     try {
-      await registerStudent({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        password: data.password,
-        confirm: data.confirm,
-        year: data.year,
-        major: data.major,
-        interests: data.interests,
-        bio: data.bio || null,
-        linkedin: data.linkedin || null,
-      })
+      if (!avatarFile) {
+        setServerError('Professional headshot photo is required')
+        setStep(2)
+        return
+      }
+
+      const formData = new FormData()
+      formData.append('firstName', data.firstName)
+      formData.append('lastName', data.lastName)
+      formData.append('email', data.email)
+      formData.append('major', data.major)
+      formData.append('year', String(data.year))
+      formData.append('password', data.password)
+      formData.append('confirm', data.confirm)
+      formData.append('interests', JSON.stringify(data.interests))
+      if (data.bio) formData.append('bio', data.bio)
+      if (data.linkedin) formData.append('linkedin', data.linkedin)
+      formData.append('avatar', avatarFile)
+
+      await registerStudent(formData)
       clearSessionStorage()
     } catch (error) {
       setServerError(error instanceof Error ? error.message : 'Registration failed')
@@ -239,13 +276,13 @@ export default function StudentRegisterPage() {
         {step === 1 && (
           <div className="space-y-6">
             <div>
-              <label htmlFor="firstName" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>First name *</label>
+              <label htmlFor="firstName" className="block text-[14px] font-bold text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>First name *</label>
               <input
                 id="firstName"
                 type="text"
                 placeholder="Kwame"
                 autoComplete="given-name"
-                className={`w-full h-[46px] px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                className={`w-full h-11.5 px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
                   errors.firstName ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
                 }`}
                 {...register('firstName')}
@@ -256,13 +293,13 @@ export default function StudentRegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="lastName" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Last name *</label>
+              <label htmlFor="lastName" className="block text-[14px] font-bold text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Last name *</label>
               <input
                 id="lastName"
                 type="text"
                 placeholder="Mensah"
                 autoComplete="family-name"
-                className={`w-full h-[46px] px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                className={`w-full h-11.5 px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
                   errors.lastName ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
                 }`}
                 {...register('lastName')}
@@ -273,13 +310,13 @@ export default function StudentRegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Ashesi email address *</label>
+              <label htmlFor="email" className="block text-[14px] font-bold text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Ashesi email address *</label>
               <input
                 id="email"
                 type="email"
                 placeholder="you@ashesi.edu.gh"
                 autoComplete="email"
-                className={`w-full h-[46px] px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                className={`w-full h-11.5 px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
                   errors.email ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
                 }`}
                 {...register('email')}
@@ -294,7 +331,7 @@ export default function StudentRegisterPage() {
             <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                className="w-full h-[60px] bg-[#923D41] text-white font-[400] text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
+                className="w-full h-15 bg-[#923D41] text-white font-normal text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
                 onClick={handleNext}
                 disabled={!isStep1Valid}
                 style={{ fontFamily: "'Bree Serif', serif" }}
@@ -309,10 +346,10 @@ export default function StudentRegisterPage() {
         {step === 2 && (
           <div className="space-y-6">
             <div>
-              <label htmlFor="major" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Major / Program *</label>
+              <label htmlFor="major" className="block text-[14px] font-bold text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Major / Program *</label>
               <select
                 id="major"
-                className={`w-full h-[46px] px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                className={`w-full h-11.5 px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
                   errors.major ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
                 }`}
                 {...register('major')}
@@ -328,10 +365,10 @@ export default function StudentRegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="year" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Current year *</label>
+              <label htmlFor="year" className="block text-[14px] font-bold text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Current year *</label>
               <select
                 id="year"
-                className={`w-full h-[46px] px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                className={`w-full h-11.5 px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
                   errors.year ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
                 }`}
                 {...register('year')}
@@ -347,11 +384,29 @@ export default function StudentRegisterPage() {
               )}
             </div>
 
+            <div>
+              <label htmlFor="avatarFile" className="block text-[14px] font-bold text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Professional headshot photo *</label>
+              <input
+                id="avatarFile"
+                type="file"
+                accept="image/*"
+                className="w-full h-11.5 px-3 rounded-[10px] bg-[#FAF8F8] border-[1.5px] border-[#D1D5DB] outline-none transition-all text-[13px]"
+                onChange={(event) => {
+                  const file = event.target.files?.[0] ?? null
+                  setAvatarFile(file)
+                }}
+              />
+              <p className="text-[12px] text-[#999] mt-2">Required: upload your professional headshot from your device</p>
+              {!avatarFile && step === 2 ? (
+                <p className="text-[12px] text-danger mt-2">Professional headshot photo is required</p>
+              ) : null}
+            </div>
+
             {/* Action buttons */}
             <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                className="w-full h-[60px] bg-white text-[#923D41] font-[400] text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
+                className="w-full h-15 bg-white text-[#923D41] font-normal text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
                 onClick={handleBack}
                 style={{ fontFamily: "'Bree Serif', serif" }}
               >
@@ -359,7 +414,7 @@ export default function StudentRegisterPage() {
               </button>
               <button
                 type="button"
-                className="w-full h-[60px] bg-[#923D41] text-white font-[400] text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
+                className="w-full h-15 bg-[#923D41] text-white font-normal text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
                 onClick={handleNext}
                 disabled={!isStep2Valid}
                 style={{ fontFamily: "'Bree Serif', serif" }}
@@ -374,14 +429,14 @@ export default function StudentRegisterPage() {
         {step === 3 && (
           <div className="space-y-6">
             <div>
-              <label htmlFor="password" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Password *</label>
+              <label htmlFor="password" className="block text-[14px] font-bold text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Password *</label>
               <div className="relative">
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Create a strong password"
                   autoComplete="new-password"
-                  className={`w-full h-[46px] px-4 pr-12 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                  className={`w-full h-11.5 px-4 pr-12 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
                     errors.password ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
                   }`}
                   {...register('password')}
@@ -409,14 +464,14 @@ export default function StudentRegisterPage() {
             )}
 
             <div>
-              <label htmlFor="confirm" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Confirm password *</label>
+              <label htmlFor="confirm" className="block text-[14px] font-bold text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Confirm password *</label>
               <div className="relative">
                 <input
                   id="confirm"
                   type={showConfirm ? 'text' : 'password'}
                   placeholder="Re-enter your password"
                   autoComplete="new-password"
-                  className={`w-full h-[46px] px-4 pr-12 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                  className={`w-full h-11.5 px-4 pr-12 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
                     errors.confirm ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
                   }`}
                   {...register('confirm')}
@@ -439,7 +494,7 @@ export default function StudentRegisterPage() {
             <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                className="w-full h-[60px] bg-white text-[#923D41] font-[400] text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
+                className="w-full h-15 bg-white text-[#923D41] font-normal text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
                 onClick={handleBack}
                 style={{ fontFamily: "'Bree Serif', serif" }}
               >
@@ -447,7 +502,7 @@ export default function StudentRegisterPage() {
               </button>
               <button
                 type="button"
-                className="w-full h-[60px] bg-[#923D41] text-white font-[400] text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
+                className="w-full h-15 bg-[#923D41] text-white font-normal text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
                 onClick={handleNext}
                 disabled={!isStep3Valid}
                 style={{ fontFamily: "'Bree Serif', serif" }}
@@ -462,7 +517,7 @@ export default function StudentRegisterPage() {
         {step === 4 && (
           <div className="space-y-6">
             <div>
-              <label htmlFor="interestInput" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Add an interest *</label>
+              <label htmlFor="interestInput" className="block text-[14px] font-bold text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>Add an interest *</label>
               <div className="flex gap-2">
                 <input
                   id="interestInput"
@@ -476,12 +531,12 @@ export default function StudentRegisterPage() {
                       addInterest(interestInput)
                     }
                   }}
-                  className="flex-1 h-[44px] px-4 border border-[#923D41] rounded-[10px] bg-white outline-none transition-colors focus:shadow-[0_0_0_3px_rgba(146,61,65,0.10)]"
+                  className="flex-1 h-11 px-4 border border-[#923D41] rounded-[10px] bg-white outline-none transition-colors focus:shadow-[0_0_0_3px_rgba(146,61,65,0.10)]"
                 />
                 <button
                   type="button"
                   onClick={() => addInterest(interestInput)}
-                  className="px-6 h-[44px] bg-[#923D41] text-white rounded-[10px] hover:bg-[#7B1427] transition-all text-[14px] font-[700]"
+                  className="px-6 h-11 bg-[#923D41] text-white rounded-[10px] hover:bg-[#7B1427] transition-all text-[14px] font-bold"
                 >
                   Add
                 </button>
@@ -494,7 +549,7 @@ export default function StudentRegisterPage() {
             {/* Suggested interests */}
             {interests.length < 10 && (
               <div>
-                <p className="text-[13px] font-[700] text-[#666] mb-3">Suggested interests:</p>
+                <p className="text-[13px] font-bold text-[#666] mb-3">Suggested interests:</p>
                 <div className="flex flex-wrap gap-2">
                   {SUGGESTED_INTERESTS.filter(s => !interests.includes(s)).slice(0, 8).map(interest => (
                     <button
@@ -513,7 +568,7 @@ export default function StudentRegisterPage() {
             {/* Selected interests */}
             {interests.length > 0 && (
               <div>
-                <p className="text-[13px] font-[700] text-[#666] mb-3">Your interests ({interests.length}/10):</p>
+                <p className="text-[13px] font-bold text-[#666] mb-3">Your interests ({interests.length}/10):</p>
                 <div className="flex flex-wrap gap-2">
                   {interests.map((interest, idx) => (
                     <div
@@ -538,7 +593,7 @@ export default function StudentRegisterPage() {
             <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                className="w-full h-[60px] bg-white text-[#923D41] font-[400] text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
+                className="w-full h-15 bg-white text-[#923D41] font-normal text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
                 onClick={handleBack}
                 style={{ fontFamily: "'Bree Serif', serif" }}
               >
@@ -546,7 +601,7 @@ export default function StudentRegisterPage() {
               </button>
               <button
                 type="button"
-                className="w-full h-[60px] bg-[#923D41] text-white font-[400] text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
+                className="w-full h-15 bg-[#923D41] text-white font-normal text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
                 onClick={handleNext}
                 disabled={!isStep4Valid}
                 style={{ fontFamily: "'Bree Serif', serif" }}
@@ -561,7 +616,7 @@ export default function StudentRegisterPage() {
         {step === 5 && (
           <div className="space-y-6">
             <div>
-              <label htmlFor="bio" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>About you (bio)</label>
+              <label htmlFor="bio" className="block text-[14px] font-bold text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>About you (bio)</label>
               <textarea
                 id="bio"
                 placeholder="Tell potential mentors a bit about yourself..."
@@ -578,12 +633,12 @@ export default function StudentRegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="linkedin" className="block text-[14px] font-[700] text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>LinkedIn profile</label>
+              <label htmlFor="linkedin" className="block text-[14px] font-bold text-[#0A0909] mb-2" style={{ fontFamily: "'Quicksand', sans-serif" }}>LinkedIn profile</label>
               <input
                 id="linkedin"
                 type="url"
                 placeholder="https://linkedin.com/in/your-profile"
-                className={`w-full h-[46px] px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
+                className={`w-full h-11.5 px-4 rounded-[10px] bg-[#FAF8F8] border-[1.5px] outline-none transition-all text-[15px] ${
                   errors.linkedin ? 'border-[#DC2626]' : 'border-[#D1D5DB]'
                 }`}
                 {...register('linkedin')}
@@ -598,7 +653,7 @@ export default function StudentRegisterPage() {
             <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                className="w-full h-[60px] bg-white text-[#923D41] font-[400] text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
+                className="w-full h-15 bg-white text-[#923D41] font-normal text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
                 onClick={handleBack}
                 style={{ fontFamily: "'Bree Serif', serif" }}
               >
@@ -606,7 +661,7 @@ export default function StudentRegisterPage() {
               </button>
               <button
                 type="button"
-                className="w-full h-[60px] bg-[#923D41] text-white font-[400] text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
+                className="w-full h-15 bg-[#923D41] text-white font-normal text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E]"
                 onClick={handleNext}
                 style={{ fontFamily: "'Bree Serif', serif" }}
               >
@@ -625,7 +680,7 @@ export default function StudentRegisterPage() {
             </div>
 
             {/* Terms & Privacy Agreement */}
-            <div className="space-y-4 p-6 bg-[#FAF8F8] border border-[#923D41]/20 rounded-[12px]">
+            <div className="space-y-4 p-6 bg-[#FAF8F8] border border-[#923D41]/20 rounded-md">
               <div className="space-y-3">
                 {/* Terms of Service */}
                 <div className="flex items-start gap-3">
@@ -638,7 +693,7 @@ export default function StudentRegisterPage() {
                     className="w-5 h-5 mt-0.5 rounded border-2 border-[#923D41] cursor-pointer accent-[#923D41]"
                   />
                   <div className="flex-1">
-                    <label htmlFor="acceptTerms" className="text-[14px] text-[#0A0909] font-[700] block cursor-pointer" style={{ fontFamily: "'Quicksand', sans-serif" }}>
+                    <label htmlFor="acceptTerms" className="text-[14px] text-[#0A0909] font-bold block cursor-pointer" style={{ fontFamily: "'Quicksand', sans-serif" }}>
                       I have read and accept the Terms of Service *
                     </label>
                     <a
@@ -663,7 +718,7 @@ export default function StudentRegisterPage() {
                     className="w-5 h-5 mt-0.5 rounded border-2 border-[#923D41] cursor-pointer accent-[#923D41]"
                   />
                   <div className="flex-1">
-                    <label htmlFor="acceptPrivacy" className="text-[14px] text-[#0A0909] font-[700] block cursor-pointer" style={{ fontFamily: "'Quicksand', sans-serif" }}>
+                    <label htmlFor="acceptPrivacy" className="text-[14px] text-[#0A0909] font-bold block cursor-pointer" style={{ fontFamily: "'Quicksand', sans-serif" }}>
                       I have read and accept the Privacy Policy *
                     </label>
                     <a
@@ -696,7 +751,7 @@ export default function StudentRegisterPage() {
             <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                className="w-full h-[60px] bg-white text-[#923D41] font-[400] text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
+                className="w-full h-15 bg-white text-[#923D41] font-normal text-[36px] rounded-[10px] border-2 border-[#923D41] hover:bg-[#F5F5F5] transition-all"
                 onClick={handleBack}
                 style={{ fontFamily: "'Bree Serif', serif" }}
               >
@@ -704,7 +759,7 @@ export default function StudentRegisterPage() {
               </button>
               <button
                 type="submit"
-                className="w-full h-[60px] bg-[#923D41] text-white font-[400] text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-15 bg-[#923D41] text-white font-normal text-[36px] rounded-[10px] hover:bg-[#7B1427] transition-all shadow-[0px_10px_20px_#941C2E] disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!isStep6Valid || isLoading}
                 style={{ fontFamily: "'Bree Serif', serif" }}
               >

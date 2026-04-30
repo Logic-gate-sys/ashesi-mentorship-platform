@@ -3,6 +3,13 @@ import { getIOInstance } from '#libs-schemas/socket/index';
 import { requireAuth, checkPermission } from '#/libs_schemas/middlewares/auth.middleware';
 import { createMentorshipRequestSchema } from '#libs-schemas/schemas/request.schema';
 import {sendMentorshipRequest, getMentorshipRequests} from '#services/mentorship-requests.service'
+import {
+  CacheTTL,
+  buildCacheKey,
+  getFromTTLCache,
+  invalidateCacheByTags,
+  setTTLCache,
+} from '#/libs_schemas/caches/cacheEngine';
 
 // do not init socket at module load; obtain lazily inside handlers
 
@@ -18,14 +25,26 @@ export async function GET(request: NextRequest){
     if (!isAllowed) {
       return NextResponse.json({ error: 'Unauthorized', message: 'Have no right to access this resource' }, { status: 403 });
     }
+
+    const cacheKey = buildCacheKey('mentee-requests', user.id);
+    const cached = getFromTTLCache<{ success: true; data: Awaited<ReturnType<typeof getMentorshipRequests>> }>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached, { status: 200 });
+    }
+
     // retrieve all user request
     const mentorshipRequest = await getMentorshipRequests(user.id,"MENTEE"); 
-    return NextResponse.json({
+    const responseData = {
       success: true,
       data: mentorshipRequest
-    },
-    {status: 200}
-  )
+    };
+
+    setTTLCache(cacheKey, responseData, {
+      ttl: CacheTTL.SHORT,
+      tags: [`user:${user.id}`, 'mentee:requests'],
+    });
+
+    return NextResponse.json(responseData, {status: 200});
 }catch(err){
   return NextResponse.json(
     {error: err instanceof Error ? err.message : 'Failed to process request' },
@@ -61,6 +80,17 @@ export async function POST( request: NextRequest) {
     )
     }
     const mentorshipRequest = await sendMentorshipRequest(result.data);
+
+    invalidateCacheByTags([
+      `user:${user.id}`,
+      `mentee-profile:${user.menteeProfile?.id ?? ''}`,
+      `mentor-profile:${mentorshipRequest.mentorId}`,
+      'mentee:requests',
+      'mentor:requests',
+      'mentee:dashboard',
+      'mentor:dashboard',
+    ]);
+
     // emit socket (if initialised)
     try {
       const io = getIOInstance();

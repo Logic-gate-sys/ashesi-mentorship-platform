@@ -41,6 +41,7 @@ export default function MentorSettingsPage() {
   const { profile, isLoading, isSaving, saveSuccess, error, refresh, saveProfile } = useMentorProfile();
 
   const [formState, setFormState] = useState<ProfileFormState>(EMPTY_FORM);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!profile) {
@@ -65,8 +66,8 @@ export default function MentorSettingsPage() {
   }, [profile]);
 
   const previewAvatar = useMemo(() => {
-    return formState.avatarUrl || "https://i.pravatar.cc/160?u=mentor-settings";
-  }, [formState.avatarUrl]);
+    return formState.avatarUrl || profile?.user?.avatarUrl || "https://i.pravatar.cc/160?u=mentor-settings";
+  }, [formState.avatarUrl, profile?.user?.avatarUrl]);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -76,25 +77,22 @@ export default function MentorSettingsPage() {
       .map((item) => item.trim())
       .filter(Boolean);
 
-    await saveProfile({
-      user: {
-        firstName: formState.firstName,
-        lastName: formState.lastName,
-        avatarUrl: formState.avatarUrl || null,
-      },
-      mentorProfile: {
-        graduationYear: Number(formState.graduationYear),
-        major: formState.major,
-        company: formState.company,
-        jobTitle: formState.jobTitle,
-        industry: formState.industry,
-        bio: formState.bio || null,
-        linkedin: formState.linkedin || null,
-        skills: parsedSkills,
-        isAvailable: formState.isAvailable,
-        maxMentees: Number(formState.maxMentees),
-      },
-    });
+    const payload = new FormData();
+    payload.append("firstName", formState.firstName);
+    payload.append("lastName", formState.lastName);
+    payload.append("graduationYear", formState.graduationYear);
+    payload.append("major", formState.major);
+    payload.append("company", formState.company);
+    payload.append("jobTitle", formState.jobTitle);
+    payload.append("industry", formState.industry);
+    if (formState.bio) payload.append("bio", formState.bio);
+    if (formState.linkedin) payload.append("linkedin", formState.linkedin);
+    payload.append("skills", JSON.stringify(parsedSkills));
+    payload.append("isAvailable", String(formState.isAvailable));
+    payload.append("maxMentees", formState.maxMentees);
+    if (avatarFile) payload.append("avatar", avatarFile);
+
+    await saveProfile(payload);
   };
 
   return (
@@ -139,15 +137,17 @@ export default function MentorSettingsPage() {
 
           <div className="mt-5 space-y-3 border-t pt-4">
             <label className="flex flex-col gap-1 text-sm text-gray-600">
-              Avatar URL
+              Professional headshot photo
               <input
-                value={formState.avatarUrl}
-                onChange={(event) =>
-                  setFormState((prev) => ({ ...prev, avatarUrl: event.target.value }))
-                }
+                type="file"
+                accept="image/*"
+                onChange={(event) => {
+                  const file = event.target.files?.[0] ?? null;
+                  setAvatarFile(file);
+                }}
                 className="rounded-xl border border-gray-200 px-3 py-2 outline-none focus:border-[#6A0A1D]/30"
-                placeholder="https://..."
               />
+              <p className="text-xs text-gray-500">Leave empty to keep current photo</p>
             </label>
 
             <label className="inline-flex items-center gap-2 text-sm text-[#241919]">

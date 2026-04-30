@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '#utils-types/utils/db'
 import { requireAuth, requirePermission } from '#/libs_schemas/middlewares/auth.middleware'
 import { updateProfileSchema } from '#/libs_schemas/schemas/auth.schema'
-import { getPermittedFields, getUserPermissions } from '#/libs_schemas/abac/engine'
 import { ZodError } from 'zod'
 
 /**
@@ -18,12 +17,7 @@ export async function PATCH(request: NextRequest) {
 
     const { user } = authResult
 
-    const permissionResult = await requirePermission(user.id, 'user_profile', 'update')
-    if (permissionResult instanceof NextResponse) {
-      return permissionResult
-    }
-
-    const permissions = await getUserPermissions(user.id)
+    await requirePermission(user.id, 'user_profile', 'update')
 
     const body = await request.json()
     const result = updateProfileSchema.safeParse(body);
@@ -39,23 +33,13 @@ export async function PATCH(request: NextRequest) {
       );
     }
  
-    const validatedData = result.data ; 
-    // Get permitted fields for this user
-    const permittedData = getPermittedFields(
-      permissions,
-      'user_profile',
-      'update',
-      validatedData,
-      { userId: user.id }
-    )
-
-    // Update user profile with only permitted fields
+    const validatedData = result.data ;
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: {
-        ...(permittedData.firstName && { firstName: permittedData.firstName }),
-        ...(permittedData.lastName && { lastName: permittedData.lastName }),
-        ...(permittedData.avatarUrl && { avatarUrl: permittedData.avatarUrl }),
+        ...(validatedData.firstName && { firstName: validatedData.firstName }),
+        ...(validatedData.lastName && { lastName: validatedData.lastName }),
+        ...(validatedData.avatarUrl && { avatarUrl: validatedData.avatarUrl }),
       },
       include: {
         menteeProfile: true,

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Send, RefreshCw, Wifi, WifiOff, MessageCircle, AlertCircle } from "lucide-react";
 import {
   useMentorMessages,
-  useMentorMentees,
+  useMentorConnectedMentees,
 } from "#comp-hooks/hooks/mentor";
 import { useSocketContext } from "#/libs_schemas/context/socket-context";
 
@@ -49,21 +49,21 @@ export default function MentorMessagesPage() {
     mentees,
     isLoading: menteesLoading,
     error: menteesError,
-  } = useMentorMentees();
+  } = useMentorConnectedMentees();
 
   const [draft, setDraft] = useState("");
   const [sendSucceeded, setSendSucceeded] = useState(false);
 
   // Handle starting a new conversation with a mentee
   const handleStartChat = useCallback(
-    async (mentee: { id: string; userId: string; name: string; avatarUrl: string }) => {
+    async (mentee: { userId: string; firstName: string; lastName: string; avatarUrl: string }) => {
       if (!mentee.userId) {
         return;
       }
 
       await startConversation({
         userId: mentee.userId,
-        name: mentee.name,
+        name: `${mentee.firstName} ${mentee.lastName}`,
         avatarUrl: mentee.avatarUrl,
       });
     },
@@ -76,7 +76,7 @@ export default function MentorMessagesPage() {
     }
 
     // Join conversation room
-    socket.emit('join_conversation', selectedConversationId);
+    socket.emit('conversation:joined', selectedConversationId);
 
     // Listen for socket events specific to this conversation
     const handleMessageReceived = (payload: { conversationId?: string } | unknown) => {
@@ -114,7 +114,7 @@ export default function MentorMessagesPage() {
       socket.off('message_sent', handleMessageSent);
       
       // Leave conversation room on cleanup
-      socket.emit('leave_conversation', selectedConversationId);
+      socket.emit('conversation:left', selectedConversationId);
     };
   }, [socket, isOn, selectedConversationId, loadMessages, refresh]);
 
@@ -203,6 +203,8 @@ export default function MentorMessagesPage() {
             <div className="flex flex-col gap-2">
               {mentees.map((mentee) => {
                 const isSelected = selectedConversation?.participantId === mentee.userId;
+                const menteeDisplayName = `${mentee.firstName} ${mentee.lastName}`;
+                const secondaryText = mentee.major || mentee.yearGroup || 'Student';
                 return (
                   <button
                     key={mentee.id}
@@ -212,20 +214,20 @@ export default function MentorMessagesPage() {
                         ? "bg-[#FDF1F2] ring-1 ring-[#6A0A1D]/15"
                         : "hover:bg-gray-50"
                     }`}
-                    title={mentee.name}
+                    title={menteeDisplayName}
                   >
                     <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-gray-100">
                       <Image
                         src={mentee.avatarUrl || AVATAR_FALLBACK}
-                        alt={mentee.name}
+                        alt={menteeDisplayName}
                         fill
                         unoptimized
                         className="object-cover"
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-semibold text-[#241919]">{mentee.name}</p>
-                      <p className="truncate text-xs text-gray-400 line-clamp-1">{mentee.goalText}</p>
+                      <p className="truncate text-xs font-semibold text-[#241919]">{menteeDisplayName}</p>
+                      <p className="truncate text-xs text-gray-400 line-clamp-1">{secondaryText}</p>
                     </div>
                     <MessageCircle className="h-3.5 w-3.5 shrink-0 text-[#6A0A1D] opacity-0 group-hover:opacity-100 transition" />
                   </button>

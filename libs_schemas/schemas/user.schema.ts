@@ -9,6 +9,16 @@ const validateName = (name: string) => {
   return nameRegex.test(name.trim());
 };
 
+const cloudinaryHeadshotUrlSchema = z
+  .string()
+  .trim()
+  .min(1, 'Professional headshot photo URL is required')
+  .url('Invalid avatar URL')
+  .refine(
+    (url) => /^https:\/\/res\.cloudinary\.com\/.+\/image\/upload\//i.test(url),
+    'Please provide a valid Cloudinary image URL for your professional headshot'
+  );
+
 export const updateStudentProfileSchema = z.object({
   yearGroup: z
     .coerce.number()
@@ -127,10 +137,7 @@ export const updateUserSchema = z.object({
     .refine(validateName, 'Last name must only contain letters, hyphens, and spaces')
     .optional(),
   avatarUrl: z
-    .string()
-    .url('Invalid avatar URL')
-    .optional()
-    .transform((val) => val?.trim() || null),
+    .union([cloudinaryHeadshotUrlSchema, z.undefined()]),
 });
 
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;

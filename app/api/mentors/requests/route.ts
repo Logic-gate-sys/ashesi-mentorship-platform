@@ -5,6 +5,7 @@ import {requireAuth, checkPermission } from '#/libs_schemas/middlewares/auth.mid
 import { getMentorshipRequests} from '#services/mentorship-requests.service';
 import { RequestStatus } from '#/prisma/generated/prisma/enums';
 import { clearPermissionsCache } from '#/libs_schemas/abac/engine';
+import { CacheTTL, buildCacheKey, getFromTTLCache, setTTLCache } from '#/libs_schemas/caches/cacheEngine';
 
 // fetch all mentorship requests send to a mentor
 export async function GET(request: NextRequest) {
@@ -22,8 +23,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized', message: 'Mentor profile not found' }, { status: 403 });
     }
     
-     const isAllowed = await checkPermission(user.id, 'mentorship_request', 'read', { mentorId: user.mentorProfile.id });
-     console.log('[GET /api/mentors/requests] Permission check:', isAllowed, 'Condition:', { mentorId: user.mentorProfile.id });
+     const permissionCondition = {
+       mentorId: user.mentorProfile.id,
+       menteeId: '',
+       createdAt: new Date(),
+       status: 'PENDING' as const,
+     };
+     const isAllowed = await checkPermission(user.id, 'mentorship_request', 'read', permissionCondition);
+     console.log('[GET /api/mentors/requests] Permission check:', isAllowed, 'Condition:', permissionCondition);
       if(!isAllowed){
         console.log('[GET /api/mentors/requests] Permission denied for mentor:', user.mentorProfile.id);
         return NextResponse.json({error:'Unauthorized', message: 'Have no right to access this resource'}, {status: 403});
@@ -33,16 +40,33 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const statusParam = searchParams.get('status') as RequestStatus | null;
 
+    const cacheKey = buildCacheKey('mentor-requests', user.mentorProfile.id, statusParam || 'all');
+    const cached = getFromTTLCache<{
+      data: {
+        requests: Awaited<ReturnType<typeof getMentorshipRequests>>;
+      };
+      count: number;
+      filters: { status: string };
+    }>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached, { status: 200 });
+    }
+
     const requests = await getMentorshipRequests(user.mentorProfile.id, 'MENTOR', statusParam || undefined);
-    return NextResponse.json({
+    const responseData = {
       data: {
         requests: requests,
       },
       count: requests.length,
       filters: { status: statusParam || 'all' },
-    },
-    {status: 200}
-  )
+    };
+
+    setTTLCache(cacheKey, responseData, {
+      ttl: CacheTTL.SHORT,
+      tags: [`user:${user.id}`, `mentor-profile:${user.mentorProfile.id}`, 'mentor:requests'],
+    });
+
+    return NextResponse.json(responseData, {status: 200});
   } catch (error) {
     console.error('Error fetching requests:', error);
     return errorResponse(
