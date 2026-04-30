@@ -1,10 +1,10 @@
 "use client";
-
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { Send, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import { Send, RefreshCw, Wifi, WifiOff, MessageCircle, AlertCircle } from "lucide-react";
 import {
   useMentorMessages,
+  useMentorMentees,
 } from "#comp-hooks/hooks/mentor";
 import { useSocketContext } from "#/libs_schemas/context/socket-context";
 
@@ -39,13 +39,36 @@ export default function MentorMessagesPage() {
     refresh,
     loadMessages,
     sendMessage,
+    startConversation,
   } = useMentorMessages();
 
   const { socket, isOn } = useSocketContext();
   const isConnected = socket?.connected ?? false;
 
+  const {
+    mentees,
+    isLoading: menteesLoading,
+    error: menteesError,
+  } = useMentorMentees();
+
   const [draft, setDraft] = useState("");
   const [sendSucceeded, setSendSucceeded] = useState(false);
+
+  // Handle starting a new conversation with a mentee
+  const handleStartChat = useCallback(
+    async (mentee: { id: string; userId: string; name: string; avatarUrl: string }) => {
+      if (!mentee.userId) {
+        return;
+      }
+
+      await startConversation({
+        userId: mentee.userId,
+        name: mentee.name,
+        avatarUrl: mentee.avatarUrl,
+      });
+    },
+    [startConversation]
+  );
 
   useEffect(() => {
     if (!socket || !isOn || !selectedConversationId) {
@@ -53,26 +76,28 @@ export default function MentorMessagesPage() {
     }
 
     // Join conversation room
-    socket.emit('join_conversation', selectedConversationId, (ack: any) => {
-      console.log('[Messages] Joined conversation:', selectedConversationId, ack);
-    });
+    socket.emit('join_conversation', selectedConversationId);
 
     // Listen for socket events specific to this conversation
-    const handleMessageReceived = (payload: any) => {
-      const conversationId = payload?.conversationId as string | undefined;
+    const handleMessageReceived = (payload: { conversationId?: string } | unknown) => {
+      const conversationId = typeof payload === 'object' && payload !== null
+        ? (payload as { conversationId?: string }).conversationId
+        : undefined;
       console.debug('[Messages] message_received:', conversationId);
       if (conversationId && conversationId === selectedConversationId) {
         void loadMessages(conversationId);
       }
     };
 
-    const handleNotification = (payload: any) => {
+    const handleNotification = (payload: unknown) => {
       console.debug('[Messages] notification received:', payload);
       void refresh();
     };
 
-    const handleMessageSent = (payload: any) => {
-      const conversationId = payload?.conversationId as string | undefined;
+    const handleMessageSent = (payload: { conversationId?: string } | unknown) => {
+      const conversationId = typeof payload === 'object' && payload !== null
+        ? (payload as { conversationId?: string }).conversationId
+        : undefined;
       console.debug('[Messages] message_sent:', conversationId);
       if (conversationId && conversationId === selectedConversationId) {
         void loadMessages(conversationId);
@@ -89,9 +114,7 @@ export default function MentorMessagesPage() {
       socket.off('message_sent', handleMessageSent);
       
       // Leave conversation room on cleanup
-      socket.emit('leave_conversation', selectedConversationId, (ack: any) => {
-        console.log('[Messages] Left conversation:', selectedConversationId);
-      });
+      socket.emit('leave_conversation', selectedConversationId);
     };
   }, [socket, isOn, selectedConversationId, loadMessages, refresh]);
 
@@ -159,7 +182,58 @@ export default function MentorMessagesPage() {
         <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
       ) : null}
 
-      <section className="grid min-h-0 flex-1 gap-4 md:grid-cols-[1.2fr_2fr]">
+      <section className="grid min-h-0 flex-1 gap-4 md:grid-cols-[280px_1fr_2fr] lg:grid-cols-[280px_1fr_2fr]">
+
+        {/* Connected Mentees Section */}
+        <aside className="hidden min-h-0 overflow-y-auto rounded-3xl border border-[#6A0A1D]/10 bg-white p-3 md:flex md:flex-col">
+          <h2 className="mb-3 px-2 text-sm font-semibold text-[#241919]">Active Mentees</h2>
+
+          {menteesError && (
+            <div className="mb-3 flex items-start gap-2 rounded-lg bg-red-50 p-2 text-xs text-red-700">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+              <span>{menteesError}</span>
+            </div>
+          )}
+
+          {menteesLoading ? (
+            <p className="px-2 py-3 text-xs text-gray-500">Loading mentees...</p>
+          ) : mentees.length === 0 ? (
+            <p className="px-2 py-3 text-xs text-gray-500">No connected mentees yet.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {mentees.map((mentee) => {
+                const isSelected = selectedConversation?.participantId === mentee.userId;
+                return (
+                  <button
+                    key={mentee.id}
+                    onClick={() => void handleStartChat(mentee)}
+                    className={`group flex w-full items-center gap-2 rounded-xl p-2 text-left transition ${
+                      isSelected
+                        ? "bg-[#FDF1F2] ring-1 ring-[#6A0A1D]/15"
+                        : "hover:bg-gray-50"
+                    }`}
+                    title={mentee.name}
+                  >
+                    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-gray-100">
+                      <Image
+                        src={mentee.avatarUrl || AVATAR_FALLBACK}
+                        alt={mentee.name}
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-semibold text-[#241919]">{mentee.name}</p>
+                      <p className="truncate text-xs text-gray-400 line-clamp-1">{mentee.goalText}</p>
+                    </div>
+                    <MessageCircle className="h-3.5 w-3.5 shrink-0 text-[#6A0A1D] opacity-0 group-hover:opacity-100 transition" />
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </aside>
         <aside className="min-h-0 overflow-y-auto rounded-3xl border border-[#6A0A1D]/10 bg-white p-3">
           <h2 className="mb-2 px-2 text-sm font-semibold text-gray-500">Conversations</h2>
 
@@ -190,6 +264,7 @@ export default function MentorMessagesPage() {
                       src={conversation.participantAvatar || AVATAR_FALLBACK}
                       alt={conversation.participantName}
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   </div>
@@ -225,6 +300,7 @@ export default function MentorMessagesPage() {
                       src={selectedConversation.participantAvatar || AVATAR_FALLBACK}
                       alt={selectedConversation.participantName}
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   </div>

@@ -5,6 +5,7 @@ import { useFetchApi } from '../shared/useMentorApi';
 
 export interface MentorMentee {
   id: string;
+  userId: string;
   name: string;
   majorAndYear: string;
   avatarUrl: string;
@@ -28,6 +29,7 @@ export function useMentorMentees() {
 
     return {
       id: req.id,
+      userId: req.mentee?.user?.id || '',
       name: req.studentName || 'Unknown Student',
       majorAndYear: req.majorAndYear || 'Unknown Program',
       avatarUrl: req.studentAvatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${req.id}`,

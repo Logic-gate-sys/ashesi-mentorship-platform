@@ -1,11 +1,12 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { Send, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import { Send, RefreshCw, Wifi, WifiOff, MessageCircle, AlertCircle } from "lucide-react";
 import {
   useMenteeMessages,
 } from "#comp-hooks/hooks/mentee/useMenteeMessages";
+import { useMenteeConnectedMentors } from "#comp-hooks/hooks/mentee/useMenteeConnectedMentors";
 import { useSocketContext } from "#/libs_schemas/context/socket-context";
 
 function formatChatTime(dateText: string) {
@@ -39,13 +40,37 @@ export default function MenteeMessagesPage() {
     refresh,
     loadMessages,
     sendMessage,
+    startConversation,
   } = useMenteeMessages();
 
   const { socket, isOn } = useSocketContext();
   const isConnected = socket?.connected ?? false;
 
+  const {
+    mentors,
+    isLoading: mentorsLoading,
+    error: mentorsError,
+    refresh: refreshMentors,
+  } = useMenteeConnectedMentors();
+
   const [draft, setDraft] = useState("");
   const [sendSucceeded, setSendSucceeded] = useState(false);
+
+  // Handle starting a new conversation with a mentor
+  const handleStartChat = useCallback(
+    async (mentor: { userId: string; firstName: string; lastName: string; avatarUrl: string }) => {
+      if (!mentor.userId) {
+        return;
+      }
+
+      await startConversation({
+        userId: mentor.userId,
+        name: `${mentor.firstName} ${mentor.lastName}`,
+        avatarUrl: mentor.avatarUrl,
+      });
+    },
+    [startConversation]
+  );
 
   useEffect(() => {
     if (!socket || !isOn || !selectedConversationId) {
@@ -159,7 +184,59 @@ export default function MenteeMessagesPage() {
         <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
       ) : null}
 
-      <section className="grid min-h-0 flex-1 gap-4 md:grid-cols-[1.2fr_2fr]">
+      <section className="grid min-h-0 flex-1 gap-4 md:grid-cols-[280px_1fr_2fr] lg:grid-cols-[280px_1fr_2fr]">
+
+        {/* Connected Mentors Section */}
+        <aside className="hidden min-h-0 overflow-y-auto rounded-3xl border border-[#6A0A1D]/10 bg-white p-3 md:flex md:flex-col">
+          <h2 className="mb-3 px-2 text-sm font-semibold text-[#241919]">Connected Mentors</h2>
+
+          {mentorsError && (
+            <div className="mb-3 flex items-start gap-2 rounded-lg bg-red-50 p-2 text-xs text-red-700">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+              <span>{mentorsError}</span>
+            </div>
+          )}
+
+          {mentorsLoading ? (
+            <p className="px-2 py-3 text-xs text-gray-500">Loading mentors...</p>
+          ) : mentors.length === 0 ? (
+            <p className="px-2 py-3 text-xs text-gray-500">No connected mentors yet.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {mentors.map((mentor) => {
+                const mentorDisplayName = `${mentor.firstName} ${mentor.lastName}`;
+                const isSelected = selectedConversation?.participantId === mentor.userId;
+                return (
+                  <button
+                    key={mentor.userId}
+                    onClick={() => void handleStartChat(mentor)}
+                    className={`group flex w-full items-center gap-2 rounded-xl p-2 text-left transition ${
+                      isSelected
+                        ? "bg-[#FDF1F2] ring-1 ring-[#6A0A1D]/15"
+                        : "hover:bg-gray-50"
+                    }`}
+                    title={mentorDisplayName}
+                  >
+                    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-gray-100">
+                      <Image
+                        src={mentor.avatarUrl || AVATAR_FALLBACK}
+                        alt={mentorDisplayName}
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-semibold text-[#241919]">{mentorDisplayName}</p>
+                      <p className="truncate text-xs text-gray-400 line-clamp-1">{mentor.company || mentor.industry || "Mentor"}</p>
+                    </div>
+                    <MessageCircle className="h-3.5 w-3.5 shrink-0 text-[#6A0A1D] opacity-0 group-hover:opacity-100 transition" />
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </aside>
         <aside className="min-h-0 overflow-y-auto rounded-3xl border border-[#6A0A1D]/10 bg-white p-3">
           <h2 className="mb-2 px-2 text-sm font-semibold text-gray-500">Conversations</h2>
 
@@ -190,6 +267,7 @@ export default function MenteeMessagesPage() {
                       src={conversation.participantAvatar || AVATAR_FALLBACK}
                       alt={conversation.participantName}
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   </div>
@@ -225,6 +303,7 @@ export default function MenteeMessagesPage() {
                       src={selectedConversation.participantAvatar || AVATAR_FALLBACK}
                       alt={selectedConversation.participantName}
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   </div>

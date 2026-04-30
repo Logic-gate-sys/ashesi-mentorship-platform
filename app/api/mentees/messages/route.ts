@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '#utils-types/utils/db';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
-import { extractUserFromRequest, requirePermission } from '#/libs_schemas/middlewares/auth.middleware';
+import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
+import { getUserConversations, getOrCreateConversation } from '#services/messages.service';
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,76 +10,50 @@ export async function GET(request: NextRequest) {
       return errorResponse('Unauthorized', { status: 401 });
     }
 
-    // Get all conversations where mentee is a participant
-    const conversations = await prisma.conversation.findMany({
-      where: {
-        participants: {
-          some: { id: user.id },
-        },
-      },
-      include: {
-        messages: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-          select: {
-            id: true,
-            body: true,
-            senderId: true,
-            receiverId: true,
-            createdAt: true,
-            sender: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                avatarUrl: true,
-              },
-            },
-            receiver: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                avatarUrl: true,
-              },
-            },
-          },
-        },
-        participants: {
-          where: { id: { not: user.id } },
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatarUrl: true,
-          },
-        },
-      },
-      orderBy: { updatedAt: 'desc' },
-      take: 50,
-    });
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get('limit') || '50', 10);
+    const offset = parseInt(url.searchParams.get('offset') || '0', 10);
 
-    const mapped = conversations.map((conv) => {
-      const participant = conv.participants[0];
-      const latestMessage = conv.messages[0];
-
-      return {
-        id: conv.id,
-        participantId: participant?.id || '',
-        participantName: participant ? `${participant.firstName} ${participant.lastName}` : 'Unknown',
-        participantAvatar: participant?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${conv.id}`,
-        lastMessage: latestMessage?.body || 'No messages yet',
-        lastMessageAt: latestMessage?.createdAt || conv.updatedAt,
-      };
-    });
+    const conversations = await getUserConversations(user.id, limit, offset);
 
     return successResponse(
-      { conversations: mapped },
+      {
+        conversations,
+        count: conversations.length,
+        pagination: { limit, offset },
+      },
       'Conversations retrieved successfully'
     );
   } catch (error) {
+    console.error('Error fetching conversations:', error);
     return errorResponse(
-      error instanceof Error ? error.message : 'Failed to retrieve conversations',
+      error instanceof Error ? error.message : 'Failed to fetch conversations',
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await extractUserFromRequest(request);
+    if (!user) {
+      return errorResponse('Unauthorized', { status: 401 });
+    }
+
+    const body = await request.json();
+    const participantId = body?.participantId as string | undefined;
+
+    if (!participantId) {
+      return errorResponse('participantId is required', { status: 400 });
+    }
+
+    const conversation = await getOrCreateConversation(user.id, participantId);
+
+    return successResponse({ conversation }, 'Conversation ready');
+  } catch (error) {
+    console.error('Error creating conversation:', error);
+    return errorResponse(
+      error instanceof Error ? error.message : 'Failed to create conversation',
       { status: 500 }
     );
   }

@@ -22,6 +22,12 @@ export interface MenteeMessage {
   isMe: boolean;
 }
 
+export interface StartMenteeConversationInput {
+  userId: string;
+  name: string;
+  avatarUrl: string;
+}
+
 export function useMenteeMessages() {
   const { user } = useAuth();
   const { authorizedFetch } = useFetchApi();
@@ -198,6 +204,51 @@ export function useMenteeMessages() {
     [authorizedFetch, selectedConversation, loadMessages, refreshConversations]
   );
 
+  const startConversation = useCallback(
+    async ({ userId, name, avatarUrl }: StartMenteeConversationInput) => {
+      const existingConversation = conversations.find((conversation) => conversation.participantId === userId);
+      if (existingConversation) {
+        setSelectedConversationId(existingConversation.id);
+        return existingConversation.id;
+      }
+
+      const response = await authorizedFetch('/api/mentees/messages', {
+        method: 'POST',
+        body: JSON.stringify({ participantId: userId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to start conversation (${response.status})`);
+      }
+
+      const payload = await response.json();
+      const conversationId = payload?.data?.conversation?.id as string | undefined;
+
+      if (!conversationId) {
+        throw new Error('Conversation could not be created');
+      }
+
+      const syntheticConversation: MenteeConversation = {
+        id: conversationId,
+        participantId: userId,
+        participantName: name,
+        participantAvatar: avatarUrl,
+        lastMessage: 'No messages yet',
+        lastMessageAt: new Date().toISOString(),
+      };
+
+      setConversations((prev) => [
+        syntheticConversation,
+        ...prev.filter((conversation) => conversation.id !== conversationId),
+      ]);
+      setSelectedConversationId(conversationId);
+      setMessages([]);
+
+      return conversationId;
+    },
+    [authorizedFetch, conversations]
+  );
+
   // Cleanup
   useEffect(() => {
     return () => {
@@ -222,5 +273,6 @@ export function useMenteeMessages() {
     refresh,
     loadMessages,
     sendMessage,
+    startConversation,
   };
 }

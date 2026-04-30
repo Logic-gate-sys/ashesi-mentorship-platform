@@ -23,6 +23,12 @@ export interface MentorMessage {
   isPending?: boolean;
 }
 
+export interface StartMentorConversationInput {
+  userId: string;
+  name: string;
+  avatarUrl: string;
+}
+
 export function useMentorMessages() {
   const { user } = useAuth();
   const { authorizedFetch } = useFetchApi();
@@ -116,7 +122,6 @@ export function useMentorMessages() {
               return false;
             }
             messageIdsRef.current.add(msg.id);
-            setLastMessageIdRef(msg.id);
             return true;
           });
 
@@ -233,6 +238,52 @@ export function useMentorMessages() {
     [authorizedFetch, selectedConversation, loadMessages, refreshConversations, user?.id]
   );
 
+  const startConversation = useCallback(
+    async ({ userId, name, avatarUrl }: StartMentorConversationInput) => {
+      const existingConversation = conversations.find((conversation) => conversation.participantId === userId);
+      if (existingConversation) {
+        setSelectedConversationId(existingConversation.id);
+        return existingConversation.id;
+      }
+
+      const response = await authorizedFetch('/api/mentors/messages', {
+        method: 'POST',
+        body: JSON.stringify({ participantId: userId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to start conversation (${response.status})`);
+      }
+
+      const payload = await response.json();
+      const conversationId = payload?.data?.conversation?.id as string | undefined;
+
+      if (!conversationId) {
+        throw new Error('Conversation could not be created');
+      }
+
+      const syntheticConversation: MentorConversation = {
+        id: conversationId,
+        participantId: userId,
+        participantName: name,
+        participantAvatar: avatarUrl,
+        lastMessage: 'No messages yet',
+        lastMessageAt: new Date().toISOString(),
+      };
+
+      setConversations((prev) => [
+        syntheticConversation,
+        ...prev.filter((conversation) => conversation.id !== conversationId),
+      ]);
+      setSelectedConversationId(conversationId);
+      setMessages([]);
+      messageIdsRef.current.clear();
+
+      return conversationId;
+    },
+    [authorizedFetch, conversations]
+  );
+
   // Cleanup
   useEffect(() => {
     return () => {
@@ -260,5 +311,6 @@ export function useMentorMessages() {
     refresh,
     loadMessages,
     sendMessage,
+    startConversation,
   };
 }

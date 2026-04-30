@@ -44,7 +44,7 @@ export function PendingRequestCard({
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[20px] bg-white sm:h-24 sm:w-24">
           {studentAvatarUrl ? (
-            <Image src={studentAvatarUrl} alt={studentName} fill className="object-cover" />
+            <Image src={studentAvatarUrl} alt={studentName} fill unoptimized className="object-cover" />
           ) : (
             <span className="flex h-full w-full items-center justify-center text-xl font-bold text-[#6A0A1D]">
               {studentName?.split(' ').map((namePart) => namePart[0]).join('') || '?'}

@@ -1,141 +1,75 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '#utils-types/utils/db';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
-import { extractUserFromRequest, requirePermission } from '#/libs_schemas/middlewares/auth.middleware';
+import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
+import { getConversation, sendMessage } from '#services/messages.service';
 
-export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const params = await props.params;
-    const conversationId = params.id;
     const user = await extractUserFromRequest(request);
-
     if (!user) {
       return errorResponse('Unauthorized', { status: 401 });
     }
 
-    // Verify user is a participant in this conversation
-    const conversation = await prisma.conversation.findUnique({
-      where: { id: conversationId },
-      include: {
-        participants: {
-          select: { id: true },
-        },
-        messages: {
-          orderBy: { createdAt: 'asc' },
-          select: {
-            id: true,
-            body: true,
-            senderId: true,
-            receiverId: true,
-            createdAt: true,
-          },
-        },
-      },
-    });
+    const { id: conversationId } = await params;
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get('limit') || '50', 10);
+    const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+
+    const conversation = await getConversation(conversationId, limit, offset);
 
     if (!conversation) {
       return errorResponse('Conversation not found', { status: 404 });
     }
 
-    const isParticipant = conversation.participants.some((p) => p.id === user.id);
-    if (!isParticipant) {
-      return errorResponse('Forbidden', { status: 403 });
-    }
-
-    const mappedMessages = conversation.messages.map((msg) => ({
-      id: msg.id,
-      senderId: msg.senderId,
-      receiverId: msg.receiverId,
-      text: msg.body,
-      createdAt: msg.createdAt,
-      isMe: msg.senderId === user.id,
-    }));
-
     return successResponse(
-      { conversation: { id: conversation.id, messages: mappedMessages } },
-      'Messages retrieved successfully'
+      {
+        conversation,
+        messageCount: conversation.messages.length,
+      },
+      'Conversation retrieved successfully'
     );
   } catch (error) {
+    console.error('Error fetching conversation:', error);
     return errorResponse(
-      error instanceof Error ? error.message : 'Failed to retrieve messages',
+      error instanceof Error ? error.message : 'Failed to fetch conversation',
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const params = await props.params;
-    const conversationId = params.id;
     const user = await extractUserFromRequest(request);
-
     if (!user) {
       return errorResponse('Unauthorized', { status: 401 });
     }
 
+    const { id: conversationId } = await params;
     const body = await request.json();
-    const { receiverId, body: messageBody, type } = body;
+    const { receiverId, body: messageBody, type = 'TEXT', fileUrl } = body;
 
     if (!receiverId || !messageBody) {
-      return errorResponse('receiverId and body are required', { status: 400 });
+      return errorResponse('Missing required fields: receiverId, body', { status: 400 });
     }
 
-    // Verify user is a participant in this conversation
-    const conversation = await prisma.conversation.findUnique({
-      where: { id: conversationId },
-      include: {
-        participants: {
-          select: { id: true },
-        },
-      },
+    const message = await sendMessage({
+      conversationId,
+      senderId: user.id,
+      receiverId,
+      body: messageBody,
+      type: type as 'TEXT' | 'FILE' | 'IMAGE',
+      fileUrl,
     });
 
-    if (!conversation) {
-      return errorResponse('Conversation not found', { status: 404 });
-    }
-
-    const isParticipant = conversation.participants.some((p) => p.id === user.id);
-    if (!isParticipant) {
-      return errorResponse('Forbidden', { status: 403 });
-    }
-
-    // Create message
-    const message = await prisma.message.create({
-      data: {
-        conversationId,
-        senderId: user.id,
-        receiverId,
-        body: messageBody,
-        type: type || 'TEXT',
-      },
-    });
-
-    // Emit socket event
-    const io = (global as any).io;
-    if (io) {
-      const receiverRoom = `user:${receiverId}`;
-      io.to(receiverRoom).emit('message_received', {
-        conversationId,
-        messageId: message.id,
-        senderId: user.id,
-        senderName: `${user.firstName} ${user.lastName}`,
-      });
-    }
-
-    return successResponse(
-      {
-        message: {
-          id: message.id,
-          senderId: message.senderId,
-          receiverId: message.receiverId,
-          text: message.body,
-          createdAt: message.createdAt,
-          isMe: true,
-        },
-      },
-      'Message sent successfully'
-    );
+    return successResponse(message, 'Message sent successfully', 201);
   } catch (error) {
+    console.error('Error sending message:', error);
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to send message',
       { status: 500 }

@@ -59,7 +59,7 @@ export function StatusRequestCard({
         {/* AVATAR / INITIALS */}
         <div className="relative w-16 h-16 shrink-0 rounded-[16px] overflow-hidden bg-white/50 flex items-center justify-center">
           {avatarUrl ? (
-            <Image src={avatarUrl} alt={studentName} fill className="object-cover" />
+            <Image src={avatarUrl} alt={studentName} fill unoptimized className="object-cover" />
           ) : (
             <span className="text-xl font-bold text-[#6A0A1D]">
               {studentName?.split(' ').map(n => n[0]).join('') || '?'}
