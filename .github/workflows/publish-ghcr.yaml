@@ -12,7 +12,17 @@ jobs:
 
       - name: Login to GHCR
         run : docker login --username logic-gate-sys --password ${{secrets.GHCR_PAT}} ghcr.io
-
+      - name: Create temporary .env file 
+        run: |
+          touch .env 
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "NEXT_PUBLIC_SOCKET_PORT=${{ secrets.NEXT_PUBLIC_SOCKET_PORT }}" >> .env
+          echo "REDIS_URL=${{ secrets.REDIS_URL }}" >> .env
+          echo "CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}" >> .env
+          echo "CLOUDINARY_SECRET=${{ secrets.CLOUDINARY_SECRET }}" >> .env
+          echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> .env
+          echo "SOCKET_HOST=${{ secrets.SOCKET_HOST }}" >> .env
       - name: Build image
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
