@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Search, MessageSquare, CalendarClock, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import { useMentorMentees } from "#comp-hooks/hooks/mentor";
-import { useSocketContext } from "#/libs_schemas/context/socket-context";
+import { useSocketContext } from "#libs-schemas/context/socket-context";
 
 export default function MentorMenteesPage() {
   const { mentees, count, isLoading, error, refresh } = useMentorMentees();

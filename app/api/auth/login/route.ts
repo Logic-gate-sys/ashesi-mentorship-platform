@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '#utils-types/utils/db';
 import { createJWT } from '#utils-types/utils/jwt';
 import { verifyPassword } from '#utils-types/utils/password';
-import { loginSchema } from '#/libs_schemas/schemas/auth.schema';
+import { loginSchema } from '#libs-schemas/schemas/auth.schema';
 
 
 

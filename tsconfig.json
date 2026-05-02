@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -11,7 +15,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "incremental": true,
     "plugins": [
       {
@@ -20,12 +24,24 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "#/*": ["./*"],
-      "#app/*":["app/*"],
-      "#services/*": ["services/*"],
-      "#comp-hooks/*": ["components_hooks/*"],
-      "#libs-schemas/*": ["libs_schemas/*"],
-      "#utils-types/*": ["utils_types/*"]
+      "#/*": [
+        "./*"
+      ],
+      "#app/*": [
+        "app/*"
+      ],
+      "#services/*": [
+        "services/*"
+      ],
+      "#comp-hooks/*": [
+        "components_hooks/*"
+      ],
+      "#libs-schemas/*": [
+        "libs_schemas/*"
+      ],
+      "#utils-types/*": [
+        "utils_types/*"
+      ]
     }
   },
   "include": [
@@ -37,5 +53,8 @@
     "**/*.mts",
     "app/globals.css"
   ],
-  "exclude": ["node_modules", "tests"]
+  "exclude": [
+    "node_modules",
+    "tests"
+  ]
 }

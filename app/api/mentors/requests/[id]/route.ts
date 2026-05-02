@@ -3,15 +3,15 @@ import { prisma } from '#utils-types/utils/db';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
 import { getMentorshipRequestDetails,updateMentorshipRequestStatus,} from '#services/mentorship-requests.service';
 import { getIOInstance } from '#libs-schemas/socket/index';
-import { requireAuth, checkPermission } from '#/libs_schemas/middlewares/auth.middleware';
-import { clearPermissionsCache } from '#/libs_schemas/abac/engine';
+import { requireAuth, checkPermission } from '#libs-schemas/middlewares/auth.middleware';
+import { clearPermissionsCache } from '#libs-schemas/abac/engine';
 import {
   CacheTTL,
   buildCacheKey,
   getFromTTLCache,
   invalidateCacheByTags,
   setTTLCache,
-} from '#/libs_schemas/caches/cacheEngine';
+} from '#libs-schemas/caches/cacheEngine';
 
 
 

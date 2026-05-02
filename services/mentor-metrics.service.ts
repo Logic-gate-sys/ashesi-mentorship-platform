@@ -7,7 +7,7 @@ import { prisma } from '#utils-types/utils/db';
 import {getMentorSessions,getUpcomingMentorSessions,getUserSessionStats} from './sessions.service';
 import { getMentorshipRequests, getPendingRequestsCount } from './mentorship-requests.service';
 import { getMentorFeedback, getMentorAverageRating } from './feedback.service';
-import { retryAsync } from '#/libs_schemas/caches/cacheEngine';
+import { retryAsync } from '#libs-schemas/caches/cacheEngine';
 
 export interface MentorMetrics {
   totalMentees: number;

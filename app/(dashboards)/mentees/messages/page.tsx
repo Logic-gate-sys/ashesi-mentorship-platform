@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Send, RefreshCw, Wifi, WifiOff, MessageCircle, AlertCircle, MessagesSquare, GraduationCap } from "lucide-react";
 import { useMenteeMessages } from "#comp-hooks/hooks/mentee/useMenteeMessages";
 import { useMenteeConnectedMentors } from "#comp-hooks/hooks/mentee/useMenteeConnectedMentors";
-import { useSocketContext } from "#/libs_schemas/context/socket-context";
+import { useSocketContext } from "#libs-schemas/context/socket-context";
 
 function formatChatTime(dateText: string) {
   const date = new Date(dateText);

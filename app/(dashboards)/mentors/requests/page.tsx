@@ -6,7 +6,7 @@ import { MentorshipGoalsCard } from "#comp-hooks/cards/MentorshipGoalCard";
 import { UpdatesCard } from "#comp-hooks/cards/RecentUpdatesCard";
 import { StatusRequestCard } from "#comp-hooks/cards/RequestStatusCard";
 import { useMentorshipRequests } from "#comp-hooks/hooks/mentor";
-import { useSocketContext } from "#/libs_schemas/context/socket-context";
+import { useSocketContext } from "#libs-schemas/context/socket-context";
 import { formatRelativeTime } from "#utils-types/utils/datatime";
 
 type RequestActionState = "idle" | "accepting" | "declining" | "accepted" | "declined";
@@ -118,9 +118,17 @@ export default function MentorRequestsPage() {
   const [actionState, setActionState] = useState<Record<string, RequestActionState>>({});
 
   useEffect(() => {
-    if (!isOn) return;
-    socket?.on("notification", () => void refresh());
-    socket?.on("request_updated", () => void refresh());
+    if (!isOn || !socket) return;
+
+    const handleRefresh = () => void refresh();
+
+    socket.on("notification", handleRefresh);
+    socket.on("request_updated", handleRefresh);
+
+    return () => {
+      socket.off("notification", handleRefresh);
+      socket.off("request_updated", handleRefresh);
+    };
   }, [isOn, socket, refresh]);
 
   const recentUpdates = useMemo(() => {

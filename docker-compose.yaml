@@ -1,0 +1,22 @@
+services:
+  mentor-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # maps local .env values to the Dockerfile ARGs
+        - DATABASE_URL=${DATABASE_URL}
+        - JWT_SECRET=${JWT_SECRET}
+        - NEXT_PUBLIC_SOCKET_PORT=${NEXT_PUBLIC_SOCKET_PORT}
+        - REDIS_URL=${REDIS_URL}
+        - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+        - CLOUDINARY_SECRET=${CLOUDINARY_SECRET}
+        - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+        - SOCKET_HOST=${SOCKET_HOST}
+        
+    # ghcr image convention
+    image: ghcr.io/logic-gate-sys/mentor-app:v1
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env

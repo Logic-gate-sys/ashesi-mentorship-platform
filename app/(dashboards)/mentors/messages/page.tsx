@@ -6,7 +6,7 @@ import {
   useMentorMessages,
   useMentorConnectedMentees,
 } from "#comp-hooks/hooks/mentor";
-import { useSocketContext } from "#/libs_schemas/context/socket-context";
+import { useSocketContext } from "#libs-schemas/context/socket-context";
 
 function formatChatTime(dateText: string) {
   const date = new Date(dateText);

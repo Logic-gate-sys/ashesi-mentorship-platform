@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getIOInstance } from '#libs-schemas/socket/index';
-import { requireAuth, checkPermission } from '#/libs_schemas/middlewares/auth.middleware';
+import { requireAuth, checkPermission } from '#libs-schemas/middlewares/auth.middleware';
 import { createMentorshipRequestSchema } from '#libs-schemas/schemas/request.schema';
 import {sendMentorshipRequest, getMentorshipRequests} from '#services/mentorship-requests.service'
 import {
@@ -9,7 +9,7 @@ import {
   getFromTTLCache,
   invalidateCacheByTags,
   setTTLCache,
-} from '#/libs_schemas/caches/cacheEngine';
+} from '#libs-schemas/caches/cacheEngine';
 
 // do not init socket at module load; obtain lazily inside handlers
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { QuickInfoCard } from "#comp-hooks/ui/reusable-ui/CickableStatCard";
-import { useAuth } from "#/libs_schemas/context/auth-context";
+import { useAuth } from "#libs-schemas/context/auth-context";
 import { User, Clock, MailIcon, type LucideIcon, MegaphoneIcon, Users, InboxIcon, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import {
@@ -13,7 +13,7 @@ import {
   UpcomingEventsCard,
 } from "#comp-hooks/cards";
 import { useMentorDashboard, useMentorshipRequests } from "#comp-hooks/hooks/mentor";
-import { useSocketContext } from "#/libs_schemas/context/socket-context";
+import { useSocketContext } from "#libs-schemas/context/socket-context";
 
 const statsIcons: LucideIcon[] = [User, MailIcon, Clock];
 

@@ -12,7 +12,7 @@ import {
   Video,
 } from "lucide-react";
 import { useMentorMeetings } from "#comp-hooks/hooks/mentor";
-import { useSocketContext } from "#/libs_schemas/context/socket-context";
+import { useSocketContext } from "#libs-schemas/context/socket-context";
 
 const DAYS = [
   "MONDAY",

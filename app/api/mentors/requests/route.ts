@@ -1,11 +1,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import {  errorResponse } from '#utils-types/utils/api-response';
-import {requireAuth, checkPermission } from '#/libs_schemas/middlewares/auth.middleware';
+import {requireAuth, checkPermission } from '#libs-schemas/middlewares/auth.middleware';
 import { getMentorshipRequests} from '#services/mentorship-requests.service';
 import { RequestStatus } from '#/prisma/generated/prisma/enums';
-import { clearPermissionsCache } from '#/libs_schemas/abac/engine';
-import { CacheTTL, buildCacheKey, getFromTTLCache, setTTLCache } from '#/libs_schemas/caches/cacheEngine';
+import { clearPermissionsCache } from '#libs-schemas/abac/engine';
+import { CacheTTL, buildCacheKey, getFromTTLCache, setTTLCache } from '#libs-schemas/caches/cacheEngine';
 
 // fetch all mentorship requests send to a mentor
 export async function GET(request: NextRequest) {

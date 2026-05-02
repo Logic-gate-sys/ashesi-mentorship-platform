@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '#utils-types/utils/db'
-import { requireAuth, requirePermission } from '#/libs_schemas/middlewares/auth.middleware'
-import { updateProfileSchema } from '#/libs_schemas/schemas/auth.schema'
+import { requireAuth, requirePermission } from '#libs-schemas/middlewares/auth.middleware'
+import { updateProfileSchema } from '#libs-schemas/schemas/auth.schema'
 import { ZodError } from 'zod'
 
 /**

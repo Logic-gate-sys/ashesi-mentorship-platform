@@ -8,14 +8,14 @@ import { StatusRequestCard } from "#comp-hooks/cards/RequestStatusCard";
 import { MentorDetailCard } from "#comp-hooks/cards/MentorDetails";
 import { useMenteeDashboard } from "#/components_hooks/hooks/mentee/useMenteeDashboard";
 import { useMentors } from "#/components_hooks/hooks/mentee/useMentors";
-import { useSocketContext } from "#/libs_schemas/context/socket-context";
+import { useSocketContext } from "#libs-schemas/context/socket-context";
 
 export default function MenteeRequestPage() {
   const { pendingRequests, requestHistory, recentUpdates, refresh } = useMenteeDashboard();
   const { availableMentors, isLoading: mentorsLoading, error: mentorsError } = useMentors({ page: 1, limit: 20 });
   const socketContext = useSocketContext();
   const socket = socketContext?.socket ?? null;
-  const isConnected = socket != null;
+  const isConnected = socket?.connected ?? false;
 
   const [filter, setFilter] = useState("");
 

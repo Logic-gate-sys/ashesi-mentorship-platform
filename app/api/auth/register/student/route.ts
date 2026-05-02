@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '#utils-types/utils/db'
 import { createJWT } from '#utils-types/utils/jwt'
 import { hashPassword } from '#utils-types/utils/password'
-import { studentRegisterSchema } from '#/libs_schemas/schemas/auth.schema'
+import { studentRegisterSchema } from '#libs-schemas/schemas/auth.schema'
 import { Role } from '#/prisma/generated/prisma/enums'
-import { uploadMedia } from '#/libs_schemas/media_upload/cloudinary'
+import { uploadMedia } from '#libs-schemas/media_upload/cloudinary'
 
 
 

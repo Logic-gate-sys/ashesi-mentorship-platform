@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse} from 'next/server';
 import { errorResponse } from '#utils-types/utils/api-response';
-import { checkPermission, requireAuth } from '#/libs_schemas/middlewares/auth.middleware';
+import { checkPermission, requireAuth } from '#libs-schemas/middlewares/auth.middleware';
 import {getCurrentMentorshipCycle} from '#services/mentorship-cycle.service'
 
 //get current mentorship cycle

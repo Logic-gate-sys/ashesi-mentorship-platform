@@ -5,8 +5,8 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input, Button } from "#comp-hooks/ui/_index";
-import { validateStrongPassword } from "#/libs_schemas/schemas/auth.schema";
-import { useAuth } from "#/libs_schemas/context/auth-context";
+import { validateStrongPassword } from "#libs-schemas/schemas/auth.schema";
+import { useAuth } from "#libs-schemas/context/auth-context";
 import { EyeIcon, ErrorIcon } from "#comp-hooks/ui/icons";
 import { PasswordStrengthIndicator } from "#comp-hooks/ui/reusable-ui/PasswordStrenght";
 

@@ -1,16 +1,16 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '#utils-types/utils/db';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
-import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
+import { extractUserFromRequest } from '#libs-schemas/middlewares/auth.middleware';
 import { z } from 'zod';
-import { uploadMedia } from '#/libs_schemas/media_upload/cloudinary';
+import { uploadMedia } from '#libs-schemas/media_upload/cloudinary';
 import {
   CacheTTL,
   buildCacheKey,
   getFromTTLCache,
   invalidateCacheByTags,
   setTTLCache,
-} from '#/libs_schemas/caches/cacheEngine';
+} from '#libs-schemas/caches/cacheEngine';
 
 const cloudinaryHeadshotUrlSchema = z
   .string()

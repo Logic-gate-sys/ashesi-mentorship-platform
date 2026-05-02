@@ -14,7 +14,7 @@
 
 import { NextRequest } from 'next/server';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
-import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
+import { extractUserFromRequest } from '#libs-schemas/middlewares/auth.middleware';
 import {
   getSessionFeedback,
   createSessionFeedback,
@@ -27,7 +27,7 @@ import {
   getFromTTLCache,
   invalidateCacheByTags,
   setTTLCache,
-} from '#/libs_schemas/caches/cacheEngine';
+} from '#libs-schemas/caches/cacheEngine';
 
 /**
  * GET - Get feedback for a session

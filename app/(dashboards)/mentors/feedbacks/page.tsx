@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import Image from "next/image";
 import { RefreshCw, Star, Users, CalendarCheck2, MessageSquareText } from "lucide-react";
 import { useMentorFeedback } from "#comp-hooks/hooks/mentor";
-import { useSocketContext } from "#/libs_schemas/context/socket-context";
+import { useSocketContext } from "#libs-schemas/context/socket-context";
 
 const STAR_FILL = "#6A0A1D";
 

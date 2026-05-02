@@ -5,9 +5,9 @@ import Link from "next/link";
 import { Clock, MailIcon, MegaphoneIcon, User, type LucideIcon, InboxIcon, AlertCircle } from "lucide-react";
 import { QuickInfoCard } from "#comp-hooks/ui/reusable-ui/CickableStatCard";
 import { PendingRequestCard, UpdatesCard, UpcomingEventsCard } from "#comp-hooks/cards";
-import { useAuth } from "#/libs_schemas/context/auth-context";
+import { useAuth } from "#libs-schemas/context/auth-context";
 import { useMenteeDashboard } from "#comp-hooks/hooks/mentee/useMenteeDashboard";
-import { useSocketContext } from "#/libs_schemas/context/socket-context";
+import { useSocketContext } from "#libs-schemas/context/socket-context";
 
 const statsIcons: LucideIcon[] = [User, MailIcon, Clock];
 

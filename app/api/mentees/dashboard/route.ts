@@ -1,10 +1,10 @@
 
 import { NextRequest } from 'next/server';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
-import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
+import { extractUserFromRequest } from '#libs-schemas/middlewares/auth.middleware';
 import { getMenteeDashboardOverview } from '#services/mentee-metrics.service';
 import { prisma } from '#utils-types/utils/db';
-import { CacheTTL, buildCacheKey, getFromTTLCache, setTTLCache } from '#/libs_schemas/caches/cacheEngine';
+import { CacheTTL, buildCacheKey, getFromTTLCache, setTTLCache } from '#libs-schemas/caches/cacheEngine';
 
 export async function GET(request: NextRequest) {
   try {

@@ -8,7 +8,7 @@
 
 import { NextRequest } from 'next/server';
 import { successResponse, errorResponse } from '#utils-types/utils/api-response';
-import { extractUserFromRequest } from '#/libs_schemas/middlewares/auth.middleware';
+import { extractUserFromRequest } from '#libs-schemas/middlewares/auth.middleware';
 import { getMentorSessions, createSession, getUpcomingMentorSessions } from '#services/sessions.service';
 import { prisma } from '#utils-types/utils/db';
 import { SessionStatus } from '#/prisma/generated/prisma/client';
@@ -18,7 +18,7 @@ import {
   getFromTTLCache,
   invalidateCacheByTags,
   setTTLCache,
-} from '#/libs_schemas/caches/cacheEngine';
+} from '#libs-schemas/caches/cacheEngine';
 
 /**
  * GET - List sessions with optional filters

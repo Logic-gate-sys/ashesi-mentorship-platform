@@ -1,0 +1,18 @@
+# LOGIN
+docker login --username logic-gate-sys --password PAT_TOKEN ghcr.io
+
+ # Tag an already built image 
+docker tag mentor-app-mentor-app ghcr.io/logic-gate-sys/ashesi-mentorship-platform:latest
+
+ # BUILD DOCKER IMAGE
+ docker build -t ghcr.io/logic-gate-sys/mentor-app:v1
+
+ # PUSH BUILT IMAGE TO GHCR
+ docker push ghcr.io/logic-gate-sys/mentor-app:v1
+ 
+ # :::::::::::::::::::USING COMPOSE::::::::::::::::
+1. create image field as a sibling of build e.g 
+     image: ghcr.io/logic-gate-sys/mentor-app:v1 
+     dockerfile: Dockerfile
+2. docker compose build  
+3. docker compose push 

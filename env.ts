@@ -47,7 +47,8 @@ try {
       console.error(`  ${path}: ${err.message}`)
     })
 
-    process.exit(1)
+    // throw
+    throw new Error('Failed to validate env fields', e);
   }
   throw e
 }

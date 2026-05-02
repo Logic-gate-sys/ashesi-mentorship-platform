@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse} from 'next/server';
 import { errorResponse } from '#utils-types/utils/api-response';
-import { checkPermission, requireAuth } from '#/libs_schemas/middlewares/auth.middleware';
+import { checkPermission, requireAuth } from '#libs-schemas/middlewares/auth.middleware';
 import {getAllMentors} from '#services/mentor.service'
-import { CacheTTL, buildCacheKey, getFromTTLCache, setTTLCache } from '#/libs_schemas/caches/cacheEngine';
+import { CacheTTL, buildCacheKey, getFromTTLCache, setTTLCache } from '#libs-schemas/caches/cacheEngine';
 
 //get all available mentors 
 export async function GET( req: NextRequest) {

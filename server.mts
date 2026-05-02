@@ -1,5 +1,12 @@
+process.on('uncaughtException', (err) => {
+  console.error('REAL ERROR:', err.stack); // shows exact file + line
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('UNHANDLED:', reason);
+});
+
 import { createServer } from "http";
-import { initSocketNameSpaces } from "#libs-schemas/socket/index";
+import { initIO } from "#libs-schemas/socket/index";
 import next from "next";
 import {env } from './env'; 
 
@@ -14,7 +21,7 @@ const handler = app.getRequestHandler();
 app.prepare().then(() => {
   const httpServer = createServer(handler);
   //initialise socket
-  initSocketNameSpaces(httpServer);
+  initIO(httpServer);
 
   httpServer.once("error", (err) => {
       console.error(err);

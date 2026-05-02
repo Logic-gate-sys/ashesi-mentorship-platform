@@ -5,10 +5,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx --watch server.ts ",
-    "build": "next build && tsup server.ts --out-dir dist --format esm",
-    "start": "NODE_ENV=production node dist/server.ts",
-    "lint": "eslint",
+    "dev": "TURBOPACK=0 tsx --watch server.mts",
+    "build": "next build",
+    "start": "NODE_ENV=production tsx server.mts",
+    "lint": "next lint",
     "unit:tests": "vitest --project unit-tests --coverage --watch",
     "integration:tests": "vitest --project integration-tests --coverage --watch",
     "component:tests": "vitest --project component-tests --coverage ",
@@ -27,7 +27,7 @@
     "dotenv": "^17.3.1",
     "jose": "^6.2.2",
     "lucide-react": "^0.577.0",
-    "next": "16.1.6",
+    "next": "^15.3.2",
     "pg": "^8.20.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -49,7 +49,7 @@
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-v8": "^4.1.0",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "^15.3.2",
     "jsdom": "^29.0.1",
     "prisma": "^7.5.0",
     "socket.io-client": "^4.8.3",
@@ -60,5 +60,9 @@
     "typescript": "^5",
     "vitest": "^4.1.0",
     "zod": "^3.22.4"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.1.0",
+    "utf-8-validate": "^6.0.6"
   }
 }

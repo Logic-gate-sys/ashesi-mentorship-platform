@@ -1,4 +1,4 @@
-import { SocketProvider } from "#/libs_schemas/context/socket-context";
+import { SocketProvider } from "#libs-schemas/context/socket-context";
 
 export default function FeedbacksLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

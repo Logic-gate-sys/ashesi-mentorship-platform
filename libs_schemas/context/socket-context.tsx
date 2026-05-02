@@ -1,9 +1,9 @@
 'use client'
-import { createContext, useContext, ReactNode, useEffect, useRef, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { createContext, useContext, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import type { Socket } from 'socket.io-client';
 import { useAuth } from './auth-context';
 
-const port = process.env.NEXT_PUBLIC_SOCKET_PORT || 3000;
+const SOCKET_PATH = process.env.NEXT_PUBLIC_SOCKET_PATH || '/soc/socket.io';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -29,29 +29,51 @@ export const SocketProvider = ({ children, namespace }: SocketProps) => {
   const heartbeatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastErrorRef = useRef<string | null>(null);
+  const accessToken = getAccessToken();
+
+  const socketUrl = useMemo(() => {
+    if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+      return process.env.NEXT_PUBLIC_SOCKET_URL;
+    }
+
+    if (typeof window !== 'undefined') {
+      return window.location.origin;
+    }
+
+    return undefined;
+  }, []);
 
   useEffect(() => {
-    const token = getAccessToken();
-    if (!token) {
+    if (!accessToken) {
       console.warn('[Socket] No auth token available, skipping connection');
       return;
     }
 
-    const createSocket = () => {
+    let socket: Socket;
+    let cancelled = false;
+
+    const createSocket = async () => {
       try {
-        const socket = io(`http://localhost:${port}${namespace}`, {
-          auth: { token },
+        const { io } = await import('socket.io-client');
+
+        if (cancelled) {
+          return;
+        }
+
+        socket = io(socketUrl, {
+          auth: { token: accessToken },
+          path: SOCKET_PATH,
           transports: ['websocket', 'polling'],
-          path: '/soc/socket/io',
           reconnection: true,
-          reconnectionDelay: Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000),
-          reconnectionDelayMax: 30000,
+          reconnectionDelay: Math.min(750 * Math.max(1, reconnectAttemptsRef.current + 1), 8000),
+          reconnectionDelayMax: 8000,
           reconnectionAttempts: maxReconnectAttemptsRef.current,
-          ackTimeout: 10000,
-          timeout: 20000,
+          timeout: 10000,
+          autoConnect: true,
+          withCredentials: true,
+          forceNew: true,
         });
 
-        // Connection established
         socket.on('connect', () => {
           console.log(`[Socket] ✅ Connected to namespace: ${namespace}`);
           setIsOn(true);
@@ -65,98 +87,87 @@ export const SocketProvider = ({ children, namespace }: SocketProps) => {
           setupHeartbeat(socket);
         });
 
-        // Connection error - with exponential backoff logging
-        socket.on('connect_error', (error: Error | { message: string }) => {
-          const message = error instanceof Error ? error.message : (error?.message || 'Unknown error');
+        socket.on('connect_error', (error: Error) => {
+          const message = error?.message ?? 'Unknown error';
           lastErrorRef.current = message;
           console.warn(`[Socket] ⚠️ Connection error on ${namespace} (attempt ${reconnectAttemptsRef.current + 1}/${maxReconnectAttemptsRef.current}):`, message);
           setIsOn(false);
+          setIsConnecting(true);
           reconnectAttemptsRef.current += 1;
-          
-          // Set timeout to detect persistent failures
-          if (connectionTimeoutRef.current) {
-            clearTimeout(connectionTimeoutRef.current);
-          }
+
+          if (connectionTimeoutRef.current) clearTimeout(connectionTimeoutRef.current);
           connectionTimeoutRef.current = setTimeout(() => {
             if (!socket.connected) {
-              console.error(`[Socket] ❌ Failed to connect after ${reconnectAttemptsRef.current} attempts. Last error: ${lastErrorRef.current}`);
+              console.error(`[Socket] ❌ Failed after ${reconnectAttemptsRef.current} attempts. Last error: ${lastErrorRef.current}`);
             }
           }, 5000);
         });
 
-        // Disconnected
         socket.on('disconnect', (reason: string) => {
           console.log(`[Socket] 🔌 Disconnected from ${namespace}. Reason: ${reason}`);
           setIsOn(false);
+          setIsConnecting(false);
           if (heartbeatTimeoutRef.current) {
             clearTimeout(heartbeatTimeoutRef.current);
             heartbeatTimeoutRef.current = null;
           }
-          // Auto-reconnect on unexpected disconnects
-          if (reason === 'io server disconnect' || reason === 'transport close') {
-            console.log(`[Socket] 🔄 Attempting automatic reconnection...`);
-            setTimeout(() => socket.connect(), 1000);
-          }
         });
 
-        // Connecting state
-        socket.on('connect_attempt', () => {
-          console.debug(`[Socket] 🔗 Connection attempt ${reconnectAttemptsRef.current + 1}...`);
+        socket.io.on('reconnect_attempt', () => {
           setIsConnecting(true);
+          console.debug(`[Socket] 🔗 Reconnect attempt ${reconnectAttemptsRef.current + 1} for ${namespace}`);
         });
 
-        // Error event
-        socket.on('error', (error: Error | { message: string }) => {
-          const message = error instanceof Error ? error.message : (error?.message || 'Unknown error');
+        socket.io.on('reconnect', () => {
+          setIsConnecting(false);
+          reconnectAttemptsRef.current = 0;
+        });
+
+        socket.io.on('reconnect_error', (error) => {
+          const message = error instanceof Error ? error.message : 'Unknown reconnect error';
           lastErrorRef.current = message;
-          console.error(`[Socket] ❌ Socket error on ${namespace}:`, message);
+          console.warn(`[Socket] ⚠️ Reconnect error on ${namespace}:`, message);
+        });
+
+        socket.on('error', (error: Error) => {
+          lastErrorRef.current = error?.message ?? 'Unknown error';
+          console.error(`[Socket] ❌ Socket error on ${namespace}:`, lastErrorRef.current);
         });
 
         socketRef.current = socket;
         setSocketInstance(socket);
-
-        return socket;
+        setIsConnecting(true);
       } catch (error) {
         console.error(`[Socket] Failed to create socket:`, error);
-        return null;
       }
     };
 
-    const setupHeartbeat = (socket: Socket) => {
-      if (heartbeatTimeoutRef.current) {
-        clearTimeout(heartbeatTimeoutRef.current);
-      }
-
+    const setupHeartbeat = (s: Socket) => {
+      if (heartbeatTimeoutRef.current) clearTimeout(heartbeatTimeoutRef.current);
       heartbeatTimeoutRef.current = setTimeout(() => {
-        if (socket.connected) {
-          socket.emit('ping', () => {
-            console.log('[Socket] 💓 Heartbeat acknowledged');
-            setupHeartbeat(socket);
+        if (s.connected) {
+          s.emit('ping', () => {
+            setupHeartbeat(s);
           });
         }
-      }, 30000); // 30 second heartbeat interval
+      }, 30000);
     };
 
     createSocket();
 
-    // Cleanup
     return () => {
-      if (heartbeatTimeoutRef.current) {
-        clearTimeout(heartbeatTimeoutRef.current);
-        heartbeatTimeoutRef.current = null;
-      }
-      if (connectionTimeoutRef.current) {
-        clearTimeout(connectionTimeoutRef.current);
-        connectionTimeoutRef.current = null;
-      }
+      cancelled = true;
+      if (heartbeatTimeoutRef.current) clearTimeout(heartbeatTimeoutRef.current);
+      if (connectionTimeoutRef.current) clearTimeout(connectionTimeoutRef.current);
       if (socketRef.current) {
+        socketRef.current.removeAllListeners();
+        socketRef.current.io.removeAllListeners();
         socketRef.current.disconnect();
         setSocketInstance(null);
         socketRef.current = null;
-        console.log(`[Socket] 🔌 Cleaned up namespace: ${namespace}`);
       }
     };
-  }, [getAccessToken, namespace, user?.id]);
+  }, [accessToken, namespace, socketUrl, user?.id]);
 
   return (
     <SocketContext.Provider value={{ socket: socketInstance ?? null, isOn, isConnecting }}>

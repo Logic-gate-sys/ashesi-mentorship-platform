@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '#utils-types/utils/db';
-import { requireAuth } from '#/libs_schemas/middlewares/auth.middleware';
-import { invalidateCacheByTags } from '#/libs_schemas/caches/cacheEngine';
+import { requireAuth } from '#libs-schemas/middlewares/auth.middleware';
+import { invalidateCacheByTags } from '#libs-schemas/caches/cacheEngine';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
